@@ -1,0 +1,9 @@
+export { Colossus } from '@civ-clone/base-wonder-colossus/Colossus';
+export { CopernicusObservatory } from '@civ-clone/base-wonder-copernicus-observatory/CopernicusObservatory';
+export { GreatLibrary } from '@civ-clone/base-wonder-great-library/GreatLibrary';
+export { GreatWall } from '@civ-clone/base-wonder-great-wall/GreatWall';
+export { HangingGardens } from '@civ-clone/base-wonder-hanging-gardens/HangingGardens';
+export { Lighthouse } from '@civ-clone/base-wonder-lighthouse/Lighthouse';
+export { MagellansExpedition } from '@civ-clone/base-wonder-magellans-expedition/MagellansExpedition';
+export { Oracle } from '@civ-clone/base-wonder-oracle/Oracle';
+export { Pyramids } from '@civ-clone/base-wonder-pyramids/Pyramids';

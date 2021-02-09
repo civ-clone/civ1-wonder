@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Pyramids = exports.Oracle = exports.MagellansExpedition = exports.Lighthouse = exports.HangingGardens = exports.GreatWall = exports.GreatLibrary = exports.CopernicusObservatory = exports.Colossus = void 0;
+var Colossus_1 = require("@civ-clone/base-wonder-colossus/Colossus");
+Object.defineProperty(exports, "Colossus", { enumerable: true, get: function () { return Colossus_1.Colossus; } });
+var CopernicusObservatory_1 = require("@civ-clone/base-wonder-copernicus-observatory/CopernicusObservatory");
+Object.defineProperty(exports, "CopernicusObservatory", { enumerable: true, get: function () { return CopernicusObservatory_1.CopernicusObservatory; } });
+var GreatLibrary_1 = require("@civ-clone/base-wonder-great-library/GreatLibrary");
+Object.defineProperty(exports, "GreatLibrary", { enumerable: true, get: function () { return GreatLibrary_1.GreatLibrary; } });
+var GreatWall_1 = require("@civ-clone/base-wonder-great-wall/GreatWall");
+Object.defineProperty(exports, "GreatWall", { enumerable: true, get: function () { return GreatWall_1.GreatWall; } });
+var HangingGardens_1 = require("@civ-clone/base-wonder-hanging-gardens/HangingGardens");
+Object.defineProperty(exports, "HangingGardens", { enumerable: true, get: function () { return HangingGardens_1.HangingGardens; } });
+var Lighthouse_1 = require("@civ-clone/base-wonder-lighthouse/Lighthouse");
+Object.defineProperty(exports, "Lighthouse", { enumerable: true, get: function () { return Lighthouse_1.Lighthouse; } });
+var MagellansExpedition_1 = require("@civ-clone/base-wonder-magellans-expedition/MagellansExpedition");
+Object.defineProperty(exports, "MagellansExpedition", { enumerable: true, get: function () { return MagellansExpedition_1.MagellansExpedition; } });
+var Oracle_1 = require("@civ-clone/base-wonder-oracle/Oracle");
+Object.defineProperty(exports, "Oracle", { enumerable: true, get: function () { return Oracle_1.Oracle; } });
+var Pyramids_1 = require("@civ-clone/base-wonder-pyramids/Pyramids");
+Object.defineProperty(exports, "Pyramids", { enumerable: true, get: function () { return Pyramids_1.Pyramids; } });
+//# sourceMappingURL=Wonders.js.map
