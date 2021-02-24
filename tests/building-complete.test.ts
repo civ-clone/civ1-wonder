@@ -9,12 +9,21 @@ import build from '../Rules/City/build';
 import buildCost from '../Rules/City/build-cost';
 import buildingComplete from '../Rules/City/building-complete';
 import { expect } from 'chai';
+import {
+  instance as playerResearchRegistryInstance,
+  PlayerResearchRegistry,
+} from '@civ-clone/core-science/PlayerResearchRegistry';
 import setUpCity from '@civ-clone/core-city/tests/lib/setUpCity';
+import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
+import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
+import { BronzeWorking } from '@civ-clone/civ1-science/Advances';
 
 describe('city:building-complete', (): void => {
   it('should clear the building progress when the wonder is completed elsewhere', (): void => {
-    const availableCityBuildItemsRegistry = new AvailableCityBuildItemsRegistry(),
+    const advanceRegistry = new AdvanceRegistry(),
+      availableCityBuildItemsRegistry = new AvailableCityBuildItemsRegistry(),
       cityBuildRegistry = new CityBuildRegistry(),
+      playerResearchRegistry = new PlayerResearchRegistry(),
       ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
       city = setUpCity(),
@@ -27,11 +36,22 @@ describe('city:building-complete', (): void => {
         city,
         availableCityBuildItemsRegistry,
         ruleRegistry
+      ),
+      playerResearch = new PlayerResearch(
+        city.player(),
+        advanceRegistry,
+        ruleRegistry
       );
+
+    advanceRegistry.register(BronzeWorking);
+
+    playerResearchRegistry.register(playerResearch);
+
+    playerResearch.addAdvance(BronzeWorking);
 
     cityBuildRegistry.register(cityBuild1, cityBuild2);
     ruleRegistry.register(
-      ...build(wonderRegistry),
+      ...build(playerResearchRegistry, wonderRegistry),
       ...buildCost(),
       ...buildingComplete(cityBuildRegistry, wonderRegistry)
     );
