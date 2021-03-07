@@ -14,7 +14,6 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
             .map((greatLibrary) => greatLibrary.player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
         return !owningPlayerResearch.completed(completedResearch.constructor);
     }), new Effect_1.default((playerResearch, completedResearch) => {
-        console.log('here1');
         const [owningPlayer] = wonderRegistry
             .filter((wonder) => wonder instanceof Wonders_1.GreatLibrary)
             .map((greatLibrary) => greatLibrary.player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);

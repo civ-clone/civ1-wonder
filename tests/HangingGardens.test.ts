@@ -14,12 +14,12 @@ import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import Yield from '@civ-clone/core-yield/Yield';
 
 describe('HangingGardens', (): void => {
-  it('should provide one additional Happiness in the city', (): void => {
+  it('should provide one additional Happiness in the city', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
       tileImprovementRegistry = new TileImprovementRegistry(),
       cityImprovementRegistry = new CityImprovementRegistry(),
-      city = setUpCity({
+      city = await setUpCity({
         ruleRegistry,
         size: 5,
         tileImprovementRegistry,
@@ -56,14 +56,14 @@ describe('HangingGardens', (): void => {
     expect(updatedHappinessYield.value()).to.equal(1);
   });
 
-  it('should not provide one additional Happiness in the city once Invention is discovered', (): void => {
+  it('should not provide one additional Happiness in the city once Invention is discovered', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       playerResearchRegistry = new PlayerResearchRegistry(),
       wonderRegistry = new WonderRegistry(),
       tileImprovementRegistry = new TileImprovementRegistry(),
       advanceRegistry = new AdvanceRegistry(),
       cityImprovementRegistry = new CityImprovementRegistry(),
-      city = setUpCity({
+      city = await setUpCity({
         ruleRegistry,
         size: 5,
         tileImprovementRegistry,
@@ -99,12 +99,12 @@ describe('HangingGardens', (): void => {
     expect(updatedHappinessYield.value()).to.equal(0);
   });
 
-  it('should provide one additional Happiness in all cities the building player owns', (): void => {
+  it('should provide one additional Happiness in all cities the building player owns', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
       tileImprovementRegistry = new TileImprovementRegistry(),
       cityImprovementRegistry = new CityImprovementRegistry(),
-      city = setUpCity({
+      city = await setUpCity({
         ruleRegistry,
         size: 5,
         tileImprovementRegistry,

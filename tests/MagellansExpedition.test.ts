@@ -9,11 +9,11 @@ import unitYield from '@civ-clone/civ1-unit/Rules/Unit/yield';
 import wonderUnitYield from '../Rules/Unit/yield';
 
 describe('MagellansExpedition', (): void => {
-  it('should provide an additional move for NavalUnits', (): void => {
+  it('should provide an additional move for NavalUnits', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
       player = new Player(ruleRegistry),
-      city = setUpCity({
+      city = await setUpCity({
         player,
         ruleRegistry,
       });

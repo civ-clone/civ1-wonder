@@ -13,20 +13,20 @@ import {
   instance as playerResearchRegistryInstance,
   PlayerResearchRegistry,
 } from '@civ-clone/core-science/PlayerResearchRegistry';
-import setUpCity from '@civ-clone/core-city/tests/lib/setUpCity';
+import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import { BronzeWorking } from '@civ-clone/civ1-science/Advances';
 
 describe('city:building-complete', (): void => {
-  it('should clear the building progress when the wonder is completed elsewhere', (): void => {
+  it('should clear the building progress when the wonder is completed elsewhere', async (): Promise<void> => {
     const advanceRegistry = new AdvanceRegistry(),
       availableCityBuildItemsRegistry = new AvailableCityBuildItemsRegistry(),
       cityBuildRegistry = new CityBuildRegistry(),
       playerResearchRegistry = new PlayerResearchRegistry(),
       ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
-      city = setUpCity(),
+      city = await setUpCity(),
       cityBuild1 = new CityBuild(
         city,
         availableCityBuildItemsRegistry,

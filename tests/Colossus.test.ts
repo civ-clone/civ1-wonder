@@ -12,7 +12,7 @@ import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import tileYield from '@civ-clone/civ1-world/Rules/Tile/yield';
 
 describe('Colossus', (): void => {
-  it('should provide one additional trade per tile with trade already on in the city that builds it', (): void => {
+  it('should provide one additional trade per tile with trade already on in the city that builds it', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
       tileImprovementRegistry = new TileImprovementRegistry(),
@@ -28,7 +28,7 @@ describe('Colossus', (): void => {
       ...tileYield(tileImprovementRegistry)
     );
 
-    const city = setUpCity({
+    const city = await setUpCity({
       ruleRegistry,
       size: 5,
       tileImprovementRegistry,

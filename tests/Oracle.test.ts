@@ -18,13 +18,13 @@ import { expect } from 'chai';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 
 describe('Oracle', (): void => {
-  it('should reduce Unhappiness by two in a city with a temple', (): void => {
+  it('should reduce Unhappiness by two in a city with a temple', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
       tileImprovementRegistry = new TileImprovementRegistry(),
       cityGrowthRegistry = new CityGrowthRegistry(),
       cityImprovementRegistry = new CityImprovementRegistry(),
-      city = setUpCity({
+      city = await setUpCity({
         cityGrowthRegistry,
         ruleRegistry,
         size: 9,

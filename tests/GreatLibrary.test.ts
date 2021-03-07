@@ -11,7 +11,7 @@ import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 
 describe('GreatLibrary', (): void => {
-  it('should grant a technology to the player when three other players have discovered it', (): void => {
+  it('should grant a technology to the player when three other players have discovered it', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       advanceRegistry = new AdvanceRegistry(),
       wonderRegistry = new WonderRegistry(),
@@ -25,7 +25,7 @@ describe('GreatLibrary', (): void => {
         (player: Player): PlayerResearch =>
           new PlayerResearch(player, advanceRegistry, ruleRegistry)
       ),
-      city = setUpCity({
+      city = await setUpCity({
         player: player1Research.player(),
         ruleRegistry,
       });

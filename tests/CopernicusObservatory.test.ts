@@ -7,9 +7,10 @@ import WonderRegistry from '@civ-clone/core-wonder/WonderRegistry';
 import cityYield from '../Rules/City/yield';
 import { expect } from 'chai';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
+import Yield from '@civ-clone/core-yield/Yield';
 
 describe('CopernicusObservatory', (): void => {
-  it('should double the Research production in the city', (): void => {
+  it('should double the Research production in the city', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
       cityImprovementRegistry = new CityImprovementRegistry(),
@@ -23,11 +24,11 @@ describe('CopernicusObservatory', (): void => {
       )
     );
 
-    const city = setUpCity({
+    const city = await setUpCity({
       ruleRegistry,
     });
 
-    city.tile().yields = (): void => [new Research(5)];
+    city.tile().yields = (): Yield[] => [new Research(5)];
 
     const [researchYield] = city.yields([Research]);
 

@@ -52,7 +52,6 @@ export const getRules: (
     ),
     new Effect(
       (playerResearch: PlayerResearch, completedResearch: Advance): void => {
-        console.log('here1');
         const [owningPlayer] = wonderRegistry
             .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
             .map((greatLibrary: GreatLibrary): Player => greatLibrary.player()),

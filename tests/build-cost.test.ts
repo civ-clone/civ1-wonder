@@ -18,10 +18,10 @@ import { expect } from 'chai';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 
 describe('city:build-cost', (): void => {
-  it('should cost expected amount of production to build wonders', (): void => {
+  it('should cost expected amount of production to build wonders', async (): Promise<void> => {
     const availableCityBuildItemsRegistry = new AvailableCityBuildItemsRegistry(),
       ruleRegistry = new RuleRegistry(),
-      city = setUpCity(),
+      city = await setUpCity(),
       cityBuild = new CityBuild(
         city,
         availableCityBuildItemsRegistry,
