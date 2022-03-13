@@ -17,6 +17,7 @@ import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import { BronzeWorking } from '@civ-clone/civ1-science/Advances';
+import Buildable from '@civ-clone/core-city-build/Buildable';
 
 describe('city:building-complete', (): void => {
   it('should clear the building progress when the wonder is completed elsewhere', async (): Promise<void> => {
@@ -55,12 +56,14 @@ describe('city:building-complete', (): void => {
       ...buildCost(),
       ...buildingComplete(cityBuildRegistry, wonderRegistry)
     );
-    availableCityBuildItemsRegistry.register(Colossus);
-    cityBuild1.build(Colossus);
-    cityBuild2.build(Colossus);
+    availableCityBuildItemsRegistry.register(
+      Colossus as unknown as typeof Buildable
+    );
+    cityBuild1.build(Colossus as unknown as typeof Buildable);
+    cityBuild2.build(Colossus as unknown as typeof Buildable);
 
-    expect(cityBuild1.building()).to.equal(Colossus);
-    expect(cityBuild2.building()).to.equal(Colossus);
+    expect(cityBuild1.building()!.item()).to.equal(Colossus);
+    expect(cityBuild2.building()!.item()).to.equal(Colossus);
 
     cityBuild1.add(new Production(200));
     cityBuild2.add(new Production(200));

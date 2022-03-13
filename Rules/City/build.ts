@@ -2,23 +2,46 @@ import {
   Astronomy,
   BronzeWorking,
   CeremonialBurial,
+  Communism,
+  Computers,
+  Electronics,
+  GeneticEngineering,
+  Industrialization,
   Literacy,
   MapMaking,
   Masonry,
+  Medicine,
   Navigation,
+  NuclearFission,
   Pottery,
+  Railroad,
+  Religion,
+  SpaceFlight,
+  TheoryOfGravity,
 } from '@civ-clone/civ1-science/Advances';
 import { Build, IBuildCriterion } from '@civ-clone/core-city-build/Rules/Build';
 import {
+  ApolloProgram,
   Colossus,
   CopernicusObservatory,
+  CureForCancer,
+  DarwinsVoyage,
   GreatLibrary,
   GreatWall,
   HangingGardens,
+  HooverDam,
+  IsaacNewtonsCollege,
+  JsBachsCathedral,
   Lighthouse,
   MagellansExpedition,
+  ManhattanProject,
+  MichelangelosChapel,
   Oracle,
   Pyramids,
+  SetiProgram,
+  ShakespearesTheatre,
+  UnitedNations,
+  WomensSuffrage,
 } from '../../Wonders';
 import {
   PlayerResearchRegistry,
@@ -57,17 +80,31 @@ export const getRules: (
     )
   ),
 
-  ...([
-    [Colossus, BronzeWorking],
-    [CopernicusObservatory, Astronomy],
-    [GreatLibrary, Literacy],
-    [GreatWall, Masonry],
-    [HangingGardens, Pottery],
-    [Lighthouse, MapMaking],
-    [MagellansExpedition, Navigation],
-    [Oracle, CeremonialBurial],
-    [Pyramids, Masonry],
-  ] as [typeof Wonder, typeof Advance][]).map(
+  ...(
+    [
+      [Colossus, BronzeWorking],
+      [CopernicusObservatory, Astronomy],
+      [GreatLibrary, Literacy],
+      [GreatWall, Masonry],
+      [HangingGardens, Pottery],
+      [Lighthouse, MapMaking],
+      [MagellansExpedition, Navigation],
+      [Oracle, CeremonialBurial],
+      [Pyramids, Masonry],
+      [ApolloProgram, SpaceFlight],
+      [CureForCancer, GeneticEngineering],
+      [DarwinsVoyage, Railroad],
+      [HooverDam, Electronics],
+      [IsaacNewtonsCollege, TheoryOfGravity],
+      [JsBachsCathedral, Religion],
+      [ManhattanProject, NuclearFission],
+      [MichelangelosChapel, Religion],
+      [SetiProgram, Computers],
+      [ShakespearesTheatre, Medicine],
+      [UnitedNations, Communism],
+      [WomensSuffrage, Industrialization],
+    ] as [typeof Wonder, typeof Advance][]
+  ).map(
     ([UnitType, RequiredAdvance]): Build =>
       new Build(
         new Criterion(

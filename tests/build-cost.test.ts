@@ -19,7 +19,8 @@ import Wonder from '@civ-clone/core-wonder/Wonder';
 
 describe('city:build-cost', (): void => {
   it('should cost expected amount of production to build wonders', async (): Promise<void> => {
-    const availableCityBuildItemsRegistry = new AvailableCityBuildItemsRegistry(),
+    const availableCityBuildItemsRegistry =
+        new AvailableCityBuildItemsRegistry(),
       ruleRegistry = new RuleRegistry(),
       city = await setUpCity(),
       cityBuild = new CityBuild(
@@ -42,22 +43,22 @@ describe('city:build-cost', (): void => {
 
     ruleRegistry.register(...getRules());
 
-    ([
-      [Colossus, 200],
-      [CopernicusObservatory, 300],
-      [GreatLibrary, 300],
-      [GreatWall, 300],
-      [HangingGardens, 300],
-      [Lighthouse, 200],
-      [MagellansExpedition, 400],
-      [Oracle, 300],
-      [Pyramids, 300],
-    ] as [typeof Wonder, number][]).forEach(
-      ([WonderType, cost]: [typeof Wonder, number]) => {
-        cityBuild.build(WonderType);
+    (
+      [
+        [Colossus, 200],
+        [CopernicusObservatory, 300],
+        [GreatLibrary, 300],
+        [GreatWall, 300],
+        [HangingGardens, 300],
+        [Lighthouse, 200],
+        [MagellansExpedition, 400],
+        [Oracle, 300],
+        [Pyramids, 300],
+      ] as [typeof Wonder, number][]
+    ).forEach(([WonderType, cost]: [typeof Wonder, number]) => {
+      cityBuild.build(WonderType);
 
-        expect(cityBuild.cost().value()).equal(cost);
-      }
-    );
+      expect(cityBuild.cost().value()).equal(cost);
+    });
   });
 });

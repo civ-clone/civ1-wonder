@@ -21,6 +21,18 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
         [Wonders_1.MagellansExpedition, Advances_1.Navigation],
         [Wonders_1.Oracle, Advances_1.CeremonialBurial],
         [Wonders_1.Pyramids, Advances_1.Masonry],
+        [Wonders_1.ApolloProgram, Advances_1.SpaceFlight],
+        [Wonders_1.CureForCancer, Advances_1.GeneticEngineering],
+        [Wonders_1.DarwinsVoyage, Advances_1.Railroad],
+        [Wonders_1.HooverDam, Advances_1.Electronics],
+        [Wonders_1.IsaacNewtonsCollege, Advances_1.TheoryOfGravity],
+        [Wonders_1.JsBachsCathedral, Advances_1.Religion],
+        [Wonders_1.ManhattanProject, Advances_1.NuclearFission],
+        [Wonders_1.MichelangelosChapel, Advances_1.Religion],
+        [Wonders_1.SetiProgram, Advances_1.Computers],
+        [Wonders_1.ShakespearesTheatre, Advances_1.Medicine],
+        [Wonders_1.UnitedNations, Advances_1.Communism],
+        [Wonders_1.WomensSuffrage, Advances_1.Industrialization],
     ].map(([UnitType, RequiredAdvance]) => new Build_1.Build(new Criterion_1.default((city, BuildItem) => BuildItem === UnitType), new Effect_1.default((city) => new Criterion_1.default(() => playerResearchRegistry
         .getByPlayer(city.player())
         .completed(RequiredAdvance))))),

@@ -47,11 +47,13 @@ describe('GreatLibrary', (): void => {
 
     expect(player1Research.completed(Alphabet)).to.false;
 
-    ([
-      [player2Research, false],
-      [player3Research, false],
-      [player4Research, true],
-    ] as [PlayerResearch, boolean][]).forEach(
+    (
+      [
+        [player2Research, false],
+        [player3Research, false],
+        [player4Research, true],
+      ] as [PlayerResearch, boolean][]
+    ).forEach(
       ([playerResearch, expectedCompletion]: [
         PlayerResearch,
         boolean

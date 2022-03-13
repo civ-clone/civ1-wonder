@@ -1,39 +1,60 @@
 import {
+  ApolloProgram,
   Colossus,
   CopernicusObservatory,
+  CureForCancer,
+  DarwinsVoyage,
   GreatLibrary,
   GreatWall,
   HangingGardens,
+  HooverDam,
+  IsaacNewtonsCollege,
+  JsBachsCathedral,
   Lighthouse,
   MagellansExpedition,
+  ManhattanProject,
+  MichelangelosChapel,
   Oracle,
   Pyramids,
+  SetiProgram,
+  ShakespearesTheatre,
+  UnitedNations,
+  WomensSuffrage,
 } from '../../Wonders';
-import BuildCost from '@civ-clone/core-city-build/Rules/BuildCost';
-import Criterion from '@civ-clone/core-rule/Criterion';
-import Effect from '@civ-clone/core-rule/Effect';
-import { IConstructor } from '@civ-clone/core-registry/Registry';
+import {
+  BuildCost,
+  buildCost,
+} from '@civ-clone/core-city-build/Rules/BuildCost';
 import Wonder from '@civ-clone/core-wonder/Wonder';
+import Buildable from '@civ-clone/core-city-build/Buildable';
 
 export const getRules: () => BuildCost[] = (): BuildCost[] => [
-  ...([
-    [Colossus, 200],
-    [CopernicusObservatory, 300],
-    [GreatLibrary, 300],
-    [GreatWall, 300],
-    [HangingGardens, 300],
-    [Lighthouse, 200],
-    [MagellansExpedition, 400],
-    [Oracle, 300],
-    [Pyramids, 300],
-  ] as [typeof Wonder, number][]).map(
-    ([WonderType, cost]: [typeof Wonder, number]): BuildCost =>
-      new BuildCost(
-        new Criterion(
-          (BuildItem: IConstructor): boolean => BuildItem === WonderType
-        ),
-        new Effect((): number => cost)
-      )
+  ...(
+    [
+      [ApolloProgram, 600],
+      [Colossus, 200],
+      [CopernicusObservatory, 300],
+      [CureForCancer, 600],
+      [DarwinsVoyage, 0],
+      [GreatLibrary, 300],
+      [GreatWall, 300],
+      [HangingGardens, 300],
+      [HooverDam, 600],
+      [IsaacNewtonsCollege, 400],
+      [JsBachsCathedral, 400],
+      [Lighthouse, 200],
+      [MagellansExpedition, 400],
+      [ManhattanProject, 600],
+      [MichelangelosChapel, 300],
+      [Oracle, 300],
+      [Pyramids, 300],
+      [SetiProgram, 600],
+      [ShakespearesTheatre, 400],
+      [UnitedNations, 600],
+      [WomensSuffrage, 600],
+    ] as [typeof Wonder, number][]
+  ).flatMap(([WonderType, cost]: [typeof Wonder, number]): BuildCost[] =>
+    buildCost(WonderType as unknown as typeof Buildable, cost)
   ),
 ];
 

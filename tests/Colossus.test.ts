@@ -10,6 +10,7 @@ import cityYield from '../Rules/City/yield';
 import { expect } from 'chai';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import tileYield from '@civ-clone/civ1-world/Rules/Tile/yield';
+import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 
 describe('Colossus', (): void => {
   it('should provide one additional trade per tile with trade already on in the city that builds it', async (): Promise<void> => {
@@ -33,6 +34,8 @@ describe('Colossus', (): void => {
       size: 5,
       tileImprovementRegistry,
     });
+
+    playerResearchRegistry.register(new PlayerResearch(city.player()));
 
     city.tile().yields = (): Yield[] => [new Trade(6)];
 

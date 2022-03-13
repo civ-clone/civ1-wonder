@@ -1,9 +1,10 @@
 import {
-  // Automobile,
-  // Electricity,
+  Automobile,
+  Electricity,
+  Electronics,
   Invention,
   Mysticism,
-  // Religion,
+  Religion,
 } from '@civ-clone/civ1-science/Advances';
 import {
   CityImprovementRegistry,
@@ -12,14 +13,14 @@ import {
 import {
   Colossus,
   CopernicusObservatory,
+  CureForCancer,
   HangingGardens,
+  JsBachsCathedral,
   Oracle,
+  SetiProgram,
+  ShakespearesTheatre,
 } from '../../Wonders';
 import { Temple } from '@civ-clone/civ1-city-improvement/CityImprovements';
-import {
-  PlayerResearchRegistry,
-  instance as playerResearchRegistryInstance,
-} from '@civ-clone/core-science/PlayerResearchRegistry';
 import {
   Happiness,
   Research,
@@ -27,6 +28,10 @@ import {
   Unhappiness,
 } from '@civ-clone/civ1-city/Yields';
 import { High, Low } from '@civ-clone/core-rule/Priorities';
+import {
+  PlayerResearchRegistry,
+  instance as playerResearchRegistryInstance,
+} from '@civ-clone/core-science/PlayerResearchRegistry';
 import {
   WonderRegistry,
   instance as wonderRegistryInstance,
@@ -36,7 +41,6 @@ import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
 import CityYield from '@civ-clone/core-city/Rules/Yield';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
-import Tile from '@civ-clone/core-world/Tile';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
 
@@ -57,11 +61,14 @@ export const getRules: (
         .getByCity(city)
         .some((wonder: Wonder): boolean => wonder instanceof Colossus)
     ),
-    // new Criterion((cityYield: Yield, city: City): boolean => ! playerResearchRegistry.getByPlayer('city.player())
-    //   .completed(Electricity)
-    // ),
+    new Criterion(
+      (cityYield: Yield, city: City): boolean =>
+        !playerResearchRegistry
+          .getByPlayer(city.player())
+          .completed(Electricity)
+    ),
     new Effect((cityYield: Yield): void =>
-      cityYield.add(cityYield.value(), 'colossus')
+      cityYield.add(cityYield.value(), Colossus.name)
     )
   ),
   new CityYield(
@@ -74,11 +81,26 @@ export const getRules: (
           (wonder: Wonder): boolean => wonder instanceof CopernicusObservatory
         )
     ),
-    // new Criterion((cityYield: Yield, city: City): boolean => ! playerResearchRegistry.getByPlayer(city.player())
-    //   .completed(Automobile)
-    // ),
+    new Criterion(
+      (cityYield: Yield, city: City): boolean =>
+        !playerResearchRegistry.getByPlayer(city.player()).completed(Automobile)
+    ),
     new Effect((cityYield: Yield): void =>
-      cityYield.add(cityYield, 'copernicus-observatory')
+      cityYield.add(cityYield, CopernicusObservatory.name)
+    )
+  ),
+  new CityYield(
+    new Low(),
+    new Criterion((cityYield: Yield): boolean => cityYield instanceof Research),
+    new Criterion((cityYield: Yield, city: City): boolean =>
+      wonderRegistry.some(
+        (wonder: Wonder) =>
+          wonder instanceof SetiProgram &&
+          wonder.city().player() === city.player()
+      )
+    ),
+    new Effect((cityYield: Yield): void =>
+      cityYield.add(cityYield.value() * 0.5, SetiProgram.name)
     )
   ),
   new CityYield(
@@ -86,17 +108,32 @@ export const getRules: (
       (cityYield: Yield): boolean => cityYield instanceof Happiness
     ),
     new Criterion((cityYield: Yield, city: City): boolean =>
-      wonderRegistry
-        .filter((wonder: Wonder): boolean => wonder instanceof HangingGardens)
-        .some(
-          (wonder: Wonder): boolean => wonder.city().player() === city.player()
-        )
+      wonderRegistry.some(
+        (wonder: Wonder): boolean =>
+          wonder instanceof HangingGardens &&
+          wonder.city().player() === city.player()
+      )
     ),
     new Criterion(
       (cityYield: Yield, city: City): boolean =>
         !playerResearchRegistry.getByPlayer(city.player()).completed(Invention)
     ),
-    new Effect((cityYield: Yield): void => cityYield.add(1, 'hanging-gardens'))
+    new Effect((cityYield: Yield): void =>
+      cityYield.add(1, HangingGardens.name)
+    )
+  ),
+  new CityYield(
+    new Criterion(
+      (cityYield: Yield): boolean => cityYield instanceof Happiness
+    ),
+    new Criterion((cityYield: Yield, city: City): boolean =>
+      wonderRegistry.some(
+        (wonder: Wonder): boolean =>
+          wonder instanceof CureForCancer &&
+          wonder.city().player() === city.player()
+      )
+    ),
+    new Effect((cityYield: Yield): void => cityYield.add(1, CureForCancer.name))
   ),
   new CityYield(
     new Low(),
@@ -104,9 +141,10 @@ export const getRules: (
       (cityYield: Yield): boolean => cityYield instanceof Unhappiness
     ),
     new Criterion((cityYield: Yield, city: City): boolean =>
-      wonderRegistry
-        .filter((wonder: Wonder): boolean => wonder instanceof Oracle)
-        .some((wonder): boolean => wonder.city().player() === city.player())
+      wonderRegistry.some(
+        (wonder): boolean =>
+          wonder instanceof Oracle && wonder.city().player() === city.player()
+      )
     ),
     new Criterion((cityYield: Yield, city: City): boolean =>
       cityImprovementRegistry
@@ -120,10 +158,11 @@ export const getRules: (
       (cityYield: Yield, city: City): boolean =>
         !playerResearchRegistry.getByPlayer(city.player()).completed(Mysticism)
     ),
-    // new Criterion((cityYield: Yield, city: City): boolean => ! playerResearchRegistry.getByPlayer(city.player())
-    //   .completed(Religion)
-    // ),
-    new Effect((cityYield: Yield): void => cityYield.subtract(1, 'oracle'))
+    new Criterion(
+      (cityYield: Yield, city: City): boolean =>
+        !playerResearchRegistry.getByPlayer(city.player()).completed(Religion)
+    ),
+    new Effect((cityYield: Yield): void => cityYield.subtract(1, Oracle.name))
   ),
   new CityYield(
     new Low(),
@@ -131,11 +170,10 @@ export const getRules: (
       (cityYield: Yield): boolean => cityYield instanceof Unhappiness
     ),
     new Criterion((cityYield: Yield, city: City): boolean =>
-      wonderRegistry
-        .filter((wonder) => wonder instanceof Oracle)
-        .some(
-          (wonder: Wonder): boolean => wonder.city().player() === city.player()
-        )
+      wonderRegistry.some(
+        (wonder: Wonder): boolean =>
+          wonder instanceof Oracle && wonder.city().player() === city.player()
+      )
     ),
     new Criterion((cityYield: Yield, city: City): boolean =>
       cityImprovementRegistry
@@ -148,11 +186,50 @@ export const getRules: (
     new Criterion((cityYield: Yield, city: City): boolean =>
       playerResearchRegistry.getByPlayer(city.player()).completed(Mysticism)
     ),
-    // new Criterion((cityYield, city) => ! playerResearchRegistry.getByPlayer(city.player())
-    //   .completed(Religion)
-    // ),
+    new Criterion(
+      (cityYield, city) =>
+        !playerResearchRegistry.getByPlayer(city.player()).completed(Religion)
+    ),
+    new Effect((cityYield: Yield): void => cityYield.subtract(2, Oracle.name))
+  ),
+  new CityYield(
+    new Low(),
+    new Criterion(
+      (cityYield: Yield): boolean => cityYield instanceof Unhappiness
+    ),
+    new Criterion((cityYield: Yield, city: City): boolean =>
+      wonderRegistry.some(
+        (wonder: Wonder): boolean =>
+          wonder instanceof ShakespearesTheatre &&
+          wonder.city().player() === city.player()
+      )
+    ),
+    new Criterion(
+      (cityYield, city) =>
+        !playerResearchRegistry
+          .getByPlayer(city.player())
+          .completed(Electronics)
+    ),
     new Effect((cityYield: Yield): void =>
-      cityYield.subtract(2, 'oracle-mysticism')
+      cityYield.subtract(cityYield.value(), ShakespearesTheatre.name)
+    )
+  ),
+
+  new CityYield(
+    new Low(),
+    // TODO: path check to city that has it to check it's on the same continent...
+    new Criterion(
+      (cityYield: Yield): boolean => cityYield instanceof Unhappiness
+    ),
+    new Criterion((cityYield: Yield, city: City): boolean =>
+      wonderRegistry.some(
+        (wonder: Wonder): boolean =>
+          wonder instanceof JsBachsCathedral &&
+          wonder.city().player() === city.player()
+      )
+    ),
+    new Effect((cityYield: Yield): void =>
+      cityYield.subtract(Math.min(cityYield.value(), 2), JsBachsCathedral.name)
     )
   ),
 ];

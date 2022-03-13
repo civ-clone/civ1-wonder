@@ -56,31 +56,33 @@ describe('Oracle', (): void => {
 
     playerResearchRegistry.register(playerResearch);
 
-    ([
-      [(): void => {}, 4],
+    (
       [
-        (): void => {
-          cityImprovementRegistry.register(
-            new Temple(city.player(), city, ruleRegistry)
-          );
-        },
-        3,
-      ],
-      [
-        (): void => {
-          wonderRegistry.register(
-            new Oracle(city.player(), city, ruleRegistry)
-          );
-        },
-        2,
-      ],
-      [
-        (): void => {
-          playerResearch.addAdvance(Mysticism);
-        },
-        0,
-      ],
-    ] as [() => void, number][]).forEach(([action, value]) => {
+        [(): void => {}, 4],
+        [
+          (): void => {
+            cityImprovementRegistry.register(
+              new Temple(city.player(), city, ruleRegistry)
+            );
+          },
+          3,
+        ],
+        [
+          (): void => {
+            wonderRegistry.register(
+              new Oracle(city.player(), city, ruleRegistry)
+            );
+          },
+          2,
+        ],
+        [
+          (): void => {
+            playerResearch.addAdvance(Mysticism);
+          },
+          0,
+        ],
+      ] as [() => void, number][]
+    ).forEach(([action, value]) => {
       action();
 
       const [unhappinessYield] = city.yields([Unhappiness]);

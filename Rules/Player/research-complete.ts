@@ -42,9 +42,8 @@ export const getRules: (
         const [owningPlayer] = wonderRegistry
             .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
             .map((greatLibrary: GreatLibrary): Player => greatLibrary.player()),
-          owningPlayerResearch = playerResearchRegistry.getByPlayer(
-            owningPlayer
-          );
+          owningPlayerResearch =
+            playerResearchRegistry.getByPlayer(owningPlayer);
         return !owningPlayerResearch.completed(
           completedResearch.constructor as typeof Advance
         );
@@ -55,9 +54,8 @@ export const getRules: (
         const [owningPlayer] = wonderRegistry
             .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
             .map((greatLibrary: GreatLibrary): Player => greatLibrary.player()),
-          owningPlayerResearch = playerResearchRegistry.getByPlayer(
-            owningPlayer
-          );
+          owningPlayerResearch =
+            playerResearchRegistry.getByPlayer(owningPlayer);
         return owningPlayerResearch.addAdvance(
           completedResearch.constructor as typeof Advance
         );
