@@ -35,7 +35,7 @@ export const getRules: () => BuildCost[] = (): BuildCost[] => [
       [Colossus, 200],
       [CopernicusObservatory, 300],
       [CureForCancer, 600],
-      [DarwinsVoyage, 0],
+      [DarwinsVoyage, 300],
       [GreatLibrary, 300],
       [GreatWall, 300],
       [HangingGardens, 300],

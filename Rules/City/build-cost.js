@@ -9,7 +9,7 @@ const getRules = () => [
         [Wonders_1.Colossus, 200],
         [Wonders_1.CopernicusObservatory, 300],
         [Wonders_1.CureForCancer, 600],
-        [Wonders_1.DarwinsVoyage, 0],
+        [Wonders_1.DarwinsVoyage, 300],
         [Wonders_1.GreatLibrary, 300],
         [Wonders_1.GreatWall, 300],
         [Wonders_1.HangingGardens, 300],
