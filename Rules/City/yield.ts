@@ -1,5 +1,6 @@
 import {
   Automobile,
+  Communism,
   Electricity,
   Electronics,
   Invention,
@@ -16,11 +17,16 @@ import {
   CureForCancer,
   HangingGardens,
   JsBachsCathedral,
+  MichelangelosChapel,
   Oracle,
   SetiProgram,
   ShakespearesTheatre,
+  WomensSuffrage,
 } from '../../Wonders';
-import { Temple } from '@civ-clone/civ1-city-improvement/CityImprovements';
+import {
+  Cathedral,
+  Temple,
+} from '@civ-clone/civ1-city-improvement/CityImprovements';
 import {
   Happiness,
   Research,
@@ -33,6 +39,10 @@ import {
   instance as playerResearchRegistryInstance,
 } from '@civ-clone/core-science/PlayerResearchRegistry';
 import {
+  UnitRegistry,
+  instance as unitRegistryInstance,
+} from '@civ-clone/core-unit/UnitRegistry';
+import {
   WonderRegistry,
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
@@ -41,17 +51,20 @@ import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
 import CityYield from '@civ-clone/core-city/Rules/Yield';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
+import Unit from '@civ-clone/core-unit/Unit';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
 
 export const getRules: (
   cityImprovementRegistry?: CityImprovementRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  unitRegistry?: UnitRegistry
 ) => CityYield[] = (
   cityImprovementRegistry: CityImprovementRegistry = cityImprovementRegistryInstance,
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  unitRegistry: UnitRegistry = unitRegistryInstance
 ): CityYield[] => [
   new CityYield(
     new High(),
@@ -230,6 +243,63 @@ export const getRules: (
     ),
     new Effect((cityYield: Yield): void =>
       cityYield.subtract(Math.min(cityYield.value(), 2), JsBachsCathedral.name)
+    )
+  ),
+
+  new CityYield(
+    new Low(),
+    new Criterion(
+      (cityYield: Yield): boolean => cityYield instanceof Unhappiness
+    ),
+    new Criterion((cityYield: Yield, city: City): boolean =>
+      cityImprovementRegistry
+        .getByCity(city)
+        .some(
+          (cityImprovement: CityImprovement) =>
+            cityImprovement instanceof Cathedral
+        )
+    ),
+    new Criterion((cityYield: Yield, city: City): boolean =>
+      wonderRegistry.some(
+        (wonder: Wonder): boolean =>
+          wonder instanceof MichelangelosChapel &&
+          wonder.city().player() === city.player()
+      )
+    ),
+    new Criterion(
+      (cityYield, city) =>
+        !playerResearchRegistry.getByPlayer(city.player()).completed(Communism)
+    ),
+    new Effect((cityYield: Yield): void =>
+      cityYield.subtract(
+        Math.min(cityYield.value(), 2),
+        MichelangelosChapel.name
+      )
+    )
+  ),
+
+  new CityYield(
+    new Low(),
+    new Criterion(
+      (cityYield: Yield): boolean => cityYield instanceof Unhappiness
+    ),
+    new Criterion((cityYield: Yield, city: City): boolean =>
+      wonderRegistry.some(
+        (wonder: Wonder): boolean =>
+          wonder instanceof WomensSuffrage &&
+          wonder.city().player() === city.player()
+      )
+    ),
+    new Effect((cityYield: Yield, city: City): void =>
+      cityYield.subtract(
+        Math.min(
+          cityYield.value(),
+          unitRegistry
+            .getByCity(city)
+            .filter((unit: Unit) => unit.tile() !== city.tile()).length
+        ),
+        WomensSuffrage.name
+      )
     )
   ),
 ];
