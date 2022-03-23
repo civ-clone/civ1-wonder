@@ -129,8 +129,9 @@ export const getRules: (
             advance instanceof ObsoletingAdvance
         ),
         new Effect(() => {
-          const [wonder] = wonderRegistry
-            .filter((wonder: Wonder) => wonder instanceof WonderType);
+          const [wonder] = wonderRegistry.filter(
+            (wonder: Wonder) => wonder instanceof WonderType
+          );
 
           (ruleRegistry as IObsoleteRegistry).process(
             Obsolete,

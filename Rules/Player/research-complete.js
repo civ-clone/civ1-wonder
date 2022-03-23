@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRules = void 0;
+const Advances_1 = require("@civ-clone/civ1-science/Advances");
+const Wonders_1 = require("../../Wonders");
+const Obsolete_1 = require("@civ-clone/core-wonder/Rules/Obsolete");
 const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
+const RuleRegistry_1 = require("@civ-clone/core-rule/RuleRegistry");
 const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const Complete_1 = require("@civ-clone/core-science/Rules/Complete");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
-const Wonders_1 = require("../../Wonders");
-const Advances_1 = require("@civ-clone/civ1-science/Advances");
-const Obsolete_1 = require("@civ-clone/core-wonder/Rules/Obsolete");
-const RuleRegistry_1 = require("@civ-clone/core-rule/RuleRegistry");
 const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ruleRegistry = RuleRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => [
     new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof Wonders_1.GreatLibrary)), new Criterion_1.default((playerResearch, completedResearch) => playerResearchRegistry.filter((playerResearch) => playerResearch.completed(completedResearch.constructor)).length >= 3), new Criterion_1.default((playerResearch, completedResearch) => {
         const [owningPlayer] = wonderRegistry
@@ -37,10 +37,8 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ru
     ].map(([WonderType, ObsoletingAdvance]) => new Complete_1.default(new Criterion_1.default(() => wonderRegistry
         .entries()
         .some((wonder) => wonder instanceof WonderType)), new Criterion_1.default((playerResearch, advance) => advance instanceof ObsoletingAdvance), new Effect_1.default(() => {
-        const [wonder] = wonderRegistry
-            .entries()
-            .filter((wonder) => wonder instanceof WonderType);
-        ruleRegistry.process(Obsolete_1.default, wonder, wonder.city());
+        const [wonder] = wonderRegistry.filter((wonder) => wonder instanceof WonderType);
+        ruleRegistry.process(Obsolete_1.Obsolete, wonder, wonder.city());
     }))),
 ];
 exports.getRules = getRules;

@@ -1,6 +1,7 @@
 import build from './Rules/City/build';
 import buildCost from './Rules/City/build-cost';
 import buildingComplete from './Rules/City/building-complete';
+import cityCost from './Rules/City/cost';
 import cityYield from './Rules/City/yield';
 import { instance as ruleRegistryInstance } from '@civ-clone/core-rule/RuleRegistry';
 import researchComplete from './Rules/Player/research-complete';
@@ -11,6 +12,7 @@ ruleRegistryInstance.register(
   ...build(),
   ...buildCost(),
   ...buildingComplete(),
+  ...cityCost(),
   ...cityYield(),
   ...researchComplete(),
   ...unitYield(),
