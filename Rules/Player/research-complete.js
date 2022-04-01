@@ -11,12 +11,12 @@ const Complete_1 = require("@civ-clone/core-science/Rules/Complete");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ruleRegistry = RuleRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => [
-    new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof Wonders_1.GreatLibrary)), new Criterion_1.default((playerResearch, completedResearch) => playerResearchRegistry.filter((playerResearch) => playerResearch.completed(completedResearch.constructor)).length >= 3), new Criterion_1.default((playerResearch, completedResearch) => {
+    new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof Wonders_1.GreatLibrary)), new Criterion_1.default((playerResearch, completedResearch) => {
         const [owningPlayer] = wonderRegistry
             .filter((wonder) => wonder instanceof Wonders_1.GreatLibrary)
             .map((greatLibrary) => greatLibrary.player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
         return !owningPlayerResearch.completed(completedResearch.constructor);
-    }), new Effect_1.default((playerResearch, completedResearch) => {
+    }), new Criterion_1.default((playerResearch, completedResearch) => playerResearchRegistry.filter((playerResearch) => playerResearch.completed(completedResearch.constructor)).length >= 3), new Effect_1.default((playerResearch, completedResearch) => {
         const [owningPlayer] = wonderRegistry
             .filter((wonder) => wonder instanceof Wonders_1.GreatLibrary)
             .map((greatLibrary) => greatLibrary.player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);

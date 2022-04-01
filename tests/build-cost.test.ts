@@ -1,8 +1,3 @@
-import CityBuild from '@civ-clone/core-city-build/CityBuild';
-import AvailableCityBuildItemsRegistry from '@civ-clone/core-city-build/AvailableCityBuildItemsRegistry';
-import { setUpCity } from '@civ-clone/civ1-city/tests/lib/setUpCity';
-import RuleRegistry from '@civ-clone/core-rule/RuleRegistry';
-import getRules from '../Rules/City/build-cost';
 import {
   Colossus,
   CopernicusObservatory,
@@ -14,8 +9,14 @@ import {
   Oracle,
   Pyramids,
 } from '../Wonders';
-import { expect } from 'chai';
+import AvailableCityBuildItemsRegistry from '@civ-clone/core-city-build/AvailableCityBuildItemsRegistry';
+import Buildable from '@civ-clone/core-city-build/Buildable';
+import CityBuild from '@civ-clone/core-city-build/CityBuild';
+import RuleRegistry from '@civ-clone/core-rule/RuleRegistry';
 import Wonder from '@civ-clone/core-wonder/Wonder';
+import { expect } from 'chai';
+import getRules from '../Rules/City/build-cost';
+import { setUpCity } from '@civ-clone/civ1-city/tests/lib/setUpCity';
 
 describe('city:build-cost', (): void => {
   it('should cost expected amount of production to build wonders', async (): Promise<void> => {
@@ -30,15 +31,17 @@ describe('city:build-cost', (): void => {
       );
 
     availableCityBuildItemsRegistry.register(
-      Colossus,
-      CopernicusObservatory,
-      GreatLibrary,
-      GreatWall,
-      HangingGardens,
-      Lighthouse,
-      MagellansExpedition,
-      Oracle,
-      Pyramids
+      ...([
+        Colossus,
+        CopernicusObservatory,
+        GreatLibrary,
+        GreatWall,
+        HangingGardens,
+        Lighthouse,
+        MagellansExpedition,
+        Oracle,
+        Pyramids,
+      ] as unknown as typeof Buildable[])
     );
 
     ruleRegistry.register(...getRules());
@@ -56,7 +59,7 @@ describe('city:build-cost', (): void => {
         [Pyramids, 300],
       ] as [typeof Wonder, number][]
     ).forEach(([WonderType, cost]: [typeof Wonder, number]) => {
-      cityBuild.build(WonderType);
+      cityBuild.build(WonderType as unknown as typeof Buildable);
 
       expect(cityBuild.cost().value()).equal(cost);
     });

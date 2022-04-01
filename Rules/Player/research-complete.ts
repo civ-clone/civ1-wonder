@@ -63,15 +63,6 @@ export const getRules: (
       )
     ),
     new Criterion(
-      (playerResearch: PlayerResearch, completedResearch: Advance): boolean =>
-        playerResearchRegistry.filter(
-          (playerResearch: PlayerResearch): boolean =>
-            playerResearch.completed(
-              completedResearch.constructor as typeof Advance
-            )
-        ).length >= 3
-    ),
-    new Criterion(
       (playerResearch: PlayerResearch, completedResearch: Advance): boolean => {
         const [owningPlayer] = wonderRegistry
             .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
@@ -83,6 +74,15 @@ export const getRules: (
           completedResearch.constructor as typeof Advance
         );
       }
+    ),
+    new Criterion(
+      (playerResearch: PlayerResearch, completedResearch: Advance): boolean =>
+        playerResearchRegistry.filter(
+          (playerResearch: PlayerResearch): boolean =>
+            playerResearch.completed(
+              completedResearch.constructor as typeof Advance
+            )
+        ).length >= 3
     ),
     new Effect(
       (playerResearch: PlayerResearch, completedResearch: Advance): void => {

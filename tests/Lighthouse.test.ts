@@ -1,4 +1,4 @@
-import { Lighthouse } from '../Wonders';
+import { Lighthouse, MagellansExpedition } from '../Wonders';
 import Player from '@civ-clone/core-player/Player';
 import RuleRegistry from '@civ-clone/core-rule/RuleRegistry';
 import { Trireme } from '@civ-clone/civ1-unit/Units';
@@ -7,25 +7,64 @@ import { expect } from 'chai';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import unitYield from '@civ-clone/civ1-unit/Rules/Unit/yield';
 import wonderUnitYield from '../Rules/Unit/yield';
+import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
+import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
+import { Magnetism } from '@civ-clone/civ1-science/Advances';
+import Wonder from '@civ-clone/core-wonder/Wonder';
+import Advance from '@civ-clone/core-science/Advance';
 
-describe('Lighthouse', (): void => {
-  it('should provide an additional move for NavalUnits', async (): Promise<void> => {
-    const ruleRegistry = new RuleRegistry(),
-      wonderRegistry = new WonderRegistry(),
-      player = new Player(ruleRegistry),
-      city = await setUpCity({
-        player,
-        ruleRegistry,
-      });
+(
+  [
+    [Lighthouse, 1, Magnetism],
+    [MagellansExpedition, 1, null],
+  ] as [typeof Wonder, number, typeof Advance | null][]
+).forEach(([WonderType, increase, ObsoletingAdvance]) =>
+  describe(WonderType.name, (): void => {
+    it(`should provide ${increase} additional move for NavalUnits`, async (): Promise<void> => {
+      const ruleRegistry = new RuleRegistry(),
+        wonderRegistry = new WonderRegistry(),
+        player = new Player(ruleRegistry),
+        playerResearchRegistry = new PlayerResearchRegistry(),
+        playerResearch = new PlayerResearch(player),
+        city = await setUpCity({
+          player,
+          ruleRegistry,
+        });
 
-    ruleRegistry.register(...unitYield(), ...wonderUnitYield(wonderRegistry));
+      playerResearchRegistry.register(playerResearch);
 
-    const unit = new Trireme(null, player, city.tile(), ruleRegistry);
+      ruleRegistry.register(
+        ...unitYield(),
+        ...wonderUnitYield(wonderRegistry, playerResearchRegistry)
+      );
 
-    expect(unit.movement().value()).to.equal(3);
+      const unit = new Trireme(null, player, city.tile(), ruleRegistry);
 
-    wonderRegistry.register(new Lighthouse(player, city, ruleRegistry));
+      expect(unit.movement().value()).to.equal(3);
 
-    expect(unit.movement().value()).to.equal(4);
-  });
-});
+      wonderRegistry.register(new Lighthouse(player, city, ruleRegistry));
+
+      expect(unit.movement().value()).to.equal(3 + increase);
+
+      if (WonderType === Lighthouse) {
+        const magellansExpedition = new MagellansExpedition(
+          player,
+          city,
+          ruleRegistry
+        );
+
+        wonderRegistry.register(magellansExpedition);
+
+        expect(unit.movement().value()).to.equal(3 + increase + 1);
+
+        wonderRegistry.unregister(magellansExpedition);
+      }
+
+      if (ObsoletingAdvance !== null) {
+        playerResearch.addAdvance(ObsoletingAdvance);
+
+        expect(unit.movement().value()).to.equal(3);
+      }
+    });
+  })
+);

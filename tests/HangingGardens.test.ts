@@ -1,6 +1,6 @@
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import CityImprovementRegistry from '@civ-clone/core-city-improvement/CityImprovementRegistry';
-import { HangingGardens } from '../Wonders';
+import { CureForCancer, HangingGardens } from '../Wonders';
 import { Happiness } from '@civ-clone/civ1-city/Yields';
 import { Invention } from '@civ-clone/civ1-science/Advances';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
@@ -12,130 +12,139 @@ import cityYield from '../Rules/City/yield';
 import { expect } from 'chai';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import Yield from '@civ-clone/core-yield/Yield';
+import Wonder from '@civ-clone/core-wonder/Wonder';
 
-describe('HangingGardens', (): void => {
-  it('should provide one additional Happiness in the city', async (): Promise<void> => {
-    const ruleRegistry = new RuleRegistry(),
-      wonderRegistry = new WonderRegistry(),
-      tileImprovementRegistry = new TileImprovementRegistry(),
-      cityImprovementRegistry = new CityImprovementRegistry(),
-      city = await setUpCity({
-        ruleRegistry,
-        size: 5,
-        tileImprovementRegistry,
-      }),
-      advanceRegistry = new AdvanceRegistry(),
-      playerResearchRegistry = new PlayerResearchRegistry(),
-      playerResearch = new PlayerResearch(
-        city.player(),
-        advanceRegistry,
-        ruleRegistry
+(
+  [
+    [HangingGardens, 1],
+    [CureForCancer, 1],
+  ] as [typeof Wonder, number][]
+).forEach(([WonderType, expectedHappiness]) =>
+  describe(WonderType.name, (): void => {
+    it(`should provide ${expectedHappiness} additional Happiness in the city`, async (): Promise<void> => {
+      const ruleRegistry = new RuleRegistry(),
+        wonderRegistry = new WonderRegistry(),
+        tileImprovementRegistry = new TileImprovementRegistry(),
+        city = await setUpCity({
+          ruleRegistry,
+          size: 5,
+          tileImprovementRegistry,
+        }),
+        advanceRegistry = new AdvanceRegistry(),
+        playerResearchRegistry = new PlayerResearchRegistry(),
+        playerResearch = new PlayerResearch(
+          city.player(),
+          advanceRegistry,
+          ruleRegistry
+        );
+
+      ruleRegistry.register(
+        ...cityYield(playerResearchRegistry, wonderRegistry)
+      );
+      playerResearchRegistry.register(playerResearch);
+
+      const happinessYield = city
+        .yields()
+        .filter((cityYield) => cityYield instanceof Happiness)
+        .reduce((total, cityYield) => total + cityYield.value(), 0);
+
+      expect(happinessYield).to.equal(0);
+
+      wonderRegistry.register(
+        new HangingGardens(city.player(), city, ruleRegistry)
       );
 
-    ruleRegistry.register(
-      ...cityYield(
-        cityImprovementRegistry,
-        playerResearchRegistry,
-        wonderRegistry
-      )
-    );
-    playerResearchRegistry.register(playerResearch);
+      const updatedHappinessYield = city
+        .yields()
+        .filter((cityYield) => cityYield instanceof Happiness)
+        .reduce((total, cityYield) => total + cityYield.value(), 0);
 
-    city.tile().yields = (): Yield[] => [new Happiness(0)];
+      expect(updatedHappinessYield).to.equal(1);
+    });
 
-    const [happinessYield] = city.yields([Happiness]);
+    it('should not provide one additional Happiness in the city once Invention is discovered', async (): Promise<void> => {
+      const ruleRegistry = new RuleRegistry(),
+        playerResearchRegistry = new PlayerResearchRegistry(),
+        wonderRegistry = new WonderRegistry(),
+        tileImprovementRegistry = new TileImprovementRegistry(),
+        advanceRegistry = new AdvanceRegistry(),
+        city = await setUpCity({
+          ruleRegistry,
+          size: 5,
+          tileImprovementRegistry,
+        }),
+        playerResearch = new PlayerResearch(
+          city.player(),
+          advanceRegistry,
+          ruleRegistry
+        );
 
-    expect(happinessYield.value()).to.equal(0);
-
-    wonderRegistry.register(
-      new HangingGardens(city.player(), city, ruleRegistry)
-    );
-
-    const [updatedHappinessYield] = city.yields([Happiness]);
-
-    expect(updatedHappinessYield.value()).to.equal(1);
-  });
-
-  it('should not provide one additional Happiness in the city once Invention is discovered', async (): Promise<void> => {
-    const ruleRegistry = new RuleRegistry(),
-      playerResearchRegistry = new PlayerResearchRegistry(),
-      wonderRegistry = new WonderRegistry(),
-      tileImprovementRegistry = new TileImprovementRegistry(),
-      advanceRegistry = new AdvanceRegistry(),
-      cityImprovementRegistry = new CityImprovementRegistry(),
-      city = await setUpCity({
-        ruleRegistry,
-        size: 5,
-        tileImprovementRegistry,
-      }),
-      playerResearch = new PlayerResearch(
-        city.player(),
-        advanceRegistry,
-        ruleRegistry
+      ruleRegistry.register(
+        ...cityYield(playerResearchRegistry, wonderRegistry)
       );
 
-    ruleRegistry.register(
-      ...cityYield(
-        cityImprovementRegistry,
-        playerResearchRegistry,
-        wonderRegistry
-      )
-    );
+      playerResearchRegistry.register(playerResearch);
 
-    playerResearchRegistry.register(playerResearch);
-
-    wonderRegistry.register(
-      new HangingGardens(city.player(), city, ruleRegistry)
-    );
-
-    const [happinessYield] = city.yields([Happiness]);
-
-    expect(happinessYield.value()).to.equal(1);
-
-    playerResearch.addAdvance(Invention);
-
-    const [updatedHappinessYield] = city.yields([Happiness]);
-
-    expect(updatedHappinessYield.value()).to.equal(0);
-  });
-
-  it('should provide one additional Happiness in all cities the building player owns', async (): Promise<void> => {
-    const ruleRegistry = new RuleRegistry(),
-      wonderRegistry = new WonderRegistry(),
-      tileImprovementRegistry = new TileImprovementRegistry(),
-      cityImprovementRegistry = new CityImprovementRegistry(),
-      city = await setUpCity({
-        ruleRegistry,
-        size: 5,
-        tileImprovementRegistry,
-      }),
-      advanceRegistry = new AdvanceRegistry(),
-      playerResearchRegistry = new PlayerResearchRegistry(),
-      playerResearch = new PlayerResearch(
-        city.player(),
-        advanceRegistry,
-        ruleRegistry
+      wonderRegistry.register(
+        new HangingGardens(city.player(), city, ruleRegistry)
       );
 
-    ruleRegistry.register(
-      ...cityYield(
-        cityImprovementRegistry,
-        playerResearchRegistry,
-        wonderRegistry
-      )
-    );
-    playerResearchRegistry.register(playerResearch);
+      const happinessYield = city
+        .yields()
+        .filter((cityYield) => cityYield instanceof Happiness)
+        .reduce((total, cityYield) => total + cityYield.value(), 0);
 
-    const [happinessYield] = city.yields([Happiness]);
+      expect(happinessYield).to.equal(1);
 
-    expect(happinessYield.value()).to.equal(0);
+      playerResearch.addAdvance(Invention);
 
-    wonderRegistry.register(
-      new HangingGardens(city.player(), city, ruleRegistry)
-    );
+      const updatedHappinessYield = city
+        .yields()
+        .filter((cityYield) => cityYield instanceof Happiness)
+        .reduce((total, cityYield) => total + cityYield.value(), 0);
 
-    const [updatedHappinessYield] = city.yields([Happiness]);
+      expect(updatedHappinessYield).to.equal(0);
+    });
 
-    expect(updatedHappinessYield.value()).to.equal(1);
-  });
-});
+    it('should provide one additional Happiness in all cities the building player owns', async (): Promise<void> => {
+      const ruleRegistry = new RuleRegistry(),
+        wonderRegistry = new WonderRegistry(),
+        tileImprovementRegistry = new TileImprovementRegistry(),
+        city = await setUpCity({
+          ruleRegistry,
+          size: 5,
+          tileImprovementRegistry,
+        }),
+        advanceRegistry = new AdvanceRegistry(),
+        playerResearchRegistry = new PlayerResearchRegistry(),
+        playerResearch = new PlayerResearch(
+          city.player(),
+          advanceRegistry,
+          ruleRegistry
+        );
+
+      ruleRegistry.register(
+        ...cityYield(playerResearchRegistry, wonderRegistry)
+      );
+      playerResearchRegistry.register(playerResearch);
+
+      const happinessYield = city
+        .yields()
+        .filter((cityYield) => cityYield instanceof Happiness)
+        .reduce((total, cityYield) => total + cityYield.value(), 0);
+
+      expect(happinessYield).to.equal(0);
+
+      wonderRegistry.register(
+        new HangingGardens(city.player(), city, ruleRegistry)
+      );
+
+      const updatedHappinessYield = city
+        .yields()
+        .filter((cityYield) => cityYield instanceof Happiness)
+        .reduce((total, cityYield) => total + cityYield.value(), 0);
+
+      expect(updatedHappinessYield).to.equal(1);
+    });
+  })
+);

@@ -1,7 +1,12 @@
+import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import AvailableCityBuildItemsRegistry from '@civ-clone/core-city-build/AvailableCityBuildItemsRegistry';
+import { BronzeWorking } from '@civ-clone/civ1-science/Advances';
+import Buildable from '@civ-clone/core-city-build/Buildable';
 import CityBuild from '@civ-clone/core-city-build/CityBuild';
 import CityBuildRegistry from '@civ-clone/core-city-build/CityBuildRegistry';
 import { Colossus } from '../Wonders';
+import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
+import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
 import { Production } from '@civ-clone/civ1-city/Yields';
 import RuleRegistry from '@civ-clone/core-rule/RuleRegistry';
 import WonderRegistry from '@civ-clone/core-wonder/WonderRegistry';
@@ -9,15 +14,7 @@ import build from '../Rules/City/build';
 import buildCost from '../Rules/City/build-cost';
 import buildingComplete from '../Rules/City/building-complete';
 import { expect } from 'chai';
-import {
-  instance as playerResearchRegistryInstance,
-  PlayerResearchRegistry,
-} from '@civ-clone/core-science/PlayerResearchRegistry';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
-import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
-import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
-import { BronzeWorking } from '@civ-clone/civ1-science/Advances';
-import Buildable from '@civ-clone/core-city-build/Buildable';
 
 describe('city:building-complete', (): void => {
   it('should clear the building progress when the wonder is completed elsewhere', async (): Promise<void> => {

@@ -1,8 +1,8 @@
 import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
 import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
-import UnitYield from '@civ-clone/core-unit/Rules/Yield';
+import YieldModifier from '@civ-clone/core-city/Rules/YieldModifier';
 export declare const getRules: (
-  wonderRegistry?: WonderRegistry,
-  playerResearchRegistry?: PlayerResearchRegistry
-) => UnitYield[];
+  playerResearchRegistry?: PlayerResearchRegistry,
+  wonderRegistry?: WonderRegistry
+) => YieldModifier[];
 export default getRules;

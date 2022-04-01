@@ -31,7 +31,7 @@ describe('GreatLibrary', (): void => {
       });
 
     ruleRegistry.register(
-      ...researchComplete(playerResearchRegistry, wonderRegistry)
+      ...researchComplete(playerResearchRegistry, ruleRegistry, wonderRegistry)
     );
 
     playerResearchRegistry.register(
@@ -59,6 +59,7 @@ describe('GreatLibrary', (): void => {
         boolean
       ]): void => {
         playerResearch.addAdvance(Alphabet);
+
         expect(player1Research.completed(Alphabet)).to.equal(
           expectedCompletion
         );
