@@ -24,10 +24,6 @@ import {
   ShakespearesTheatre,
 } from '../../Wonders';
 import {
-  Obsolete,
-  IObsoleteRegistry,
-} from '@civ-clone/core-wonder/Rules/Obsolete';
-import {
   PlayerResearchRegistry,
   instance as playerResearchRegistryInstance,
 } from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -43,6 +39,7 @@ import Advance from '@civ-clone/core-science/Advance';
 import Complete from '@civ-clone/core-science/Rules/Complete';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
+import Obsolete from '@civ-clone/core-wonder/Rules/Obsolete';
 import Player from '@civ-clone/core-player/Player';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import Wonder from '@civ-clone/core-wonder/Wonder';
@@ -66,35 +63,35 @@ export const getRules: (
       (playerResearch: PlayerResearch, completedResearch: Advance): boolean => {
         const [owningPlayer] = wonderRegistry
             .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
-            .map((greatLibrary: GreatLibrary): Player => greatLibrary.player()),
+            .map(
+              (greatLibrary: GreatLibrary): Player =>
+                greatLibrary.city().player()
+            ),
           owningPlayerResearch =
             playerResearchRegistry.getByPlayer(owningPlayer);
 
-        return !owningPlayerResearch.completed(
-          completedResearch.constructor as typeof Advance
-        );
+        return !owningPlayerResearch.completed(completedResearch.sourceClass());
       }
     ),
     new Criterion(
       (playerResearch: PlayerResearch, completedResearch: Advance): boolean =>
         playerResearchRegistry.filter(
           (playerResearch: PlayerResearch): boolean =>
-            playerResearch.completed(
-              completedResearch.constructor as typeof Advance
-            )
+            playerResearch.completed(completedResearch.sourceClass())
         ).length >= 3
     ),
     new Effect(
       (playerResearch: PlayerResearch, completedResearch: Advance): void => {
         const [owningPlayer] = wonderRegistry
             .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
-            .map((greatLibrary: GreatLibrary): Player => greatLibrary.player()),
+            .map(
+              (greatLibrary: GreatLibrary): Player =>
+                greatLibrary.city().player()
+            ),
           owningPlayerResearch =
             playerResearchRegistry.getByPlayer(owningPlayer);
 
-        return owningPlayerResearch.addAdvance(
-          completedResearch.constructor as typeof Advance
-        );
+        return owningPlayerResearch.addAdvance(completedResearch.sourceClass());
       }
     )
   ),
@@ -133,11 +130,7 @@ export const getRules: (
             (wonder: Wonder) => wonder instanceof WonderType
           );
 
-          (ruleRegistry as IObsoleteRegistry).process(
-            Obsolete,
-            wonder,
-            wonder.city()
-          );
+          ruleRegistry.process(Obsolete, wonder, wonder.city());
         })
       )
   ),

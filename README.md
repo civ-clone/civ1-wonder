@@ -8,14 +8,10 @@ Fix `JsBachsCathedral` so that it paths from the checked `City` to the `City` th
 Implement all the missing benefits:
 
 - `ApolloProgram`
-- `CureForCancer`
 - `DarwinsVoyage`
 - `GreatWall`
 - `HooverDam`
 - `IsaacNewtonsCollege`
 - `ManhattanProject`
-- `MichelangelosChapel`
 - `Pyramids`
-- `ShakespearesTheatre`
 - `UnitedNations`
-- `WomensSuffrage`

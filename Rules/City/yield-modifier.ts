@@ -7,16 +7,17 @@ import {
   WonderRegistry,
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
+import { cityHasWonder, playerHasWonder } from '../lib/hasWonder';
 import Advance from '@civ-clone/core-science/Advance';
 import { Automobile } from '@civ-clone/civ1-science/Advances';
 import City from '@civ-clone/core-city/City';
-import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import { Low } from '@civ-clone/core-rule/Priorities';
 import { Research } from '@civ-clone/civ1-city/Yields';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
 import YieldModifier from '@civ-clone/core-city/Rules/YieldModifier';
+import { notDiscoveredByAnyPlayer } from '../lib/hasDiscovered';
 import { reduceYield } from '@civ-clone/core-yield/lib/reduceYields';
 
 export const getRules: (
@@ -27,26 +28,41 @@ export const getRules: (
   wonderRegistry: WonderRegistry = wonderRegistryInstance
 ) => [
   ...(
-    [
-      [CopernicusObservatory, Research, 1, Automobile],
-      [SetiProgram, Research, 0.5, null],
-    ] as [typeof Wonder, typeof Yield, number, typeof Advance | null][]
+    [[CopernicusObservatory, Research, 1, Automobile]] as [
+      typeof Wonder,
+      typeof Yield,
+      number,
+      typeof Advance | null
+    ][]
   ).map(
     ([WonderType, YieldType, multiplier, ObsoletingAdvance]): YieldModifier =>
       new YieldModifier(
         new Low(),
-        new Criterion((city: City): boolean =>
-          wonderRegistry
-            .getByCity(city)
-            .some((wonder: Wonder): boolean => wonder instanceof WonderType)
-        ),
-        new Criterion(
-          (city: City): boolean =>
-            ObsoletingAdvance === null ||
-            !playerResearchRegistry
-              .getByPlayer(city.player())
-              .completed(ObsoletingAdvance)
-        ),
+        cityHasWonder(WonderType, wonderRegistry),
+        notDiscoveredByAnyPlayer(ObsoletingAdvance, playerResearchRegistry),
+        new Effect(
+          (city: City, yields: Yield[]): Yield =>
+            new YieldType(
+              reduceYield(yields, YieldType) * multiplier,
+              WonderType.name
+            )
+        )
+      )
+  ),
+
+  ...(
+    [[SetiProgram, Research, 0.5, null]] as [
+      typeof Wonder,
+      typeof Yield,
+      number,
+      typeof Advance | null
+    ][]
+  ).map(
+    ([WonderType, YieldType, multiplier, ObsoletingAdvance]): YieldModifier =>
+      new YieldModifier(
+        new Low(),
+        playerHasWonder(WonderType, wonderRegistry),
+        notDiscoveredByAnyPlayer(ObsoletingAdvance, playerResearchRegistry),
         new Effect(
           (city: City, yields: Yield[]): Yield =>
             new YieldType(

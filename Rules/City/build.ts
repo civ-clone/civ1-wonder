@@ -1,26 +1,4 @@
 import {
-  Astronomy,
-  BronzeWorking,
-  CeremonialBurial,
-  Communism,
-  Computers,
-  Electronics,
-  GeneticEngineering,
-  Industrialization,
-  Literacy,
-  MapMaking,
-  Masonry,
-  Medicine,
-  Navigation,
-  NuclearFission,
-  Pottery,
-  Railroad,
-  Religion,
-  SpaceFlight,
-  TheoryOfGravity,
-} from '@civ-clone/civ1-science/Advances';
-import { Build, IBuildCriterion } from '@civ-clone/core-city-build/Rules/Build';
-import {
   ApolloProgram,
   Colossus,
   CopernicusObservatory,
@@ -44,6 +22,28 @@ import {
   WomensSuffrage,
 } from '../../Wonders';
 import {
+  Astronomy,
+  BronzeWorking,
+  CeremonialBurial,
+  Communism,
+  Computers,
+  Electronics,
+  GeneticEngineering,
+  Industrialization,
+  Literacy,
+  MapMaking,
+  Masonry,
+  Medicine,
+  Navigation,
+  NuclearFission,
+  Pottery,
+  Railroad,
+  Religion,
+  SpaceFlight,
+  TheoryOfGravity,
+} from '@civ-clone/civ1-science/Advances';
+import { Build, IBuildCriterion } from '@civ-clone/core-city-build/Rules/Build';
+import {
   PlayerResearchRegistry,
   instance as playerResearchRegistryInstance,
 } from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -51,12 +51,12 @@ import {
   WonderRegistry,
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
+import Advance from '@civ-clone/core-science/Advance';
 import City from '@civ-clone/core-city/City';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import { IConstructor } from '@civ-clone/core-registry/Registry';
 import Wonder from '@civ-clone/core-wonder/Wonder';
-import Advance from '@civ-clone/core-science/Advance';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRules = void 0;
+const Wonders_1 = require("../../Wonders");
 const Advances_1 = require("@civ-clone/civ1-science/Advances");
 const Build_1 = require("@civ-clone/core-city-build/Rules/Build");
-const Wonders_1 = require("../../Wonders");
 const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
 const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");

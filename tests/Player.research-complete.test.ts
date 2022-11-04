@@ -1,17 +1,17 @@
+import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import { Alphabet } from '@civ-clone/civ1-science/Advances';
 import { GreatLibrary } from '../Wonders';
+import Player from '@civ-clone/core-player/Player';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
 import RuleRegistry from '@civ-clone/core-rule/RuleRegistry';
 import WonderRegistry from '@civ-clone/core-wonder/WonderRegistry';
 import { expect } from 'chai';
 import researchComplete from '../Rules/Player/research-complete';
-import Player from '@civ-clone/core-player/Player';
-import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 
-describe('GreatLibrary', (): void => {
-  it('should grant a technology to the player when three other players have discovered it', async (): Promise<void> => {
+describe('Player.research-complete', (): void => {
+  it('should grant a technology to the Player that owns the GreatLibrary when at least three other players have discovered it', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       advanceRegistry = new AdvanceRegistry(),
       wonderRegistry = new WonderRegistry(),
@@ -41,9 +41,7 @@ describe('GreatLibrary', (): void => {
       player4Research
     );
 
-    wonderRegistry.register(
-      new GreatLibrary(player1Research.player(), city, ruleRegistry)
-    );
+    wonderRegistry.register(new GreatLibrary(city, ruleRegistry));
 
     expect(player1Research.completed(Alphabet)).to.false;
 

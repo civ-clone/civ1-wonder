@@ -1,4 +1,3 @@
-import { Air, Fortifiable, Naval } from '@civ-clone/civ1-unit/Types';
 import {
   Cathedral,
   Temple,
@@ -13,7 +12,6 @@ import {
   Mysticism,
   Religion,
 } from '@civ-clone/civ1-science/Advances';
-import { Democracy, Republic } from '@civ-clone/civ1-government/Governments';
 import {
   JsBachsCathedral,
   MichelangelosChapel,
@@ -37,18 +35,23 @@ import {
   WonderRegistry,
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
+import { cityHasWonder, playerHasWonder } from '../lib/hasWonder';
+import {
+  discoveredByPlayer,
+  notDiscoveredByAnyPlayer,
+  notDiscoveredByPlayer,
+} from '../lib/hasDiscovered';
 import City from '@civ-clone/core-city/City';
-import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
 import Cost from '@civ-clone/core-city/Rules/Cost';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import { Low } from '@civ-clone/core-rule/Priorities';
-import { Unhappiness } from '@civ-clone/civ1-city/Yields';
-import Unit from '@civ-clone/core-unit/Unit';
-import Wonder from '@civ-clone/core-wonder/Wonder';
-import Yield from '@civ-clone/core-yield/Yield';
-import { reduceYield } from '@civ-clone/core-yield/lib/reduceYields';
+import { MilitaryUnhappiness } from '@civ-clone/civ1-city-happiness/Yields';
 import Priority from '@civ-clone/core-rule/Priority';
+import { Unhappiness } from '@civ-clone/civ1-city/Yields';
+import Yield from '@civ-clone/core-yield/Yield';
+import { hasCityImprovement } from '../lib/hasCityImprovement';
+import { reduceYield } from '@civ-clone/core-yield/lib/reduceYields';
 
 export const getRules: (
   cityImprovementRegistry?: CityImprovementRegistry,
@@ -65,28 +68,10 @@ export const getRules: (
 ): Cost[] => [
   new Cost(
     new Low(),
-    new Criterion((city: City): boolean =>
-      wonderRegistry.some(
-        (wonder): boolean =>
-          wonder instanceof Oracle && wonder.city().player() === city.player()
-      )
-    ),
-    new Criterion((city: City): boolean =>
-      cityImprovementRegistry
-        .getByCity(city)
-        .some(
-          (cityImprovement: CityImprovement): boolean =>
-            cityImprovement instanceof Temple
-        )
-    ),
-    new Criterion(
-      (city: City): boolean =>
-        !playerResearchRegistry.getByPlayer(city.player()).completed(Mysticism)
-    ),
-    new Criterion(
-      (city: City): boolean =>
-        !playerResearchRegistry.getByPlayer(city.player()).completed(Religion)
-    ),
+    playerHasWonder(Oracle, wonderRegistry),
+    hasCityImprovement(Temple, cityImprovementRegistry),
+    notDiscoveredByPlayer(Mysticism, playerResearchRegistry),
+    notDiscoveredByAnyPlayer(Religion, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -98,27 +83,10 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    new Criterion((city: City): boolean =>
-      wonderRegistry.some(
-        (wonder: Wonder): boolean =>
-          wonder instanceof Oracle && wonder.city().player() === city.player()
-      )
-    ),
-    new Criterion((city: City): boolean =>
-      cityImprovementRegistry
-        .getByCity(city)
-        .some(
-          (cityImprovement: CityImprovement): boolean =>
-            cityImprovement instanceof Temple
-        )
-    ),
-    new Criterion((city: City): boolean =>
-      playerResearchRegistry.getByPlayer(city.player()).completed(Mysticism)
-    ),
-    new Criterion(
-      (city: City) =>
-        !playerResearchRegistry.getByPlayer(city.player()).completed(Religion)
-    ),
+    playerHasWonder(Oracle, wonderRegistry),
+    hasCityImprovement(Temple, cityImprovementRegistry),
+    discoveredByPlayer(Mysticism, playerResearchRegistry),
+    notDiscoveredByAnyPlayer(Religion, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -130,19 +98,8 @@ export const getRules: (
 
   new Cost(
     new Priority(4000), // X Low
-    new Criterion((city: City): boolean =>
-      wonderRegistry.some(
-        (wonder: Wonder): boolean =>
-          wonder instanceof ShakespearesTheatre &&
-          wonder.city().player() === city.player()
-      )
-    ),
-    new Criterion(
-      (city: City) =>
-        !playerResearchRegistry
-          .getByPlayer(city.player())
-          .completed(Electronics)
-    ),
+    cityHasWonder(ShakespearesTheatre, wonderRegistry),
+    notDiscoveredByAnyPlayer(Electronics, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -155,13 +112,7 @@ export const getRules: (
   new Cost(
     new Low(),
     // TODO: path check to city that has it to check it's on the same continent...
-    new Criterion((city: City): boolean =>
-      wonderRegistry.some(
-        (wonder: Wonder): boolean =>
-          wonder instanceof JsBachsCathedral &&
-          wonder.city().player() === city.player()
-      )
-    ),
+    playerHasWonder(JsBachsCathedral, wonderRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -173,25 +124,9 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    new Criterion((city: City): boolean =>
-      cityImprovementRegistry
-        .getByCity(city)
-        .some(
-          (cityImprovement: CityImprovement) =>
-            cityImprovement instanceof Cathedral
-        )
-    ),
-    new Criterion((city: City): boolean =>
-      wonderRegistry.some(
-        (wonder: Wonder): boolean =>
-          wonder instanceof MichelangelosChapel &&
-          wonder.city().player() === city.player()
-      )
-    ),
-    new Criterion(
-      (city: City) =>
-        !playerResearchRegistry.getByPlayer(city.player()).completed(Communism)
-    ),
+    playerHasWonder(MichelangelosChapel, wonderRegistry),
+    hasCityImprovement(Cathedral, cityImprovementRegistry),
+    notDiscoveredByAnyPlayer(Communism, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -203,45 +138,19 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    new Criterion((city: City): boolean =>
-      playerGovernmentRegistry
-        .getByPlayer(city.player())
-        .is(Republic, Democracy)
+    playerHasWonder(WomensSuffrage, wonderRegistry),
+    new Criterion((city: City, cityYields: Yield[]): boolean =>
+      cityYields.some((cityYield) => cityYield instanceof MilitaryUnhappiness)
     ),
-    new Criterion((city: City): boolean =>
-      wonderRegistry.some(
-        (wonder: Wonder): boolean =>
-          wonder instanceof WomensSuffrage &&
-          wonder.city().player() === city.player()
-      )
-    ),
-    new Criterion(
-      (city: City): boolean =>
-        unitRegistry
-          .getByCity(city)
-          .filter(
-            (unit: Unit) =>
-              [Air, Fortifiable, Naval].some(
-                (UnitType) => unit instanceof UnitType
-              ) && unit.tile() !== city.tile()
-          ).length > 0
-    ),
-    new Effect(
-      (city: City, yields: Yield[]): Yield =>
-        new Unhappiness(
-          -Math.min(
-            unitRegistry
-              .getByCity(city)
-              .filter(
-                (unit: Unit) =>
-                  [Air, Fortifiable, Naval].some(
-                    (UnitType) => unit instanceof UnitType
-                  ) && unit.tile() !== city.tile()
-              ).length,
-            reduceYield(yields, Unhappiness)
-          ),
-          WomensSuffrage.name
-        )
+    new Effect((city: City, cityYields: Yield[]): Yield[] =>
+      cityYields.flatMap((cityYield) => {
+        if (!(cityYield instanceof MilitaryUnhappiness)) {
+          return [];
+        }
+
+        // TODO: custom `Yield` for this?
+        return new Unhappiness(-1, WomensSuffrage.name);
+      })
     )
   ),
 ];

@@ -1,26 +1,26 @@
 import { Lighthouse, MagellansExpedition } from '../Wonders';
+import Advance from '@civ-clone/core-science/Advance';
+import { Magnetism } from '@civ-clone/civ1-science/Advances';
 import Player from '@civ-clone/core-player/Player';
+import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
+import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
 import RuleRegistry from '@civ-clone/core-rule/RuleRegistry';
 import { Trireme } from '@civ-clone/civ1-unit/Units';
+import Wonder from '@civ-clone/core-wonder/Wonder';
 import WonderRegistry from '@civ-clone/core-wonder/WonderRegistry';
 import { expect } from 'chai';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import unitYield from '@civ-clone/civ1-unit/Rules/Unit/yield';
 import wonderUnitYield from '../Rules/Unit/yield';
-import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
-import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
-import { Magnetism } from '@civ-clone/civ1-science/Advances';
-import Wonder from '@civ-clone/core-wonder/Wonder';
-import Advance from '@civ-clone/core-science/Advance';
 
-(
-  [
-    [Lighthouse, 1, Magnetism],
-    [MagellansExpedition, 1, null],
-  ] as [typeof Wonder, number, typeof Advance | null][]
-).forEach(([WonderType, increase, ObsoletingAdvance]) =>
-  describe(WonderType.name, (): void => {
-    it(`should provide ${increase} additional move for NavalUnits`, async (): Promise<void> => {
+describe('Unit.yield', (): void =>
+  (
+    [
+      [Lighthouse, 1, Magnetism],
+      [MagellansExpedition, 1, null],
+    ] as [typeof Wonder, number, typeof Advance | null][]
+  ).forEach(([WonderType, increase, ObsoletingAdvance]) =>
+    it(`should provide ${increase} additional move for NavalUnits when ${WonderType.name} is owned by the Player`, async (): Promise<void> => {
       const ruleRegistry = new RuleRegistry(),
         wonderRegistry = new WonderRegistry(),
         player = new Player(ruleRegistry),
@@ -42,16 +42,12 @@ import Advance from '@civ-clone/core-science/Advance';
 
       expect(unit.movement().value()).to.equal(3);
 
-      wonderRegistry.register(new Lighthouse(player, city, ruleRegistry));
+      wonderRegistry.register(new Lighthouse(city, ruleRegistry));
 
       expect(unit.movement().value()).to.equal(3 + increase);
 
       if (WonderType === Lighthouse) {
-        const magellansExpedition = new MagellansExpedition(
-          player,
-          city,
-          ruleRegistry
-        );
+        const magellansExpedition = new MagellansExpedition(city, ruleRegistry);
 
         wonderRegistry.register(magellansExpedition);
 
@@ -65,6 +61,5 @@ import Advance from '@civ-clone/core-science/Advance';
 
         expect(unit.movement().value()).to.equal(3);
       }
-    });
-  })
-);
+    })
+  ));

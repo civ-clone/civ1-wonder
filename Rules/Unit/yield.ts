@@ -10,13 +10,14 @@ import {
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import { Low } from '@civ-clone/core-rule/Priorities';
+import { Magnetism } from '@civ-clone/civ1-science/Advances';
 import { Movement } from '@civ-clone/core-unit/Yields';
 import { Naval } from '@civ-clone/civ1-unit/Types';
 import Unit from '@civ-clone/core-unit/Unit';
 import UnitYield from '@civ-clone/core-unit/Rules/Yield';
-import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
-import { Magnetism } from '@civ-clone/civ1-science/Advances';
+import { notDiscoveredByPlayer } from '../lib/hasDiscovered';
+import { playerHasWonder } from '../lib/hasWonder';
 
 export const getRules: (
   wonderRegistry?: WonderRegistry,
@@ -31,15 +32,8 @@ export const getRules: (
       (unit: Unit, unitYield: Yield): boolean => unitYield instanceof Movement
     ),
     new Criterion((unit: Unit): boolean => unit instanceof Naval),
-    new Criterion((unit: Unit): boolean =>
-      wonderRegistry
-        .filter((wonder: Wonder): boolean => wonder instanceof Lighthouse)
-        .some((wonder: Wonder): boolean => wonder.player() === unit.player())
-    ),
-    new Criterion(
-      (unit: Unit): boolean =>
-        !playerResearchRegistry.getByPlayer(unit.player()).completed(Magnetism)
-    ),
+    playerHasWonder(Lighthouse, wonderRegistry),
+    notDiscoveredByPlayer(Magnetism, playerResearchRegistry),
     new Effect((unit: Unit, unitYield: Yield): void => unitYield.add(1))
   ),
   new UnitYield(
@@ -48,13 +42,7 @@ export const getRules: (
       (unit: Unit, unitYield: Yield): boolean => unitYield instanceof Movement
     ),
     new Criterion((unit: Unit): boolean => unit instanceof Naval),
-    new Criterion((unit: Unit): boolean =>
-      wonderRegistry
-        .filter(
-          (wonder: Wonder): boolean => wonder instanceof MagellansExpedition
-        )
-        .some((wonder: Wonder): boolean => wonder.player() === unit.player())
-    ),
+    playerHasWonder(MagellansExpedition, wonderRegistry),
     new Effect((unit: Unit, unitYield: Yield): void => unitYield.add(1))
   ),
 ];

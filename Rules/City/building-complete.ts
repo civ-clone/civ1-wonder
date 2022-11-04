@@ -1,4 +1,3 @@
-import { BuildingComplete } from '@civ-clone/core-city-build/Rules/BulidingComplete';
 import {
   CityBuildRegistry,
   instance as cityBuildRegistryInstance,
@@ -11,11 +10,12 @@ import {
   WonderRegistry,
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
+import Buildable from '@civ-clone/core-city-build/Buildable';
+import BuildingComplete from '@civ-clone/core-city-build/Rules/BulidingComplete';
 import CityBuild from '@civ-clone/core-city-build/CityBuild';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import Wonder from '@civ-clone/core-wonder/Wonder';
-import Buildable from '@civ-clone/core-city-build/Buildable';
 
 export const getRules: (
   cityBuildRegistry?: CityBuildRegistry,
