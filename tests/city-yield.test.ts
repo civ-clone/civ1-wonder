@@ -24,6 +24,8 @@ import wonderCityYield from '../Rules/City/yield';
 import TileYield from '@civ-clone/core-world/Rules/Yield';
 import Effect from '@civ-clone/core-rule/Effect';
 import PlayerGovernment from '@civ-clone/core-government/PlayerGovernment';
+import CityImprovementRegistry from '@civ-clone/core-city-improvement/CityImprovementRegistry';
+import Added from '@civ-clone/core-player/Rules/Added';
 
 describe(`City.yield`, (): void => {
   const ruleRegistry = new RuleRegistry(),
@@ -34,13 +36,20 @@ describe(`City.yield`, (): void => {
     cityBuildRegistry = new CityBuildRegistry(),
     advanceRegistry = new AdvanceRegistry(),
     cityGrowthRegistry = new CityGrowthRegistry(),
-    tileImprovementRegistry = new TileImprovementRegistry();
+    tileImprovementRegistry = new TileImprovementRegistry(),
+    cityImprovementRegistry = new CityImprovementRegistry(),
+    playerGovernmentRegistry = new PlayerGovernmentRegistry();
 
   ruleRegistry.register(
     ...grow(cityGrowthRegistry),
-    ...cityYield(),
+    ...cityYield(cityImprovementRegistry, playerGovernmentRegistry),
     ...wonderCityYield(playerResearchRegistry, wonderRegistry),
-    new TileYield(new Effect(() => new Trade(1)))
+    new TileYield(new Effect(() => new Trade(1))),
+    new Added(
+      new Effect((player) =>
+        playerGovernmentRegistry.register(new PlayerGovernment(player))
+      )
+    )
   );
 
   it('should provide one additional trade per Tile with trade already on in the city until the discovery of Electricity', async (): Promise<void> => {

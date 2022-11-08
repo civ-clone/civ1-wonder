@@ -7,7 +7,7 @@ import Effect from '@civ-clone/core-rule/Effect';
 import Obsolete from '@civ-clone/core-wonder/Rules/Obsolete';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 
-export const getRules: (engine: Engine) => Obsolete[] = (
+export const getRules: (engine?: Engine) => Obsolete[] = (
   engine: Engine = engineInstance
 ): Obsolete[] => [
   new Obsolete(
