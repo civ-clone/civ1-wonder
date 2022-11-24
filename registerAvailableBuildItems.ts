@@ -21,31 +21,28 @@ import {
   UnitedNations,
   WomensSuffrage,
 } from './Wonders';
-import Buildable from '@civ-clone/core-city-build/Buildable';
 import { instance as availableCityBuildItemsRegistryInstance } from '@civ-clone/core-city-build/AvailableCityBuildItemsRegistry';
 
 availableCityBuildItemsRegistryInstance.register(
-  ...([
-    ApolloProgram,
-    Colossus,
-    CopernicusObservatory,
-    CureForCancer,
-    DarwinsVoyage,
-    GreatLibrary,
-    GreatWall,
-    HangingGardens,
-    HooverDam,
-    IsaacNewtonsCollege,
-    JsBachsCathedral,
-    Lighthouse,
-    MagellansExpedition,
-    ManhattanProject,
-    MichelangelosChapel,
-    Oracle,
-    Pyramids,
-    SetiProgram,
-    ShakespearesTheatre,
-    UnitedNations,
-    WomensSuffrage,
-  ] as unknown as typeof Buildable[])
+  ApolloProgram,
+  Colossus,
+  CopernicusObservatory,
+  CureForCancer,
+  DarwinsVoyage,
+  GreatLibrary,
+  GreatWall,
+  HangingGardens,
+  HooverDam,
+  IsaacNewtonsCollege,
+  JsBachsCathedral,
+  Lighthouse,
+  MagellansExpedition,
+  ManhattanProject,
+  MichelangelosChapel,
+  Oracle,
+  Pyramids,
+  SetiProgram,
+  ShakespearesTheatre,
+  UnitedNations,
+  WomensSuffrage
 );
