@@ -57,6 +57,8 @@ import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import { IConstructor } from '@civ-clone/core-registry/Registry';
 import Wonder from '@civ-clone/core-wonder/Wonder';
+import { Nuclear } from '@civ-clone/civ1-unit/Units';
+import Unit from '@civ-clone/core-unit/Unit';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
@@ -105,11 +107,11 @@ export const getRules: (
       [WomensSuffrage, Industrialization],
     ] as [typeof Wonder, typeof Advance][]
   ).map(
-    ([UnitType, RequiredAdvance]): Build =>
+    ([WonderType, RequiredAdvance]): Build =>
       new Build(
         new Criterion(
           (city: City, BuildItem: IConstructor): boolean =>
-            BuildItem === UnitType
+            BuildItem === WonderType
         ),
         new Effect(
           (city: City): IBuildCriterion =>
@@ -117,6 +119,22 @@ export const getRules: (
               playerResearchRegistry
                 .getByPlayer(city.player())
                 .completed(RequiredAdvance)
+            )
+        )
+      )
+  ),
+
+  ...([[Nuclear, ManhattanProject]] as [typeof Unit, typeof Wonder][]).map(
+    ([UnitType, RequiredWonder]) =>
+      new Build(
+        new Criterion(
+          (city: City, BuildItem: IConstructor): boolean =>
+            BuildItem === UnitType
+        ),
+        new Effect(
+          () =>
+            new Criterion((): boolean =>
+              wonderRegistry.some((wonder) => wonder instanceof RequiredWonder)
             )
         )
       )

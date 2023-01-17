@@ -9,6 +9,7 @@ const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Wonder_1 = require("@civ-clone/core-wonder/Wonder");
+const Units_1 = require("@civ-clone/civ1-unit/Units");
 const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => [
     new Build_1.Build(new Criterion_1.default((city, BuildItem) => Object.isPrototypeOf.call(Wonder_1.default, BuildItem)), new Effect_1.default((city, WonderType) => new Criterion_1.default(() => wonderRegistry.filter((wonder) => wonder instanceof WonderType).length === 0))),
     ...[
@@ -33,9 +34,10 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
         [Wonders_1.ShakespearesTheatre, Advances_1.Medicine],
         [Wonders_1.UnitedNations, Advances_1.Communism],
         [Wonders_1.WomensSuffrage, Advances_1.Industrialization],
-    ].map(([UnitType, RequiredAdvance]) => new Build_1.Build(new Criterion_1.default((city, BuildItem) => BuildItem === UnitType), new Effect_1.default((city) => new Criterion_1.default(() => playerResearchRegistry
+    ].map(([WonderType, RequiredAdvance]) => new Build_1.Build(new Criterion_1.default((city, BuildItem) => BuildItem === WonderType), new Effect_1.default((city) => new Criterion_1.default(() => playerResearchRegistry
         .getByPlayer(city.player())
         .completed(RequiredAdvance))))),
+    ...[[Units_1.Nuclear, Wonders_1.ManhattanProject]].map(([UnitType, RequiredWonder]) => new Build_1.Build(new Criterion_1.default((city, BuildItem) => BuildItem === UnitType), new Effect_1.default(() => new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof RequiredWonder))))),
 ];
 exports.getRules = getRules;
 exports.default = exports.getRules;
