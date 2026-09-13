@@ -65,7 +65,7 @@ describe('City.build-cost', (): void => {
         ShakespearesTheatre,
         UnitedNations,
         WomensSuffrage,
-      ] as unknown as typeof Buildable[])
+      ] as unknown as (typeof Buildable)[])
     );
 
     ruleRegistry.register(...getRules());
