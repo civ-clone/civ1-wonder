@@ -6,6 +6,7 @@ import cityDestroyed from './Rules/City/destroyed';
 import cityYield from './Rules/City/yield';
 import cityYieldModifier from './Rules/City/yield-modifier';
 import playerResearchComplete from './Rules/Player/research-complete';
+import playerResearchStarted from './Rules/PlayerResearch/started';
 import unitYield from './Rules/Unit/yield';
 import wonderObsolete from './Rules/Wonder/obsolete';
 import { Game, defaultGame } from '@civ-clone/core-game';
@@ -19,7 +20,8 @@ export const register = (game: Game): void =>
       game.playerResearch,
       game.rules,
       game.wonders,
-      game.engine
+      game.engine,
+      game.pendingEffects
     ),
     ...cityCost(
       game.cityImprovements,
@@ -32,6 +34,7 @@ export const register = (game: Game): void =>
     ...cityYield(game.playerResearch, game.wonders),
     ...cityYieldModifier(game.playerResearch, game.wonders),
     ...playerResearchComplete(game.playerResearch, game.rules, game.wonders),
+    ...playerResearchStarted(game.pendingEffects),
     ...unitYield(game.wonders, game.playerResearch),
     ...wonderObsolete(game.engine)
   );

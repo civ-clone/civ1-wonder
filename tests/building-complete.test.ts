@@ -12,6 +12,8 @@ import Buildable from '@civ-clone/core-city-build/Buildable';
 import CityBuild from '@civ-clone/core-city-build/CityBuild';
 import CityBuildRegistry from '@civ-clone/core-city-build/CityBuildRegistry';
 import { Colossus, DarwinsVoyage } from '../Wonders';
+import { PendingEffectRegistry } from '@civ-clone/core-pending-effect';
+import playerResearchStarted from '../Rules/PlayerResearch/started';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
 import { Production, Research } from '@civ-clone/civ1-city/Yields';
@@ -97,6 +99,7 @@ describe('city:building-complete', (): void => {
       playerResearchRegistry = new PlayerResearchRegistry(),
       ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
+      pendingEffects = new PendingEffectRegistry(),
       city = await setUpCity(),
       cityBuild = new CityBuild(
         city,
@@ -127,8 +130,15 @@ describe('city:building-complete', (): void => {
         cityBuildRegistry,
         playerResearchRegistry,
         ruleRegistry,
-        wonderRegistry
+        wonderRegistry,
+        undefined,
+        pendingEffects
       ),
+      // The free completions are granted by a rule now, registered here like
+      // any other. It used to be a one-shot that the wonder's effect
+      // registered into the rule registry itself, which is exactly why a save
+      // taken between building the wonder and the next research lost them.
+      ...playerResearchStarted(pendingEffects),
       new Cost(new Effect(() => 20))
     );
     availableCityBuildItemsRegistry.register(

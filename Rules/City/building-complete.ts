@@ -18,6 +18,12 @@ import {
   WonderRegistry,
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
+import {
+  PendingEffect,
+  PendingEffectRegistry,
+  instance as pendingEffectRegistryInstance,
+} from '@civ-clone/core-pending-effect';
+import { DARWINS_VOYAGE, spendFreeResearch } from '../PlayerResearch/started';
 import Buildable, {
   BuildableInstance,
 } from '@civ-clone/core-city-build/Buildable';
@@ -35,13 +41,15 @@ export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
   ruleRegistry?: RuleRegistry,
   wonderRegistry?: WonderRegistry,
-  engine?: Engine
+  engine?: Engine,
+  pendingEffects?: PendingEffectRegistry
 ) => BuildingComplete[] = (
   cityBuildRegistry: CityBuildRegistry = cityBuildRegistryInstance,
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
   ruleRegistry: RuleRegistry = ruleRegistryInstance,
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
-  engine: Engine = engineInstance
+  engine: Engine = engineInstance,
+  pendingEffects: PendingEffectRegistry = pendingEffectRegistryInstance
 ): BuildingComplete[] => [
   new BuildingComplete(
     new Criterion(
@@ -80,34 +88,32 @@ export const getRules: (
       const playerResearch = playerResearchRegistry.getByPlayer(
           cityBuild.city().player()
         ),
-        createOnStarted = (action: () => void) => {
-          const onStarted = new Started(
-            new Criterion(
-              (startedPlayerResearch: PlayerResearch) =>
-                startedPlayerResearch === playerResearch
-            ),
-            new Effect(() => {
-              ruleRegistry.unregister(onStarted);
+        // Two free research completions, recorded as a debt against the
+        // player's research rather than as a pair of self-registering one-shot
+        // rules. The old version kept the only record of them in a closure, so
+        // a save taken between finishing the wonder and starting the next
+        // research lost them with no symptom — which is the bug
+        // `01-constraints.md` §4 describes.
+        pendingEffect = new PendingEffect(DARWINS_VOYAGE, playerResearch, {
+          remaining: '2',
+        });
 
-              action();
-            })
-          );
+      pendingEffects.handler(
+        DARWINS_VOYAGE,
+        (discharged: PendingEffect): void =>
+          (discharged.target() as PlayerResearch).add(
+            (discharged.target() as PlayerResearch).cost()
+          )
+      );
 
-          ruleRegistry.register(onStarted);
-        },
-        completeResearch = () => {
-          playerResearch.add(playerResearch.cost());
+      pendingEffects.register(pendingEffect);
 
-          createOnStarted(() => playerResearch.add(playerResearch.cost()));
-        };
-
-      if (playerResearch.researching() === null) {
-        createOnStarted(() => completeResearch());
-
-        return;
+      // Already researching something, so one is spent now rather than
+      // waiting for the next thing they start. `Rules/PlayerResearch/started`
+      // spends the rest, one per research start.
+      if (playerResearch.researching() !== null) {
+        spendFreeResearch(playerResearch, pendingEffect, pendingEffects);
       }
-
-      completeResearch();
     })
   ),
 ];
