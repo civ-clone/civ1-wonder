@@ -26,6 +26,9 @@ import Effect from '@civ-clone/core-rule/Effect';
 import PlayerGovernment from '@civ-clone/core-government/PlayerGovernment';
 import CityImprovementRegistry from '@civ-clone/core-city-improvement/CityImprovementRegistry';
 import Added from '@civ-clone/core-player/Rules/Added';
+import CityRegistry from '@civ-clone/core-city/CityRegistry';
+import WorkedTileRegistry from '@civ-clone/core-city/WorkedTileRegistry';
+import created from '@civ-clone/civ1-city/Rules/City/created';
 
 describe(`City.yield`, (): void => {
   const ruleRegistry = new RuleRegistry(),
@@ -53,11 +56,49 @@ describe(`City.yield`, (): void => {
   );
 
   it('should provide one additional trade per Tile with trade already on in the city until the discovery of Electricity', async (): Promise<void> => {
+    // Its own registries throughout (web-renderer#22). The shared ones let the result depend on which tests ran first:
+    //  the default `WorkedTileRegistry` asks the default rule registry whether a tile can be worked, which never sees
+    //  `setUpCity`'s `CanBeWorked` rule. And a city only works its own tile, and a first worker, through `civ1-city`'s
+    //  `Created` rules, which this test has to register itself.
+    const ruleRegistry = new RuleRegistry(),
+      playerResearchRegistry = new PlayerResearchRegistry(),
+      wonderRegistry = new WonderRegistry(),
+      playerWorldRegistry = new PlayerWorldRegistry(),
+      cityGrowthRegistry = new CityGrowthRegistry(),
+      tileImprovementRegistry = new TileImprovementRegistry(),
+      playerGovernmentRegistry = new PlayerGovernmentRegistry(),
+      workedTileRegistry = new WorkedTileRegistry(ruleRegistry);
+
+    ruleRegistry.register(
+      ...created(
+        tileImprovementRegistry,
+        new CityBuildRegistry(),
+        cityGrowthRegistry,
+        new CityRegistry(),
+        playerWorldRegistry,
+        ruleRegistry,
+        new AvailableCityBuildItemsRegistry(),
+        undefined,
+        workedTileRegistry
+      ),
+      ...grow(cityGrowthRegistry, playerWorldRegistry, workedTileRegistry),
+      ...cityYield(new CityImprovementRegistry(), playerGovernmentRegistry),
+      ...wonderCityYield(playerResearchRegistry, wonderRegistry),
+      new TileYield(new Effect(() => new Trade(1))),
+      new Added(
+        new Effect((player) =>
+          playerGovernmentRegistry.register(new PlayerGovernment(player))
+        )
+      )
+    );
+
     const city = await setUpCity({
       ruleRegistry,
       size: 5,
       tileImprovementRegistry,
       cityGrowthRegistry,
+      playerWorldRegistry,
+      workedTileRegistry,
     });
 
     playerResearchRegistry.register(new PlayerResearch(city.player()));
