@@ -1,6 +1,8 @@
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
-import { Alphabet } from '@civ-clone/civ1-science/Advances';
-import { GreatLibrary } from '../Wonders';
+import { Alphabet, Electricity } from '@civ-clone/civ1-science/Advances';
+import { Colossus, GreatLibrary } from '../Wonders';
+import Effect from '@civ-clone/core-rule/Effect';
+import Obsolete from '@civ-clone/core-wonder/Rules/Obsolete';
 import Player from '@civ-clone/core-player/Player';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -63,5 +65,41 @@ describe('Player.research-complete', (): void => {
         );
       }
     );
+  });
+
+  it('should make a Wonder obsolete only when the obsoleting Advance is first discovered', async (): Promise<void> => {
+    const ruleRegistry = new RuleRegistry(),
+      advanceRegistry = new AdvanceRegistry(),
+      wonderRegistry = new WonderRegistry(),
+      playerResearchRegistry = new PlayerResearchRegistry(),
+      playerResearches = [
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+      ].map(
+        (player: Player): PlayerResearch =>
+          new PlayerResearch(player, advanceRegistry, ruleRegistry)
+      ),
+      city = await setUpCity({
+        player: playerResearches[0].player(),
+        ruleRegistry,
+      });
+
+    let obsoleted = 0;
+
+    ruleRegistry.register(
+      ...researchComplete(playerResearchRegistry, ruleRegistry, wonderRegistry),
+      new Obsolete(new Effect((): void => void obsoleted++))
+    );
+
+    playerResearchRegistry.register(...playerResearches);
+
+    wonderRegistry.register(new Colossus(city, ruleRegistry));
+
+    playerResearches.forEach((playerResearch: PlayerResearch): void =>
+      playerResearch.addAdvance(Electricity)
+    );
+
+    expect(obsoleted).to.equal(1);
   });
 });

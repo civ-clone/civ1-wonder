@@ -5,6 +5,7 @@ import {
 import Advance from '@civ-clone/core-science/Advance';
 import City from '@civ-clone/core-city/City';
 import Criterion from '@civ-clone/core-rule/Criterion';
+import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import Unit from '@civ-clone/core-unit/Unit';
 
 export const discoveredByPlayer = (
@@ -24,6 +25,22 @@ export const notDiscoveredByAnyPlayer = (
       AdvanceType === null ||
       !playerResearchRegistry.some((playerResearch) =>
         playerResearch.completed(AdvanceType)
+      )
+  );
+
+// For a `Complete` rule: true only for the first player to discover `AdvanceType`, because by the time `Complete` is
+//  processed the discovering player's research already includes it. This is the moment `notDiscoveredByAnyPlayer`
+//  stops holding.
+export const notDiscoveredByAnyOtherPlayer = (
+  AdvanceType: typeof Advance,
+  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance
+) =>
+  new Criterion(
+    (discoveringPlayerResearch: PlayerResearch): boolean =>
+      !playerResearchRegistry.some(
+        (playerResearch) =>
+          playerResearch !== discoveringPlayerResearch &&
+          playerResearch.completed(AdvanceType)
       )
   );
 

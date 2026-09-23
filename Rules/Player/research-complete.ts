@@ -43,6 +43,7 @@ import Obsolete from '@civ-clone/core-wonder/Rules/Obsolete';
 import Player from '@civ-clone/core-player/Player';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import Wonder from '@civ-clone/core-wonder/Wonder';
+import { notDiscoveredByAnyOtherPlayer } from '../lib/hasDiscovered';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
@@ -124,6 +125,11 @@ export const getRules: (
         new Criterion(
           (playerResearch: PlayerResearch, advance: Advance) =>
             advance instanceof ObsoletingAdvance
+        ),
+        // Only the first discovery makes a wonder obsolete; later ones would process `Obsolete` again.
+        notDiscoveredByAnyOtherPlayer(
+          ObsoletingAdvance,
+          playerResearchRegistry
         ),
         new Effect(() => {
           const [wonder] = wonderRegistry.filter(
