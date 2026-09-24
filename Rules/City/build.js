@@ -20,7 +20,7 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
         [Wonders_1.HangingGardens, Advances_1.Pottery],
         [Wonders_1.Lighthouse, Advances_1.MapMaking],
         [Wonders_1.MagellansExpedition, Advances_1.Navigation],
-        [Wonders_1.Oracle, Advances_1.CeremonialBurial],
+        [Wonders_1.Oracle, Advances_1.Mysticism],
         [Wonders_1.Pyramids, Advances_1.Masonry],
         [Wonders_1.ApolloProgram, Advances_1.SpaceFlight],
         [Wonders_1.CureForCancer, Advances_1.GeneticEngineering],
