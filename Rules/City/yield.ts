@@ -1,5 +1,4 @@
 import { Colossus, CureForCancer, HangingGardens } from '../../Wonders';
-import { Electricity, Invention } from '@civ-clone/civ1-science/Advances';
 import { Happiness, Trade } from '@civ-clone/civ1-city/Yields';
 import {
   PlayerResearchRegistry,
@@ -10,14 +9,12 @@ import {
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
 import { cityHasWonder, playerHasWonder } from '../lib/hasWonder';
-import Advance from '@civ-clone/core-science/Advance';
 import City from '@civ-clone/core-city/City';
 import CityYield from '@civ-clone/core-city/Rules/Yield';
 import Effect from '@civ-clone/core-rule/Effect';
 import Priority from '@civ-clone/core-rule/Priority';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
-import { notDiscoveredByAnyPlayer } from '../lib/hasDiscovered';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
@@ -28,8 +25,7 @@ export const getRules: (
 ): CityYield[] => [
   new CityYield(
     new Priority(500),
-    cityHasWonder(Colossus, wonderRegistry),
-    notDiscoveredByAnyPlayer(Electricity, playerResearchRegistry),
+    cityHasWonder(Colossus, wonderRegistry, playerResearchRegistry),
     new Effect((city: City): Yield => {
       return new Trade(
         city
@@ -44,14 +40,13 @@ export const getRules: (
 
   ...(
     [
-      [HangingGardens, 1, Invention],
-      [CureForCancer, 1, null],
-    ] as [typeof Wonder, number, typeof Advance | null][]
+      [HangingGardens, 1],
+      [CureForCancer, 1],
+    ] as [typeof Wonder, number][]
   ).map(
-    ([WonderType, happiness, ObsoletingAdvance]) =>
+    ([WonderType, happiness]) =>
       new CityYield(
-        playerHasWonder(WonderType, wonderRegistry),
-        notDiscoveredByAnyPlayer(ObsoletingAdvance, playerResearchRegistry),
+        playerHasWonder(WonderType, wonderRegistry, playerResearchRegistry),
         new Effect((): Yield => new Happiness(happiness, WonderType.name))
       )
   ),

@@ -6,12 +6,7 @@ import {
   CityImprovementRegistry,
   instance as cityImprovementRegistryInstance,
 } from '@civ-clone/core-city-improvement/CityImprovementRegistry';
-import {
-  Communism,
-  Electronics,
-  Mysticism,
-  Religion,
-} from '@civ-clone/civ1-science/Advances';
+import { Mysticism } from '@civ-clone/civ1-science/Advances';
 import {
   JsBachsCathedral,
   MichelangelosChapel,
@@ -38,7 +33,6 @@ import {
 import { cityHasWonder, playerHasWonder } from '../lib/hasWonder';
 import {
   discoveredByPlayer,
-  notDiscoveredByAnyPlayer,
   notDiscoveredByPlayer,
 } from '../lib/hasDiscovered';
 import City from '@civ-clone/core-city/City';
@@ -68,10 +62,9 @@ export const getRules: (
 ): Cost[] => [
   new Cost(
     new Low(),
-    playerHasWonder(Oracle, wonderRegistry),
+    playerHasWonder(Oracle, wonderRegistry, playerResearchRegistry),
     hasCityImprovement(Temple, cityImprovementRegistry),
     notDiscoveredByPlayer(Mysticism, playerResearchRegistry),
-    notDiscoveredByAnyPlayer(Religion, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -83,10 +76,9 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    playerHasWonder(Oracle, wonderRegistry),
+    playerHasWonder(Oracle, wonderRegistry, playerResearchRegistry),
     hasCityImprovement(Temple, cityImprovementRegistry),
     discoveredByPlayer(Mysticism, playerResearchRegistry),
-    notDiscoveredByAnyPlayer(Religion, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -98,8 +90,7 @@ export const getRules: (
 
   new Cost(
     new Priority(4000), // X Low
-    cityHasWonder(ShakespearesTheatre, wonderRegistry),
-    notDiscoveredByAnyPlayer(Electronics, playerResearchRegistry),
+    cityHasWonder(ShakespearesTheatre, wonderRegistry, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -112,7 +103,7 @@ export const getRules: (
   new Cost(
     new Low(),
     // TODO: path check to city that has it to check it's on the same continent...
-    playerHasWonder(JsBachsCathedral, wonderRegistry),
+    playerHasWonder(JsBachsCathedral, wonderRegistry, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -124,9 +115,12 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    playerHasWonder(MichelangelosChapel, wonderRegistry),
+    playerHasWonder(
+      MichelangelosChapel,
+      wonderRegistry,
+      playerResearchRegistry
+    ),
     hasCityImprovement(Cathedral, cityImprovementRegistry),
-    notDiscoveredByAnyPlayer(Communism, playerResearchRegistry),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -138,7 +132,7 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    playerHasWonder(WomensSuffrage, wonderRegistry),
+    playerHasWonder(WomensSuffrage, wonderRegistry, playerResearchRegistry),
     new Criterion((city: City, cityYields: Yield[]): boolean =>
       cityYields.some((cityYield) => cityYield instanceof MilitaryUnhappiness)
     ),

@@ -63,3 +63,38 @@ describe('Unit.yield', (): void =>
       }
     })
   ));
+
+describe('Unit.yield, Lighthouse', (): void => {
+  it('should stop giving the extra move once another Player discovers Magnetism', async (): Promise<void> => {
+    const ruleRegistry = new RuleRegistry(),
+      wonderRegistry = new WonderRegistry(),
+      player = new Player(ruleRegistry),
+      otherPlayer = new Player(ruleRegistry),
+      playerResearchRegistry = new PlayerResearchRegistry(),
+      otherPlayerResearch = new PlayerResearch(otherPlayer),
+      city = await setUpCity({
+        player,
+        ruleRegistry,
+      });
+
+    playerResearchRegistry.register(
+      new PlayerResearch(player),
+      otherPlayerResearch
+    );
+
+    ruleRegistry.register(
+      ...unitYield(),
+      ...wonderUnitYield(wonderRegistry, playerResearchRegistry)
+    );
+
+    const unit = new Trireme(null, player, city.tile(), ruleRegistry);
+
+    wonderRegistry.register(new Lighthouse(city, ruleRegistry));
+
+    expect(unit.movement().value()).to.equal(4);
+
+    otherPlayerResearch.addAdvance(Magnetism);
+
+    expect(unit.movement().value()).to.equal(3);
+  });
+});

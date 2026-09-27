@@ -1,5 +1,9 @@
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
-import { Alphabet, Electricity } from '@civ-clone/civ1-science/Advances';
+import {
+  Alphabet,
+  Electricity,
+  University,
+} from '@civ-clone/civ1-science/Advances';
 import { Colossus, GreatLibrary } from '../Wonders';
 import Effect from '@civ-clone/core-rule/Effect';
 import Obsolete from '@civ-clone/core-wonder/Rules/Obsolete';
@@ -65,6 +69,48 @@ describe('Player.research-complete', (): void => {
         );
       }
     );
+  });
+
+  it('should stop granting technologies once anyone discovers University', async (): Promise<void> => {
+    const ruleRegistry = new RuleRegistry(),
+      advanceRegistry = new AdvanceRegistry(),
+      wonderRegistry = new WonderRegistry(),
+      playerResearchRegistry = new PlayerResearchRegistry(),
+      [player1Research, player2Research, player3Research, player4Research] = [
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+      ].map(
+        (player: Player): PlayerResearch =>
+          new PlayerResearch(player, advanceRegistry, ruleRegistry)
+      ),
+      city = await setUpCity({
+        player: player1Research.player(),
+        ruleRegistry,
+      });
+
+    ruleRegistry.register(
+      ...researchComplete(playerResearchRegistry, ruleRegistry, wonderRegistry)
+    );
+
+    playerResearchRegistry.register(
+      player1Research,
+      player2Research,
+      player3Research,
+      player4Research
+    );
+
+    wonderRegistry.register(new GreatLibrary(city, ruleRegistry));
+
+    player2Research.addAdvance(University);
+
+    [player2Research, player3Research, player4Research].forEach(
+      (playerResearch: PlayerResearch): void =>
+        playerResearch.addAdvance(Alphabet)
+    );
+
+    expect(player1Research.completed(Alphabet)).to.false;
   });
 
   it('should make a Wonder obsolete only when the obsoleting Advance is first discovered', async (): Promise<void> => {
