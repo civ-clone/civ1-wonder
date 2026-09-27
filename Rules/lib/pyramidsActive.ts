@@ -12,8 +12,8 @@ import { Pyramids } from '../../Wonders';
 import { playerOwnsWonder } from './hasWonder';
 
 /**
- * The player owns the Pyramids and they aren't obsolete yet (anyone has
- * discovered Communism).
+ * The player owns the Pyramids and they aren't obsolete yet: no player has
+ * discovered Communism.
  */
 export const pyramidsActive = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
