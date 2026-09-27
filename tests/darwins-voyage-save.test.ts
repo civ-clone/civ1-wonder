@@ -2,7 +2,7 @@ import {
   PendingEffect,
   PendingEffectRegistry,
 } from '@civ-clone/core-pending-effect';
-import {
+import playerResearchStarted, {
   DARWINS_VOYAGE,
   spendFreeResearch,
 } from '../Rules/PlayerResearch/started';
@@ -53,11 +53,7 @@ describe("Darwin's Voyage across a save", (): void => {
     // player still reaches the file as the research's owner.
     game.playerResearch.register(playerResearch);
 
-    game.pendingEffects.handler(DARWINS_VOYAGE, (pendingEffect) =>
-      (pendingEffect.target() as PlayerResearch).add(
-        (pendingEffect.target() as PlayerResearch).cost()
-      )
-    );
+    game.rules.register(...playerResearchStarted(game.pendingEffects));
     game.pendingEffects.register(
       new PendingEffect(DARWINS_VOYAGE, playerResearch, { remaining: '2' })
     );
@@ -112,9 +108,20 @@ describe("Darwin's Voyage across a save", (): void => {
     expect(restored.target()?.id()).to.equal(playerResearch.id());
   });
 
+  it('should register its handler with the rules, before the wonder is built', (): void => {
+    const pendingEffects = new PendingEffectRegistry();
+
+    playerResearchStarted(pendingEffects);
+
+    expect(pendingEffects.handlers()).to.include(DARWINS_VOYAGE);
+  });
+
   it('should still be spendable after a load', (): void => {
     // The point of the whole exercise: a debt that survives but cannot be
     // discharged would be no better than one that was lost.
+    //
+    // The loaded game gets its handler the way the renderer's fresh worker
+    // does: from registering the rules, not from the wonder being built.
     const { game } = gameWithDebt();
     const loaded = gameForLoad({
       classes: game.classes,
@@ -122,18 +129,25 @@ describe("Darwin's Voyage across a save", (): void => {
       rules: game.rules,
     });
 
-    loaded.pendingEffects.handler(DARWINS_VOYAGE, () => {});
+    playerResearchStarted(loaded.pendingEffects);
     hydrate(save(game, { name: 'darwins' }), loaded);
 
     const [restored] = owed(loaded);
     const research = restored.target() as PlayerResearch;
 
+    // Nothing is being researched, so the cost is otherwise `Infinity`.
+    research.cost().set(10);
+
     spendFreeResearch(research, restored, loaded.pendingEffects);
 
     expect(owed(loaded)[0].data().remaining).to.equal('1');
+    expect(research.progress().value()).to.equal(10);
 
-    spendFreeResearch(research, owed(loaded)[0], loaded.pendingEffects);
-
+    // The last one is discharged, which is what threw with no handler.
+    expect((): void =>
+      spendFreeResearch(research, owed(loaded)[0], loaded.pendingEffects)
+    ).not.to.throw();
     expect(owed(loaded)).to.have.length(0);
+    expect(research.progress().value()).to.equal(20);
   });
 });

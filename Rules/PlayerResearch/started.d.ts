@@ -23,6 +23,14 @@ export declare const spendFreeResearch: (
   pendingEffect: PendingEffect,
   pendingEffects: PendingEffectRegistry
 ) => void;
+/**
+ * The handler that grants the last free research completion. Registered with
+ * the rules rather than when the wonder is built, so a game loaded while a
+ * completion is still owed can spend it.
+ */
+export declare const registerHandler: (
+  pendingEffects: PendingEffectRegistry
+) => void;
 export declare const getRules: (
   pendingEffects?: PendingEffectRegistry
 ) => Started[];
