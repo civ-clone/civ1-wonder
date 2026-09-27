@@ -41,42 +41,58 @@ export const spendFreeResearch = (
   playerResearch.add(playerResearch.cost());
 };
 
+/**
+ * The handler that grants the last free research completion. Registered with
+ * the rules rather than when the wonder is built, so a game loaded while a
+ * completion is still owed can spend it.
+ */
+export const registerHandler = (pendingEffects: PendingEffectRegistry): void =>
+  pendingEffects.handler(DARWINS_VOYAGE, (pendingEffect: PendingEffect): void =>
+    (pendingEffect.target() as PlayerResearch).add(
+      (pendingEffect.target() as PlayerResearch).cost()
+    )
+  );
+
 export const getRules: (pendingEffects?: PendingEffectRegistry) => Started[] = (
   pendingEffects: PendingEffectRegistry = pendingEffectRegistryInstance
-): Started[] => [
-  // Registered once, at import, like every other rule.
-  //
-  // It used to be a one-shot registered *inside* an `Effect`, which registered
-  // another one-shot inside its own effect, each closing over the
-  // `PlayerResearch` it applied to. That is why a save taken between building
-  // the wonder and the next research lost the free completions entirely: the
-  // only record of them was a closure in the rule registry.
-  //
-  // What the save records now is a `PendingEffect` — "this research is owed
-  // two completions" — and this rule is the "when": it fires on every research
-  // start and does nothing unless that research is owed something.
-  new Started(
-    new Criterion((playerResearch: PlayerResearch): boolean =>
-      pendingEffects
-        .getByTarget(playerResearch)
-        .some(
-          (pendingEffect: PendingEffect): boolean =>
-            pendingEffect.handler() === DARWINS_VOYAGE
-        )
-    ),
-    new Effect(
-      (playerResearch: PlayerResearch, _advance: typeof Advance): void =>
+): Started[] => {
+  registerHandler(pendingEffects);
+
+  return [
+    // Registered once, at import, like every other rule.
+    //
+    // It used to be a one-shot registered *inside* an `Effect`, which registered
+    // another one-shot inside its own effect, each closing over the
+    // `PlayerResearch` it applied to. That is why a save taken between building
+    // the wonder and the next research lost the free completions entirely: the
+    // only record of them was a closure in the rule registry.
+    //
+    // What the save records now is a `PendingEffect` — "this research is owed
+    // two completions" — and this rule is the "when": it fires on every research
+    // start and does nothing unless that research is owed something.
+    new Started(
+      new Criterion((playerResearch: PlayerResearch): boolean =>
         pendingEffects
           .getByTarget(playerResearch)
-          .filter(
+          .some(
             (pendingEffect: PendingEffect): boolean =>
               pendingEffect.handler() === DARWINS_VOYAGE
           )
-          .forEach((pendingEffect: PendingEffect): void =>
-            spendFreeResearch(playerResearch, pendingEffect, pendingEffects)
-          )
-    )
-  ),
-];
+      ),
+      new Effect(
+        (playerResearch: PlayerResearch, _advance: typeof Advance): void =>
+          pendingEffects
+            .getByTarget(playerResearch)
+            .filter(
+              (pendingEffect: PendingEffect): boolean =>
+                pendingEffect.handler() === DARWINS_VOYAGE
+            )
+            .forEach((pendingEffect: PendingEffect): void =>
+              spendFreeResearch(playerResearch, pendingEffect, pendingEffects)
+            )
+      )
+    ),
+  ];
+};
 
 export default getRules;

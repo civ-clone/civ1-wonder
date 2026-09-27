@@ -32,7 +32,6 @@ import CityBuild from '@civ-clone/core-city-build/CityBuild';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import { DarwinsVoyage } from '../../Wonders';
 import Effect from '@civ-clone/core-rule/Effect';
-import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import Started from '@civ-clone/core-science/Rules/Started';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 
@@ -97,14 +96,6 @@ export const getRules: (
         pendingEffect = new PendingEffect(DARWINS_VOYAGE, playerResearch, {
           remaining: '2',
         });
-
-      pendingEffects.handler(
-        DARWINS_VOYAGE,
-        (discharged: PendingEffect): void =>
-          (discharged.target() as PlayerResearch).add(
-            (discharged.target() as PlayerResearch).cost()
-          )
-      );
 
       pendingEffects.register(pendingEffect);
 

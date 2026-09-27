@@ -39,7 +39,6 @@ const getRules = (cityBuildRegistry = CityBuildRegistry_1.instance, playerResear
         pendingEffect = new core_pending_effect_1.PendingEffect(started_1.DARWINS_VOYAGE, playerResearch, {
             remaining: '2',
         });
-        pendingEffects.handler(started_1.DARWINS_VOYAGE, (discharged) => discharged.target().add(discharged.target().cost()));
         pendingEffects.register(pendingEffect);
         // Already researching something, so one is spent now rather than
         // waiting for the next thing they start. `Rules/PlayerResearch/started`
