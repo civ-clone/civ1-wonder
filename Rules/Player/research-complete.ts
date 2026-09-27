@@ -1,28 +1,5 @@
-import {
-  Automobile,
-  Communism,
-  Electricity,
-  Electronics,
-  Gunpowder,
-  Invention,
-  Magnetism,
-  NuclearFission,
-  Religion,
-  University,
-} from '@civ-clone/civ1-science/Advances';
-import {
-  Colossus,
-  CopernicusObservatory,
-  GreatLibrary,
-  GreatWall,
-  HangingGardens,
-  IsaacNewtonsCollege,
-  Lighthouse,
-  MichelangelosChapel,
-  Oracle,
-  Pyramids,
-  ShakespearesTheatre,
-} from '../../Wonders';
+import { isObsolete, obsoletedBy } from '../lib/obsolete';
+import { GreatLibrary } from '../../Wonders';
 import {
   PlayerResearchRegistry,
   instance as playerResearchRegistryInstance,
@@ -55,10 +32,11 @@ export const getRules: (
   wonderRegistry: WonderRegistry = wonderRegistryInstance
 ): Complete[] => [
   new Complete(
-    new Criterion((): boolean =>
-      wonderRegistry.some(
-        (wonder: Wonder): boolean => wonder instanceof GreatLibrary
-      )
+    new Criterion(
+      (): boolean =>
+        wonderRegistry.some(
+          (wonder: Wonder): boolean => wonder instanceof GreatLibrary
+        ) && !isObsolete(GreatLibrary, playerResearchRegistry)
     ),
     new Criterion(
       (playerResearch: PlayerResearch, completedResearch: Advance): boolean => {
@@ -97,21 +75,7 @@ export const getRules: (
     )
   ),
 
-  ...(
-    [
-      [Colossus, Electricity],
-      [CopernicusObservatory, Automobile],
-      [GreatLibrary, University],
-      [GreatWall, Gunpowder],
-      [HangingGardens, Invention],
-      [IsaacNewtonsCollege, NuclearFission],
-      [Lighthouse, Magnetism],
-      [MichelangelosChapel, Communism],
-      [Oracle, Religion],
-      [Pyramids, Communism],
-      [ShakespearesTheatre, Electronics],
-    ] as [typeof Wonder, typeof Advance][]
-  ).map(
+  ...obsoletedBy.map(
     ([WonderType, ObsoletingAdvance]: [
       typeof Wonder,
       typeof Advance

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRules = void 0;
-const Advances_1 = require("@civ-clone/civ1-science/Advances");
+const obsolete_1 = require("../lib/obsolete");
 const Wonders_1 = require("../../Wonders");
 const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
 const RuleRegistry_1 = require("@civ-clone/core-rule/RuleRegistry");
@@ -12,7 +12,7 @@ const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Obsolete_1 = require("@civ-clone/core-wonder/Rules/Obsolete");
 const hasDiscovered_1 = require("../lib/hasDiscovered");
 const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ruleRegistry = RuleRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => [
-    new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof Wonders_1.GreatLibrary)), new Criterion_1.default((playerResearch, completedResearch) => {
+    new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof Wonders_1.GreatLibrary) && !(0, obsolete_1.isObsolete)(Wonders_1.GreatLibrary, playerResearchRegistry)), new Criterion_1.default((playerResearch, completedResearch) => {
         const [owningPlayer] = wonderRegistry
             .filter((wonder) => wonder instanceof Wonders_1.GreatLibrary)
             .map((greatLibrary) => greatLibrary.city().player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
@@ -23,19 +23,7 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ru
             .map((greatLibrary) => greatLibrary.city().player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
         return owningPlayerResearch.addAdvance(completedResearch.sourceClass());
     })),
-    ...[
-        [Wonders_1.Colossus, Advances_1.Electricity],
-        [Wonders_1.CopernicusObservatory, Advances_1.Automobile],
-        [Wonders_1.GreatLibrary, Advances_1.University],
-        [Wonders_1.GreatWall, Advances_1.Gunpowder],
-        [Wonders_1.HangingGardens, Advances_1.Invention],
-        [Wonders_1.IsaacNewtonsCollege, Advances_1.NuclearFission],
-        [Wonders_1.Lighthouse, Advances_1.Magnetism],
-        [Wonders_1.MichelangelosChapel, Advances_1.Communism],
-        [Wonders_1.Oracle, Advances_1.Religion],
-        [Wonders_1.Pyramids, Advances_1.Communism],
-        [Wonders_1.ShakespearesTheatre, Advances_1.Electronics],
-    ].map(([WonderType, ObsoletingAdvance]) => new Complete_1.default(new Criterion_1.default(() => wonderRegistry
+    ...obsolete_1.obsoletedBy.map(([WonderType, ObsoletingAdvance]) => new Complete_1.default(new Criterion_1.default(() => wonderRegistry
         .entries()
         .some((wonder) => wonder instanceof WonderType)), new Criterion_1.default((playerResearch, advance) => advance instanceof ObsoletingAdvance), 
     // Only the first discovery makes a wonder obsolete; later ones would process `Obsolete` again.
