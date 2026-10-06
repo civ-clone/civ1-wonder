@@ -9,6 +9,7 @@ import CityBuildRegistry from '@civ-clone/core-city-build/CityBuildRegistry';
 import CityRegistry from '@civ-clone/core-city/CityRegistry';
 import { Colossus } from '../Wonders';
 import { HelpBuildWonder } from '@civ-clone/civ1-unit/Actions';
+import Engine from '@civ-clone/core-engine/Engine';
 import Player from '@civ-clone/core-player/Player';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -16,9 +17,11 @@ import { Production } from '@civ-clone/civ1-city/Yields';
 import RuleRegistry from '@civ-clone/core-rule/RuleRegistry';
 import Unit from '@civ-clone/core-unit/Unit';
 import WonderRegistry from '@civ-clone/core-wonder/WonderRegistry';
+import UnitRegistry from '@civ-clone/core-unit/UnitRegistry';
 import build from '../Rules/City/build';
 import buildCost from '../Rules/City/build-cost';
 import { expect } from 'chai';
+import { getRules as unitDestroyed } from '@civ-clone/civ1-unit/Rules/Unit/destroyed';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 import unitAction from '../Rules/Unit/action';
 import unitBuildCost from '@civ-clone/civ1-unit/Rules/City/buildCost';
@@ -30,6 +33,7 @@ describe('Caravans helping to build a Wonder', (): void => {
   ): Promise<{
     caravan: Unit;
     city: City;
+    unitRegistry: UnitRegistry;
     cityBuild: CityBuild;
     cityBuildRegistry: CityBuildRegistry;
   }> => {
@@ -40,6 +44,7 @@ describe('Caravans helping to build a Wonder', (): void => {
       playerResearchRegistry = new PlayerResearchRegistry(),
       ruleRegistry = new RuleRegistry(),
       wonderRegistry = new WonderRegistry(),
+      unitRegistry = new UnitRegistry(),
       city = await setUpCity({ ruleRegistry }),
       cityBuild = new CityBuild(
         city,
@@ -70,7 +75,10 @@ describe('Caravans helping to build a Wonder', (): void => {
       ...buildCost(),
       ...unitBuildCost(),
       ...unitAction(cityRegistry, cityBuildRegistry, ruleRegistry),
-      ...wonderHelped(cityBuildRegistry, ruleRegistry)
+      ...wonderHelped(cityBuildRegistry, ruleRegistry),
+      ...unitDestroyed(unitRegistry, undefined, {
+        emit: () => {},
+      } as unknown as Engine)
     );
     availableCityBuildItemsRegistry.register(
       Colossus as unknown as typeof Buildable,
@@ -78,8 +86,9 @@ describe('Caravans helping to build a Wonder', (): void => {
     );
 
     caravan.moves().set(1);
+    unitRegistry.register(caravan);
 
-    return { caravan, city, cityBuild, cityBuildRegistry };
+    return { caravan, city, cityBuild, cityBuildRegistry, unitRegistry };
   };
 
   const helpAction = (caravan: Unit, city: City): HelpBuildWonder | null =>
@@ -109,8 +118,8 @@ describe('Caravans helping to build a Wonder', (): void => {
     expect(helpAction(foreign.caravan, foreign.city)).to.null;
   });
 
-  it("should add the Caravan's 50 shields, which stay if production changes", async (): Promise<void> => {
-    const { caravan, city, cityBuild } = await setUp();
+  it("should add the Caravan's 50 shields, which stay if production changes, and use the Caravan up", async (): Promise<void> => {
+    const { caravan, city, cityBuild, unitRegistry } = await setUp();
 
     cityBuild.build(Colossus as unknown as typeof Buildable);
     cityBuild.add(new Production(10));
@@ -118,6 +127,9 @@ describe('Caravans helping to build a Wonder', (): void => {
     helpAction(caravan, city)!.perform();
 
     expect(cityBuild.progress().value()).to.equal(60);
+    expect(caravan.destroyed()).to.true;
+    // Destroyed units stay registered, and the registry's lookups leave them out.
+    expect(unitRegistry.getByTile(caravan.tile())).to.not.include(caravan);
 
     cityBuild.build(Warrior as unknown as typeof Buildable);
 
