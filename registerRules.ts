@@ -9,6 +9,8 @@ import governmentsAvailability from './Rules/Governments/availability';
 import playerAnarchyDuration from './Rules/Player/anarchy-duration';
 import playerResearchComplete from './Rules/Player/research-complete';
 import playerResearchStarted from './Rules/PlayerResearch/started';
+import unitAction from './Rules/Unit/action';
+import unitWonderHelped from './Rules/Unit/wonder-helped';
 import unitYield from './Rules/Unit/yield';
 import wonderObsolete from './Rules/Wonder/obsolete';
 import { Game, defaultGame } from '@civ-clone/core-game';
@@ -39,6 +41,8 @@ export const register = (game: Game): void =>
     ...playerAnarchyDuration(game.playerResearch, game.wonders),
     ...playerResearchComplete(game.playerResearch, game.rules, game.wonders),
     ...playerResearchStarted(game.pendingEffects),
+    ...unitAction(game.cities, game.cityBuilds, game.rules),
+    ...unitWonderHelped(game.cityBuilds, game.rules),
     ...unitYield(game.wonders, game.playerResearch),
     ...wonderObsolete(game.engine)
   );
