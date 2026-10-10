@@ -1,5 +1,6 @@
 import cityBuild from './Rules/City/build';
 import cityBuildCost from './Rules/City/build-cost';
+import cityBuildPriority from './Rules/City/build-priority';
 import cityBuildingComplete from './Rules/City/building-complete';
 import cityCost from './Rules/City/cost';
 import cityDestroyed from './Rules/City/destroyed';
@@ -18,6 +19,12 @@ import { Game, defaultGame } from '@civ-clone/core-game';
 export const register = (game: Game): void =>
   game.rules.register(
     ...cityBuild(game.playerResearch, game.wonders),
+    ...cityBuildPriority(
+      game.cities,
+      game.cityBuilds,
+      game.playerResearch,
+      game.units
+    ),
     ...cityBuildCost(),
     ...cityBuildingComplete(
       game.cityBuilds,
