@@ -8,6 +8,7 @@ import cityYield from './Rules/City/yield';
 import cityYieldModifier from './Rules/City/yield-modifier';
 import governmentsAvailability from './Rules/Governments/availability';
 import playerAnarchyDuration from './Rules/Player/anarchy-duration';
+import playerPacified from './Rules/Player/pacified';
 import playerResearchComplete from './Rules/Player/research-complete';
 import playerResearchStarted from './Rules/PlayerResearch/started';
 import unitAction from './Rules/Unit/action';
@@ -46,6 +47,7 @@ export const register = (game: Game): void =>
     ...cityYieldModifier(game.playerResearch, game.wonders),
     ...governmentsAvailability(game.playerResearch, game.wonders),
     ...playerAnarchyDuration(game.playerResearch, game.wonders),
+    ...playerPacified(game.playerResearch, game.wonders),
     ...playerResearchComplete(game.playerResearch, game.rules, game.wonders),
     ...playerResearchStarted(game.pendingEffects),
     ...unitAction(game.cities, game.cityBuilds, game.rules),
