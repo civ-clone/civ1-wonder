@@ -12,10 +12,11 @@ const Yields_1 = require("@civ-clone/civ1-city/Yields");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Priorities_1 = require("@civ-clone/core-rule/Priorities");
+const Priority_1 = require("@civ-clone/core-rule/Priority");
 const YieldModifier_1 = require("@civ-clone/core-city/Rules/YieldModifier");
-const hasCityImprovement_1 = require("../lib/hasCityImprovement");
 const onWonderLandMass_1 = require("../lib/onWonderLandMass");
 const reduceYields_1 = require("@civ-clone/core-yield/lib/reduceYields");
+const newtonImprovements = [CityImprovements_1.Library, CityImprovements_1.University];
 const plants = [
     CityImprovements_1.PowerPlant,
     CityImprovements_1.HydroPlant,
@@ -25,11 +26,19 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
     ...[[Wonders_1.CopernicusObservatory, Yields_1.Research, 1]].map(([WonderType, YieldType, multiplier]) => new YieldModifier_1.default(new Priorities_1.Low(), (0, hasWonder_1.cityHasWonder)(WonderType, wonderRegistry, playerResearchRegistry), new Effect_1.default((city, yields) => new YieldType((0, reduceYields_1.reduceYield)(yields, YieldType) * multiplier, WonderType.name)))),
     ...[[Wonders_1.SetiProgram, Yields_1.Research, 0.5]].map(([WonderType, YieldType, multiplier]) => new YieldModifier_1.default(new Priorities_1.Low(), (0, hasWonder_1.playerHasWonder)(WonderType, wonderRegistry, playerResearchRegistry), new Effect_1.default((city, yields) => new YieldType((0, reduceYields_1.reduceYield)(yields, YieldType) * multiplier, WonderType.name)))),
     // Isaac Newton's College raises each Library's and University's +50% to
-    // +83%. Bonuses here compound rather than adding to the base, and this
-    // package's rules can register before civ1-city-improvement's, so it's a
-    // multiplier that gives the same result in any order: 1.5 × 11/9 = 1.83.
-    // v474.05 adds base/3 per improvement instead (#390).
-    ...[CityImprovements_1.Library, CityImprovements_1.University].map((Improvement) => new YieldModifier_1.default(new Priorities_1.Low(), (0, hasWonder_1.playerHasWonder)(Wonders_1.IsaacNewtonsCollege, wonderRegistry, playerResearchRegistry), (0, hasCityImprovement_1.hasCityImprovement)(Improvement, cityImprovementRegistry), new Effect_1.default((city, yields) => new Yields_1.Research(Math.floor(((0, reduceYields_1.reduceYield)(yields, Yields_1.Research) * 2) / 9), Wonders_1.IsaacNewtonsCollege.name)))),
+    // +83%. Bonuses here compound rather than adding to the base, so it's a
+    // multiplier, ×11/9 per improvement (1.5 × 11/9 = 1.83). One rule, one
+    // floor, and after every `Low` modifier whatever order the packages register
+    // in, so rounding can't depend on whether the Library ran first. v474.05
+    // adds base/3 per improvement instead (#390).
+    new YieldModifier_1.default(new Priority_1.default(4000), // X Low
+    (0, hasWonder_1.playerHasWonder)(Wonders_1.IsaacNewtonsCollege, wonderRegistry, playerResearchRegistry), new Criterion_1.default((city) => cityImprovementRegistry
+        .getByCity(city)
+        .some((improvement) => newtonImprovements.some((Improvement) => improvement instanceof Improvement))), new Effect_1.default((city, yields) => {
+        const improvements = cityImprovementRegistry.getByCity(city), count = newtonImprovements.filter((Improvement) => improvements.some((improvement) => improvement instanceof Improvement)).length;
+        return new Yields_1.Research(Math.floor(((0, reduceYields_1.reduceYield)(yields, Yields_1.Research) * (11 ** count - 9 ** count)) /
+            9 ** count), Wonders_1.IsaacNewtonsCollege.name);
+    })),
     // Hoover Dam acts as a plant in every city on its continent. As in v474.05,
     // it needs a Factory (or Mfg. Plant) and doesn't add to a plant already
     // there.
