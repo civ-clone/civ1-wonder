@@ -1,0 +1,17 @@
+import { LandMassRegistry } from '@civ-clone/core-world/LandMassRegistry';
+import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
+import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
+import City from '@civ-clone/core-city/City';
+import Criterion from '@civ-clone/core-rule/Criterion';
+import Wonder from '@civ-clone/core-wonder/Wonder';
+/**
+ * The city's player owns `WonderType`, and the city is on the same continent as
+ * the city that holds it (v474.05 compares the two cities' map group ids).
+ */
+export declare const onWonderLandMass: (
+  WonderType: typeof Wonder,
+  wonderRegistry?: WonderRegistry,
+  playerResearchRegistry?: PlayerResearchRegistry,
+  landMassRegistry?: LandMassRegistry
+) => Criterion<[city: City]>;
+export default onWonderLandMass;

@@ -1,4 +1,5 @@
 import { CityImprovementRegistry } from '@civ-clone/core-city-improvement/CityImprovementRegistry';
+import { LandMassRegistry } from '@civ-clone/core-world/LandMassRegistry';
 import { PlayerGovernmentRegistry } from '@civ-clone/core-government/PlayerGovernmentRegistry';
 import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
 import { UnitRegistry } from '@civ-clone/core-unit/UnitRegistry';
@@ -9,6 +10,7 @@ export declare const getRules: (
   playerGovernmentRegistry?: PlayerGovernmentRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
   unitRegistry?: UnitRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  landMassRegistry?: LandMassRegistry
 ) => Cost[];
 export default getRules;

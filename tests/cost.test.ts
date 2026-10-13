@@ -65,6 +65,8 @@ import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
 import CityImprovementRegistry from '@civ-clone/core-city-improvement/CityImprovementRegistry';
 import CityYield from '@civ-clone/core-city/Rules/Yield';
 import Effect from '@civ-clone/core-rule/Effect';
+import LandMass from '@civ-clone/core-world/LandMass';
+import LandMassRegistry from '@civ-clone/core-world/LandMassRegistry';
 import { MilitaryUnhappiness } from '@civ-clone/civ1-city-happiness/Yields';
 import PlayerGovernmentRegistry from '@civ-clone/core-government/PlayerGovernmentRegistry';
 import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -96,7 +98,8 @@ describe('City.cost', (): void => {
     playerGovernmentRegistry = new PlayerGovernmentRegistry(),
     unitRegistry = new UnitRegistry(),
     cityGrowthRegistry = new CityGrowthRegistry(),
-    availableGovernmentRegistry = new AvailableGovernmentRegistry();
+    availableGovernmentRegistry = new AvailableGovernmentRegistry(),
+    landMassRegistry = new LandMassRegistry();
 
   ruleRegistry.register(
     ...cityCost(
@@ -104,7 +107,8 @@ describe('City.cost', (): void => {
       playerGovernmentRegistry,
       playerResearchRegistry,
       unitRegistry,
-      wonderRegistry
+      wonderRegistry,
+      landMassRegistry
     ),
     ...cityCostHappiness(
       ruleRegistry,
@@ -165,17 +169,28 @@ describe('City.cost', (): void => {
 
   (
     [
-      [Temple, Oracle, 1],
-      [Temple, Oracle, 2, Mysticism],
-      [Cathedral, MichelangelosChapel, 4],
-    ] as [typeof CityImprovement, typeof Wonder, number, typeof Advance?][]
+      [Temple, Oracle, 1, 1],
+      [Temple, Oracle, 2, 2, Mysticism],
+      // v474.05: a Cathedral makes 6 content with Michelangelo's Chapel, not 4.
+      [Cathedral, MichelangelosChapel, 4, 2],
+    ] as [
+      typeof CityImprovement,
+      typeof Wonder,
+      number,
+      number,
+      typeof Advance?
+    ][]
   ).forEach(
-    ([CityImprovementType, WonderType, expectedIncrease, AdvanceType]) =>
+    ([
+      CityImprovementType,
+      WonderType,
+      expectedIncrease,
+      wonderIncrease,
+      AdvanceType,
+    ]) =>
       it(`should increase the effectiveness of the ${
         CityImprovementType.name
-      } by ${expectedIncrease} when ${
-        WonderType.name
-      } exists in a Player's City${
+      } by ${wonderIncrease} when ${WonderType.name} exists in a Player's City${
         AdvanceType ? ' and the Player has discovered ' + AdvanceType.name : ''
       }`, async (): Promise<void> => {
         const [city, friendlyCity, enemyCity] = await setUpCities(
@@ -225,10 +240,10 @@ describe('City.cost', (): void => {
         wonderRegistry.register(new WonderType(city, ruleRegistry));
 
         expect(reduceYield(city.yields(), Unhappiness)).equal(
-          10 - 2 * expectedIncrease
+          10 - expectedIncrease - wonderIncrease
         );
         expect(reduceYield(friendlyCity.yields(), Unhappiness)).equal(
-          10 - 2 * expectedIncrease
+          10 - expectedIncrease - wonderIncrease
         );
         expect(reduceYield(enemyCity.yields(), Unhappiness)).equal(
           10 - expectedIncrease
@@ -238,7 +253,7 @@ describe('City.cost', (): void => {
       })
   );
 
-  it('should reduce unhappiness by 2 in all Player cities when the Player has JsBachsCathedral', async (): Promise<void> => {
+  it('should reduce unhappiness by 2 in all Player cities on its continent when the Player has JsBachsCathedral', async (): Promise<void> => {
     const [city, friendlyCity, enemyCity] = await setUpCities(
       ruleRegistry,
       playerWorldRegistry,
@@ -248,6 +263,10 @@ describe('City.cost', (): void => {
       playerResearchRegistry,
       playerGovernmentRegistry,
       availableGovernmentRegistry
+    );
+
+    landMassRegistry.register(
+      new LandMass([city.tile(), friendlyCity.tile(), enemyCity.tile()])
     );
 
     const unhappiness = new Yield(new Effect(() => new Unhappiness(10)));
@@ -271,6 +290,36 @@ describe('City.cost', (): void => {
     expect(reduceYield(city.yields(), Unhappiness)).equal(8);
     expect(reduceYield(friendlyCity.yields(), Unhappiness)).equal(10);
     expect(reduceYield(enemyCity.yields(), Unhappiness)).equal(8);
+
+    ruleRegistry.unregister(unhappiness);
+  });
+
+  it('should not reduce unhappiness in Player cities on another continent from the JsBachsCathedral', async (): Promise<void> => {
+    const [city, friendlyCity, enemyCity] = await setUpCities(
+      ruleRegistry,
+      playerWorldRegistry,
+      availableBuildItemsRegistry,
+      advanceRegistry,
+      cityBuildRegistry,
+      playerResearchRegistry,
+      playerGovernmentRegistry,
+      availableGovernmentRegistry
+    );
+
+    landMassRegistry.register(
+      new LandMass([city.tile(), enemyCity.tile()]),
+      new LandMass([friendlyCity.tile()])
+    );
+
+    const unhappiness = new Yield(new Effect(() => new Unhappiness(10)));
+
+    ruleRegistry.register(unhappiness);
+
+    wonderRegistry.register(new JsBachsCathedral(city, ruleRegistry));
+
+    expect(reduceYield(city.yields(), Unhappiness)).equal(8);
+    expect(reduceYield(friendlyCity.yields(), Unhappiness)).equal(10);
+    expect(reduceYield(enemyCity.yields(), Unhappiness)).equal(10);
 
     ruleRegistry.unregister(unhappiness);
   });
