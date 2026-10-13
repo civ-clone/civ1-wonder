@@ -15,6 +15,10 @@ import {
   WomensSuffrage,
 } from '../../Wonders';
 import {
+  LandMassRegistry,
+  instance as landMassRegistryInstance,
+} from '@civ-clone/core-world/LandMassRegistry';
+import {
   PlayerGovernmentRegistry,
   instance as playerGovernmentRegistryInstance,
 } from '@civ-clone/core-government/PlayerGovernmentRegistry';
@@ -45,6 +49,7 @@ import Priority from '@civ-clone/core-rule/Priority';
 import { Unhappiness } from '@civ-clone/civ1-city/Yields';
 import Yield from '@civ-clone/core-yield/Yield';
 import { hasCityImprovement } from '../lib/hasCityImprovement';
+import { onWonderLandMass } from '../lib/onWonderLandMass';
 import { reduceYield } from '@civ-clone/core-yield/lib/reduceYields';
 
 export const getRules: (
@@ -52,13 +57,15 @@ export const getRules: (
   playerGovernmentRegistry?: PlayerGovernmentRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
   unitRegistry?: UnitRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  landMassRegistry?: LandMassRegistry
 ) => Cost[] = (
   cityImprovementRegistry: CityImprovementRegistry = cityImprovementRegistryInstance,
   playerGovernmentRegistry: PlayerGovernmentRegistry = playerGovernmentRegistryInstance,
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
   unitRegistry: UnitRegistry = unitRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  landMassRegistry: LandMassRegistry = landMassRegistryInstance
 ): Cost[] => [
   new Cost(
     new Low(),
@@ -102,8 +109,12 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    // TODO: path check to city that has it to check it's on the same continent...
-    playerHasWonder(JsBachsCathedral, wonderRegistry, playerResearchRegistry),
+    onWonderLandMass(
+      JsBachsCathedral,
+      wonderRegistry,
+      playerResearchRegistry,
+      landMassRegistry
+    ),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -121,10 +132,11 @@ export const getRules: (
       playerResearchRegistry
     ),
     hasCityImprovement(Cathedral, cityImprovementRegistry),
+    // A Cathedral makes 6 content instead of 4: civ1-city-happiness gives the 4.
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
-          -Math.min(4, reduceYield(yields, Unhappiness)),
+          -Math.min(2, reduceYield(yields, Unhappiness)),
           MichelangelosChapel.name
         )
     )

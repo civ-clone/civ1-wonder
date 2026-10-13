@@ -40,11 +40,17 @@ export const register = (game: Game): void =>
       game.playerGovernments,
       game.playerResearch,
       game.units,
-      game.wonders
+      game.wonders,
+      game.landMasses
     ),
     ...cityDestroyed(game.wonders),
     ...cityYield(game.playerResearch, game.wonders),
-    ...cityYieldModifier(game.playerResearch, game.wonders),
+    ...cityYieldModifier(
+      game.playerResearch,
+      game.wonders,
+      game.cityImprovements,
+      game.landMasses
+    ),
     ...governmentsAvailability(game.playerResearch, game.wonders),
     ...playerAnarchyDuration(game.playerResearch, game.wonders),
     ...playerPacified(game.playerResearch, game.wonders),
