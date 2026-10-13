@@ -5,6 +5,7 @@ import cityBuildingComplete from './Rules/City/building-complete';
 import cityCost from './Rules/City/cost';
 import cityDestroyed from './Rules/City/destroyed';
 import cityYield from './Rules/City/yield';
+import cityPollutionDivisor from './Rules/City/pollution-divisor';
 import cityYieldModifier from './Rules/City/yield-modifier';
 import governmentsAvailability from './Rules/Governments/availability';
 import playerAnarchyDuration from './Rules/Player/anarchy-duration';
@@ -44,6 +45,7 @@ export const register = (game: Game): void =>
       game.landMasses
     ),
     ...cityDestroyed(game.wonders),
+    ...cityPollutionDivisor(game.wonders, game.playerResearch, game.landMasses),
     ...cityYield(game.playerResearch, game.wonders),
     ...cityYieldModifier(
       game.playerResearch,
