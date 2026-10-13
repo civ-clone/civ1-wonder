@@ -305,7 +305,8 @@ describe('Wonder.yield-modifier', () => {
       build(cityImprovementRegistry, ruleRegistry, city, Library, University);
       build(cityImprovementRegistry, ruleRegistry, friendlyCity, University);
 
-      // 18 + floor(18 × 2/9) = 22, then 22 + floor(22 × 2/9) = 26.
+      // One floored multiplier: 18 + floor(18 × 40/81) = 26 with both, and
+      // 18 + floor(18 × 2/9) = 22 with only a University.
       expect(reduceYield(city.yields(), Research)).equal(26);
       expect(reduceYield(friendlyCity.yields(), Research)).equal(22);
     });
