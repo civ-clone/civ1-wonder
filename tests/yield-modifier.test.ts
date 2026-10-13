@@ -17,7 +17,9 @@ import City from '@civ-clone/core-city/City';
 import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
 import CityImprovementRegistry from '@civ-clone/core-city-improvement/CityImprovementRegistry';
 import CityYield from '@civ-clone/core-city/Rules/Yield';
+import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
+import { Low } from '@civ-clone/core-rule/Priorities';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
 import PlayerWorldRegistry from '@civ-clone/core-player-world/PlayerWorldRegistry';
@@ -308,36 +310,81 @@ describe('Wonder.yield-modifier', () => {
       expect(reduceYield(friendlyCity.yields(), Research)).equal(22);
     });
 
-    it("should give Library and Isaac Newton's College the 1.83× of v474.05 with a lone Library", async (): Promise<void> => {
-      const { cityImprovementRegistry, ruleRegistry, wonderRegistry, city } =
-        await setUp(Research, 18);
-
-      // civ1-city-improvement's Library, written here to keep this package's
-      // dependencies as they are.
-      ruleRegistry.register(
-        new YieldModifier(
-          new Effect(
-            (city: City, yields: Yield[]): Yield =>
-              new Research(
-                cityImprovementRegistry
-                  .getByCity(city)
-                  .some((improvement) => improvement instanceof Library)
-                  ? Math.floor(reduceYield(yields, Research) * 0.5)
-                  : 0,
-                Library.name
-              )
+    // civ1-city-improvement's Library and University (`Low`, +50% of what's
+    // there), written here to keep this package's dependencies as they are.
+    const improvementRules = (
+      cityImprovementRegistry: CityImprovementRegistry
+    ): YieldModifier[] =>
+      [Library, University].map(
+        (Improvement) =>
+          new YieldModifier(
+            new Low(),
+            new Criterion((city: City): boolean =>
+              cityImprovementRegistry
+                .getByCity(city)
+                .some((improvement) => improvement instanceof Improvement)
+            ),
+            new Effect(
+              (city: City, yields: Yield[]): Yield =>
+                new Research(
+                  Math.floor(reduceYield(yields, Research) * 0.5),
+                  Improvement.name
+                )
+            )
           )
-        )
       );
 
-      build(cityImprovementRegistry, ruleRegistry, city, Library);
-      wonderRegistry.register(new IsaacNewtonsCollege(city, ruleRegistry));
+    (
+      [
+        ['after', false],
+        ['before', true],
+      ] as [string, boolean][]
+    ).forEach(([order, improvementsFirst]) =>
+      (
+        [
+          // v474.05: 12 + 12/2 + 12/3 = 22.
+          [[Library], 22],
+          // 12 → 18 → 27 compounded, then × 121/81: 27 + floor(13.3) = 40.
+          // (v474.05 gives 32; #390.)
+          [[Library, University], 40],
+        ] as [(typeof CityImprovement)[], number][]
+      ).forEach(([Improvements, expected]) =>
+        it(`should give ${expected} Research from a base of 12 with ${Improvements.map(
+          (Improvement) => Improvement.name
+        ).join(
+          ' and '
+        )} when civ1-city-improvement's rules register ${order} this package's`, async (): Promise<void> => {
+          const cityImprovementRegistry = new CityImprovementRegistry(),
+            playerResearchRegistry = new PlayerResearchRegistry(),
+            wonderRegistry = new WonderRegistry(),
+            ruleRegistry = new RuleRegistry(),
+            wonderRules = cityYieldModifier(
+              playerResearchRegistry,
+              wonderRegistry,
+              cityImprovementRegistry
+            );
 
-      // v474.05: 18 + 18/2 + 18/3 = 33. Newton's runs first here, as in a real
-      // game (civ1-wonder registers before civ1-city-improvement): 18 + 4 =
-      // 22, then 22 + 11. The other order gives 18 + 9 = 27, then 27 + 6.
-      expect(reduceYield(city.yields(), Research)).equal(33);
-    });
+          ruleRegistry.register(
+            ...(improvementsFirst
+              ? [...improvementRules(cityImprovementRegistry), ...wonderRules]
+              : [...wonderRules, ...improvementRules(cityImprovementRegistry)]),
+            new CityYield(new Effect(() => new Research(12)))
+          );
+
+          const city = await setUpCity({
+            ruleRegistry,
+            playerWorldRegistry: new PlayerWorldRegistry(),
+          });
+
+          playerResearchRegistry.register(new PlayerResearch(city.player()));
+
+          build(cityImprovementRegistry, ruleRegistry, city, ...Improvements);
+          wonderRegistry.register(new IsaacNewtonsCollege(city, ruleRegistry));
+
+          expect(reduceYield(city.yields(), Research)).equal(expected);
+        })
+      )
+    );
 
     it("should give +50% Production to its Player's cities with a Factory on its continent", async (): Promise<void> => {
       const {
