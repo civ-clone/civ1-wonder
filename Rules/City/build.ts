@@ -68,6 +68,7 @@ export const getRules: (
   wonderRegistry: WonderRegistry = wonderRegistryInstance
 ): Build[] => [
   new Build(
+    Wonder,
     new Criterion((city: City, BuildItem: IConstructor): boolean =>
       Object.isPrototypeOf.call(Wonder, BuildItem)
     ),
@@ -109,6 +110,7 @@ export const getRules: (
   ).map(
     ([WonderType, RequiredAdvance]): Build =>
       new Build(
+        WonderType,
         new Criterion(
           (city: City, BuildItem: IConstructor): boolean =>
             BuildItem === WonderType
@@ -127,6 +129,7 @@ export const getRules: (
   ...([[Nuclear, ManhattanProject]] as [typeof Unit, typeof Wonder][]).map(
     ([UnitType, RequiredWonder]) =>
       new Build(
+        UnitType,
         new Criterion(
           (city: City, BuildItem: IConstructor): boolean =>
             BuildItem === UnitType

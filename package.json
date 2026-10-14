@@ -67,7 +67,7 @@
     "@civ-clone/civ1-science": "github:civ-clone/civ1-science",
     "@civ-clone/civ1-unit": "github:civ-clone/civ1-unit",
     "@civ-clone/core-city": "^0.1.0",
-    "@civ-clone/core-city-build": "^0.1.13",
+    "@civ-clone/core-city-build": "^0.1.14",
     "@civ-clone/core-city-improvement": "^0.1.0",
     "@civ-clone/core-engine": "^0.1.5",
     "@civ-clone/core-game": "^0.1.3",
