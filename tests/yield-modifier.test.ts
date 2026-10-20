@@ -153,8 +153,8 @@ describe('Wonder.yield-modifier', () => {
           .filter((cityYield) => cityYield instanceof YieldType)
           .reduce((total, cityYield) => total + cityYield.value(), 0);
 
-      expect(updatedCityYield).to.equal(5 + 5 * multiplier);
-      expect(updatedCity2Yield).to.equal(5 + 5 * multiplier);
+      expect(updatedCityYield).to.equal(5 + Math.floor(5 * multiplier));
+      expect(updatedCity2Yield).to.equal(5 + Math.floor(5 * multiplier));
 
       if (ObsoletingAdvance !== null) {
         const playerResearch = playerResearchRegistry.getByPlayer(
@@ -256,7 +256,7 @@ describe('Wonder.yield-modifier', () => {
         )
       );
 
-    it("should raise a Library from +50% to +83% Research in every one of its Player's cities, until Nuclear Fission", async (): Promise<void> => {
+    it("should add a third of the base Research for a Library in every one of its Player's cities, until Nuclear Fission", async (): Promise<void> => {
       const {
         cityImprovementRegistry,
         playerResearchRegistry,
@@ -277,9 +277,9 @@ describe('Wonder.yield-modifier', () => {
 
       wonderRegistry.register(new IsaacNewtonsCollege(city, ruleRegistry));
 
-      // floor(12 × 2/9) = 2
-      expect(reduceYield(city.yields(), Research)).equal(14);
-      expect(reduceYield(friendlyCity.yields(), Research)).equal(14);
+      // 12 + floor(12 / 3)
+      expect(reduceYield(city.yields(), Research)).equal(16);
+      expect(reduceYield(friendlyCity.yields(), Research)).equal(16);
       expect(reduceYield(enemyCity.yields(), Research)).equal(12);
 
       playerResearchRegistry
@@ -305,14 +305,14 @@ describe('Wonder.yield-modifier', () => {
       build(cityImprovementRegistry, ruleRegistry, city, Library, University);
       build(cityImprovementRegistry, ruleRegistry, friendlyCity, University);
 
-      // One floored multiplier: 18 + floor(18 × 40/81) = 26 with both, and
-      // 18 + floor(18 × 2/9) = 22 with only a University.
-      expect(reduceYield(city.yields(), Research)).equal(26);
-      expect(reduceYield(friendlyCity.yields(), Research)).equal(22);
+      // 18 + 2 × floor(18 / 3) = 30 with both, and 18 + 6 = 24 with only a
+      // University.
+      expect(reduceYield(city.yields(), Research)).equal(30);
+      expect(reduceYield(friendlyCity.yields(), Research)).equal(24);
     });
 
-    // civ1-city-improvement's Library and University (`Low`, +50% of what's
-    // there), written here to keep this package's dependencies as they are.
+    // civ1-city-improvement's Library and University (`Low`, +50% of the
+    // base), written here to keep this package's dependencies as they are.
     const improvementRules = (
       cityImprovementRegistry: CityImprovementRegistry
     ): YieldModifier[] =>
@@ -326,9 +326,9 @@ describe('Wonder.yield-modifier', () => {
                 .some((improvement) => improvement instanceof Improvement)
             ),
             new Effect(
-              (city: City, yields: Yield[]): Yield =>
+              (city: City, yields: Yield[], base: Yield[]): Yield =>
                 new Research(
-                  Math.floor(reduceYield(yields, Research) * 0.5),
+                  Math.floor(reduceYield(base, Research) / 2),
                   Improvement.name
                 )
             )
@@ -343,18 +343,19 @@ describe('Wonder.yield-modifier', () => {
     ).forEach(([order, improvementsFirst]) =>
       (
         [
-          // v474.05: 12 + 12/2 + 12/3 = 22.
-          [[Library], 22],
-          // 12 → 18 → 27 compounded, then × 121/81: 27 + floor(13.3) = 40.
-          // (v474.05 gives 32; #390.)
-          [[Library, University], 40],
-        ] as [(typeof CityImprovement)[], number][]
-      ).forEach(([Improvements, expected]) =>
+          // As v474.05: 12 + 12/2 + 12/3 = 22.
+          [[Library], 22, false],
+          // 12 + 2 × (12/2 + 12/3) = 32.
+          [[Library, University], 32, false],
+          // Copernicus doubles that, whichever order the rules register in.
+          [[Library, University], 64, true],
+        ] as [(typeof CityImprovement)[], number, boolean][]
+      ).forEach(([Improvements, expected, copernicus]) =>
         it(`should give ${expected} Research from a base of 12 with ${Improvements.map(
           (Improvement) => Improvement.name
-        ).join(
-          ' and '
-        )} when civ1-city-improvement's rules register ${order} this package's`, async (): Promise<void> => {
+        ).join(' and ')}${
+          copernicus ? ' and CopernicusObservatory' : ''
+        } when civ1-city-improvement's rules register ${order} this package's`, async (): Promise<void> => {
           const cityImprovementRegistry = new CityImprovementRegistry(),
             playerResearchRegistry = new PlayerResearchRegistry(),
             wonderRegistry = new WonderRegistry(),
@@ -381,6 +382,12 @@ describe('Wonder.yield-modifier', () => {
 
           build(cityImprovementRegistry, ruleRegistry, city, ...Improvements);
           wonderRegistry.register(new IsaacNewtonsCollege(city, ruleRegistry));
+
+          if (copernicus) {
+            wonderRegistry.register(
+              new CopernicusObservatory(city, ruleRegistry)
+            );
+          }
 
           expect(reduceYield(city.yields(), Research)).equal(expected);
         })

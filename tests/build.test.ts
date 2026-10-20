@@ -42,12 +42,20 @@ import {
   SpaceFlight,
   TheoryOfGravity,
 } from '@civ-clone/civ1-science/Advances';
+import {
+  HydroPlant,
+  NuclearPlant,
+  PowerPlant,
+} from '@civ-clone/civ1-city-improvement/CityImprovements';
 import Advance from '@civ-clone/core-science/Advance';
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import AvailableCityBuildItemsRegistry from '@civ-clone/core-city-build/AvailableCityBuildItemsRegistry';
 import Buildable from '@civ-clone/core-city-build/Buildable';
 import CityBuild from '@civ-clone/core-city-build/CityBuild';
 import CityBuildRegistry from '@civ-clone/core-city-build/CityBuildRegistry';
+import City from '@civ-clone/core-city/City';
+import LandMass from '@civ-clone/core-world/LandMass';
+import LandMassRegistry from '@civ-clone/core-world/LandMassRegistry';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import PlayerResearchRegistry from '@civ-clone/core-science/PlayerResearchRegistry';
 import PlayerWorldRegistry from '@civ-clone/core-player-world/PlayerWorldRegistry';
@@ -227,5 +235,58 @@ describe('City.build', (): void => {
         .available()
         .map((cityBuild) => cityBuild.item())
     ).not.includes(ApolloProgram);
+  });
+  it("should not offer a plant in a city on the continent of its Player's Hoover Dam", async (): Promise<void> => {
+    const ruleRegistry = new RuleRegistry(),
+      playerResearchRegistry = new PlayerResearchRegistry(),
+      wonderRegistry = new WonderRegistry(),
+      landMassRegistry = new LandMassRegistry(),
+      availableBuildItemsRegistry = new AvailableCityBuildItemsRegistry(),
+      playerWorldRegistry = new PlayerWorldRegistry(),
+      plants = [HydroPlant, NuclearPlant, PowerPlant];
+
+    ruleRegistry.register(
+      ...build(playerResearchRegistry, wonderRegistry, landMassRegistry)
+    );
+    availableBuildItemsRegistry.register(
+      ...(plants as unknown as (typeof Buildable)[])
+    );
+
+    const city = await setUpCity({
+        ruleRegistry,
+        playerWorldRegistry,
+      }),
+      friendlyCity = await setUpCity({
+        player: city.player(),
+        tile: city.tile().getNeighbour('e'),
+        world: city.tile().map(),
+        ruleRegistry,
+        playerWorldRegistry,
+      }),
+      overseasCity = await setUpCity({
+        player: city.player(),
+        tile: city.tile().getNeighbour('w'),
+        world: city.tile().map(),
+        ruleRegistry,
+        playerWorldRegistry,
+      }),
+      available = (city: City) =>
+        new CityBuild(city, availableBuildItemsRegistry, ruleRegistry)
+          .available()
+          .map((buildItem) => buildItem.item());
+
+    playerResearchRegistry.register(new PlayerResearch(city.player()));
+    landMassRegistry.register(
+      new LandMass([city.tile(), friendlyCity.tile()]),
+      new LandMass([overseasCity.tile()])
+    );
+
+    expect(available(friendlyCity)).to.include.members(plants);
+
+    wonderRegistry.register(new HooverDam(city, ruleRegistry));
+
+    expect(available(city)).to.not.include.any.members(plants);
+    expect(available(friendlyCity)).to.not.include.any.members(plants);
+    expect(available(overseasCity)).to.include.members(plants);
   });
 });
