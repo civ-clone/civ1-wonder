@@ -37,7 +37,6 @@ import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import { Low } from '@civ-clone/core-rule/Priorities';
 import Priority from '@civ-clone/core-rule/Priority';
-import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
 import YieldModifier from '@civ-clone/core-city/Rules/YieldModifier';
 import { onWonderLandMass } from '../lib/onWonderLandMass';
@@ -62,52 +61,10 @@ export const getRules: (
   cityImprovementRegistry: CityImprovementRegistry = cityImprovementRegistryInstance,
   landMassRegistry: LandMassRegistry = landMassRegistryInstance
 ) => [
-  ...(
-    [[CopernicusObservatory, Research, 1]] as [
-      typeof Wonder,
-      typeof Yield,
-      number
-    ][]
-  ).map(
-    ([WonderType, YieldType, multiplier]): YieldModifier =>
-      new YieldModifier(
-        new Low(),
-        cityHasWonder(WonderType, wonderRegistry, playerResearchRegistry),
-        new Effect(
-          (city: City, yields: Yield[]): Yield =>
-            new YieldType(
-              reduceYield(yields, YieldType) * multiplier,
-              WonderType.name
-            )
-        )
-      )
-  ),
-
-  ...(
-    [[SetiProgram, Research, 0.5]] as [typeof Wonder, typeof Yield, number][]
-  ).map(
-    ([WonderType, YieldType, multiplier]): YieldModifier =>
-      new YieldModifier(
-        new Low(),
-        playerHasWonder(WonderType, wonderRegistry, playerResearchRegistry),
-        new Effect(
-          (city: City, yields: Yield[]): Yield =>
-            new YieldType(
-              reduceYield(yields, YieldType) * multiplier,
-              WonderType.name
-            )
-        )
-      )
-  ),
-
-  // Isaac Newton's College raises each Library's and University's +50% to
-  // +83%. Bonuses here compound rather than adding to the base, so it's a
-  // multiplier, ×11/9 per improvement (1.5 × 11/9 = 1.83). One rule, one
-  // floor, and after every `Low` modifier whatever order the packages register
-  // in, so rounding can't depend on whether the Library ran first. v474.05
-  // adds base/3 per improvement instead (#390).
+  // As v474.05 (OpenCivOne's decompile, `CityWorker.cs`), Isaac Newton's College adds a third of the city's base
+  //  science for each Library and University, alongside their half each.
   new YieldModifier(
-    new Priority(4000), // X Low
+    new Low(),
     playerHasWonder(
       IsaacNewtonsCollege,
       wonderRegistry,
@@ -122,7 +79,7 @@ export const getRules: (
           )
         )
     ),
-    new Effect((city: City, yields: Yield[]): Yield => {
+    new Effect((city: City, yields: Yield[], base: Yield[]): Yield => {
       const improvements = cityImprovementRegistry.getByCity(city),
         count = newtonImprovements.filter((Improvement) =>
           improvements.some(
@@ -132,10 +89,7 @@ export const getRules: (
         ).length;
 
       return new Research(
-        Math.floor(
-          (reduceYield(yields, Research) * (11 ** count - 9 ** count)) /
-            9 ** count
-        ),
+        Math.floor(reduceYield(base, Research) / 3) * count,
         IsaacNewtonsCollege.name
       );
     })
@@ -167,10 +121,38 @@ export const getRules: (
       );
     }),
     new Effect(
-      (city: City, yields: Yield[]): Yield =>
+      (city: City, yields: Yield[], base: Yield[]): Yield =>
         new Production(
-          Math.floor(reduceYield(yields, Production) * 0.5),
+          Math.floor(reduceYield(base, Production) / 2),
           HooverDam.name
+        )
+    )
+  ),
+
+  // These act on the city's science total, so they come after every `Low` modifier whatever order the packages
+  //  register in: Copernicus doubles it, and then SETI adds half of that (v474.05 adds SETI's share as the research is
+  //  counted).
+  new YieldModifier(
+    new Priority(4000), // X Low
+    cityHasWonder(
+      CopernicusObservatory,
+      wonderRegistry,
+      playerResearchRegistry
+    ),
+    new Effect(
+      (city: City, yields: Yield[]): Yield =>
+        new Research(reduceYield(yields, Research), CopernicusObservatory.name)
+    )
+  ),
+
+  new YieldModifier(
+    new Priority(4000), // X Low
+    playerHasWonder(SetiProgram, wonderRegistry, playerResearchRegistry),
+    new Effect(
+      (city: City, yields: Yield[]): Yield =>
+        new Research(
+          Math.floor(reduceYield(yields, Research) / 2),
+          SetiProgram.name
         )
     )
   ),

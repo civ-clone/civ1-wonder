@@ -23,21 +23,13 @@ const plants = [
     CityImprovements_1.NuclearPlant,
 ];
 const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, cityImprovementRegistry = CityImprovementRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance) => [
-    ...[[Wonders_1.CopernicusObservatory, Yields_1.Research, 1]].map(([WonderType, YieldType, multiplier]) => new YieldModifier_1.default(new Priorities_1.Low(), (0, hasWonder_1.cityHasWonder)(WonderType, wonderRegistry, playerResearchRegistry), new Effect_1.default((city, yields) => new YieldType((0, reduceYields_1.reduceYield)(yields, YieldType) * multiplier, WonderType.name)))),
-    ...[[Wonders_1.SetiProgram, Yields_1.Research, 0.5]].map(([WonderType, YieldType, multiplier]) => new YieldModifier_1.default(new Priorities_1.Low(), (0, hasWonder_1.playerHasWonder)(WonderType, wonderRegistry, playerResearchRegistry), new Effect_1.default((city, yields) => new YieldType((0, reduceYields_1.reduceYield)(yields, YieldType) * multiplier, WonderType.name)))),
-    // Isaac Newton's College raises each Library's and University's +50% to
-    // +83%. Bonuses here compound rather than adding to the base, so it's a
-    // multiplier, ×11/9 per improvement (1.5 × 11/9 = 1.83). One rule, one
-    // floor, and after every `Low` modifier whatever order the packages register
-    // in, so rounding can't depend on whether the Library ran first. v474.05
-    // adds base/3 per improvement instead (#390).
-    new YieldModifier_1.default(new Priority_1.default(4000), // X Low
-    (0, hasWonder_1.playerHasWonder)(Wonders_1.IsaacNewtonsCollege, wonderRegistry, playerResearchRegistry), new Criterion_1.default((city) => cityImprovementRegistry
+    // As v474.05 (OpenCivOne's decompile, `CityWorker.cs`), Isaac Newton's College adds a third of the city's base
+    //  science for each Library and University, alongside their half each.
+    new YieldModifier_1.default(new Priorities_1.Low(), (0, hasWonder_1.playerHasWonder)(Wonders_1.IsaacNewtonsCollege, wonderRegistry, playerResearchRegistry), new Criterion_1.default((city) => cityImprovementRegistry
         .getByCity(city)
-        .some((improvement) => newtonImprovements.some((Improvement) => improvement instanceof Improvement))), new Effect_1.default((city, yields) => {
+        .some((improvement) => newtonImprovements.some((Improvement) => improvement instanceof Improvement))), new Effect_1.default((city, yields, base) => {
         const improvements = cityImprovementRegistry.getByCity(city), count = newtonImprovements.filter((Improvement) => improvements.some((improvement) => improvement instanceof Improvement)).length;
-        return new Yields_1.Research(Math.floor(((0, reduceYields_1.reduceYield)(yields, Yields_1.Research) * (11 ** count - 9 ** count)) /
-            9 ** count), Wonders_1.IsaacNewtonsCollege.name);
+        return new Yields_1.Research(Math.floor((0, reduceYields_1.reduceYield)(base, Yields_1.Research) / 3) * count, Wonders_1.IsaacNewtonsCollege.name);
     })),
     // Hoover Dam acts as a plant in every city on its continent. As in v474.05,
     // it needs a Factory (or Mfg. Plant) and doesn't add to a plant already
@@ -47,7 +39,14 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
         return (improvements.some((improvement) => improvement instanceof CityImprovements_1.Factory ||
             improvement instanceof CityImprovements_1.ManufacturingPlant) &&
             !improvements.some((improvement) => plants.some((Plant) => improvement instanceof Plant)));
-    }), new Effect_1.default((city, yields) => new Yields_1.Production(Math.floor((0, reduceYields_1.reduceYield)(yields, Yields_1.Production) * 0.5), Wonders_1.HooverDam.name))),
+    }), new Effect_1.default((city, yields, base) => new Yields_1.Production(Math.floor((0, reduceYields_1.reduceYield)(base, Yields_1.Production) / 2), Wonders_1.HooverDam.name))),
+    // These act on the city's science total, so they come after every `Low` modifier whatever order the packages
+    //  register in: Copernicus doubles it, and then SETI adds half of that (v474.05 adds SETI's share as the research is
+    //  counted).
+    new YieldModifier_1.default(new Priority_1.default(4000), // X Low
+    (0, hasWonder_1.cityHasWonder)(Wonders_1.CopernicusObservatory, wonderRegistry, playerResearchRegistry), new Effect_1.default((city, yields) => new Yields_1.Research((0, reduceYields_1.reduceYield)(yields, Yields_1.Research), Wonders_1.CopernicusObservatory.name))),
+    new YieldModifier_1.default(new Priority_1.default(4000), // X Low
+    (0, hasWonder_1.playerHasWonder)(Wonders_1.SetiProgram, wonderRegistry, playerResearchRegistry), new Effect_1.default((city, yields) => new Yields_1.Research(Math.floor((0, reduceYields_1.reduceYield)(yields, Yields_1.Research) / 2), Wonders_1.SetiProgram.name))),
 ];
 exports.getRules = getRules;
 exports.default = exports.getRules;

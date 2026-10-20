@@ -51,7 +51,18 @@ import {
   WonderRegistry,
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
+import {
+  HydroPlant,
+  NuclearPlant,
+  PowerPlant,
+} from '@civ-clone/civ1-city-improvement/CityImprovements';
+import {
+  LandMassRegistry,
+  instance as landMassRegistryInstance,
+} from '@civ-clone/core-world/LandMassRegistry';
 import Advance from '@civ-clone/core-science/Advance';
+import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
+import { onWonderLandMass } from '../lib/onWonderLandMass';
 import City from '@civ-clone/core-city/City';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
@@ -62,10 +73,12 @@ import Unit from '@civ-clone/core-unit/Unit';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  landMassRegistry?: LandMassRegistry
 ) => Build[] = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  landMassRegistry: LandMassRegistry = landMassRegistryInstance
 ): Build[] => [
   new Build(
     Wonder,
@@ -141,6 +154,30 @@ export const getRules: (
             )
         )
       )
+  ),
+
+  // As v474.05's production menu, a city that Hoover Dam already acts as a plant for isn't offered one (OpenCivOne's
+  //  decompile, `Segment_1ade.cs` `F0_1ade_0421`).
+  ...([PowerPlant, HydroPlant, NuclearPlant] as (typeof CityImprovement)[]).map(
+    (Plant): Build => {
+      const hooverDam = onWonderLandMass(
+        HooverDam,
+        wonderRegistry,
+        playerResearchRegistry,
+        landMassRegistry
+      );
+
+      return new Build(
+        Plant,
+        new Criterion(
+          (city: City, BuildItem: IConstructor): boolean => BuildItem === Plant
+        ),
+        new Effect(
+          (city: City): IBuildCriterion =>
+            new Criterion((): boolean => !hooverDam.validate(city))
+        )
+      );
+    }
   ),
 ];
 

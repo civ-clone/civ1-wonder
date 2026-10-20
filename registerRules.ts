@@ -20,7 +20,7 @@ import { Game, defaultGame } from '@civ-clone/core-game';
 
 export const register = (game: Game): void =>
   game.rules.register(
-    ...cityBuild(game.playerResearch, game.wonders),
+    ...cityBuild(game.playerResearch, game.wonders, game.landMasses),
     ...cityBuildPriority(
       game.cities,
       game.cityBuilds,
