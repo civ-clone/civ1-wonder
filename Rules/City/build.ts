@@ -28,6 +28,7 @@ import {
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
 import Advance from '@civ-clone/core-science/Advance';
+import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import City from '@civ-clone/core-city/City';
 import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
 import Criterion from '@civ-clone/core-rule/Criterion';
@@ -59,8 +60,8 @@ export const builtOnceRule = (
   );
 
 /**
- * The rule `entry` is played by: a city may build its subject only once its player has discovered each advance it
- * `requires`, and once each Wonder it `requires` has been built by anyone (the Manhattan Project, for Nuclear units).
+ * The rule `entry` is played by: a city may build its subject only once each advance and Wonder it `requires` is held,
+ * by the city's player or, for a `world` entry, by anyone (the Manhattan Project, for Nuclear units).
  */
 export const buildRulesFor = (
   entry: Requirement,
@@ -71,15 +72,28 @@ export const buildRulesFor = (
     return [];
   }
 
-  const has = (city: City, target: Target): boolean =>
-    Object.prototype.isPrototypeOf.call(Wonder, target)
-      ? wonderRegistry.some(
-          (wonder: Wonder): boolean =>
-            wonder instanceof (target as typeof Wonder)
+  // Whose Wonder or advance counts is the entry's `range`: Civ1's Manhattan Project is anyone's (`world`), an
+  //  advance the city's player's (`player`).
+  const has = (city: City, target: Target): boolean => {
+    if (Object.prototype.isPrototypeOf.call(Wonder, target)) {
+      const isTarget = (wonder: Wonder): boolean =>
+        wonder instanceof (target as typeof Wonder);
+
+      return entry.range === 'world'
+        ? wonderRegistry.some(isTarget)
+        : entry.range === 'city'
+        ? wonderRegistry.getByCity(city).some(isTarget)
+        : wonderRegistry.getByPlayer(city.player()).some(isTarget);
+    }
+
+    return entry.range === 'world'
+      ? playerResearchRegistry.some((playerResearch: PlayerResearch): boolean =>
+          playerResearch.completed(target as typeof Advance)
         )
       : playerResearchRegistry
           .getByPlayer(city.player())
           .completed(target as typeof Advance);
+  };
 
   return [
     new Build(
