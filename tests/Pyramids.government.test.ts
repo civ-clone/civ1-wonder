@@ -1,3 +1,6 @@
+// Must come first: what makes a Wonder obsolete is read from the game's requirements.
+import './lib/requirements';
+
 import {
   Anarchy,
   Communism,

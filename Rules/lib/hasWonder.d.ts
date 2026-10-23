@@ -1,3 +1,4 @@
+import { RequirementRegistry } from '@civ-clone/core-requirement/RequirementRegistry';
 import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
 import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
 import City from '@civ-clone/core-city/City';
@@ -8,16 +9,19 @@ import Wonder from '@civ-clone/core-wonder/Wonder';
 export declare const cityHasWonder: (
   WonderType: typeof Wonder,
   wonderRegistry?: WonderRegistry,
-  playerResearchRegistry?: PlayerResearchRegistry
+  playerResearchRegistry?: PlayerResearchRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => Criterion<[city: City]>;
 export declare const playerOwnsWonder: (
   player: Player,
   WonderType: typeof Wonder,
   wonderRegistry?: WonderRegistry,
-  playerResearchRegistry?: PlayerResearchRegistry
+  playerResearchRegistry?: PlayerResearchRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => boolean;
 export declare const playerHasWonder: (
   WonderType: typeof Wonder,
   wonderRegistry?: WonderRegistry,
-  playerResearchRegistry?: PlayerResearchRegistry
+  playerResearchRegistry?: PlayerResearchRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => Criterion<[item: City | Unit]>;

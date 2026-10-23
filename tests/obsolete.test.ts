@@ -1,3 +1,6 @@
+// Must come first: what makes a Wonder obsolete is read from the game's requirements.
+import './lib/requirements';
+
 import { cityHasWonder, playerHasWonder } from '../Rules/lib/hasWonder';
 import { isObsolete, obsoletedBy } from '../Rules/lib/obsolete';
 import Advance from '@civ-clone/core-science/Advance';

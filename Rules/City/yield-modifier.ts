@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   CityImprovementRegistry,
   instance as cityImprovementRegistryInstance,
 } from '@civ-clone/core-city-improvement/CityImprovementRegistry';
@@ -54,12 +58,14 @@ export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
   wonderRegistry?: WonderRegistry,
   cityImprovementRegistry?: CityImprovementRegistry,
-  landMassRegistry?: LandMassRegistry
+  landMassRegistry?: LandMassRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => YieldModifier[] = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
   cityImprovementRegistry: CityImprovementRegistry = cityImprovementRegistryInstance,
-  landMassRegistry: LandMassRegistry = landMassRegistryInstance
+  landMassRegistry: LandMassRegistry = landMassRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ) => [
   // As v474.05 (OpenCivOne's decompile, `CityWorker.cs`), Isaac Newton's College adds a third of the city's base
   //  science for each Library and University, alongside their half each.
@@ -68,7 +74,8 @@ export const getRules: (
     playerHasWonder(
       IsaacNewtonsCollege,
       wonderRegistry,
-      playerResearchRegistry
+      playerResearchRegistry,
+      requirementRegistry
     ),
     new Criterion((city: City): boolean =>
       cityImprovementRegistry
@@ -104,7 +111,8 @@ export const getRules: (
       HooverDam,
       wonderRegistry,
       playerResearchRegistry,
-      landMassRegistry
+      landMassRegistry,
+      requirementRegistry
     ),
     new Criterion((city: City): boolean => {
       const improvements = cityImprovementRegistry.getByCity(city);
@@ -137,7 +145,8 @@ export const getRules: (
     cityHasWonder(
       CopernicusObservatory,
       wonderRegistry,
-      playerResearchRegistry
+      playerResearchRegistry,
+      requirementRegistry
     ),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
@@ -147,7 +156,12 @@ export const getRules: (
 
   new YieldModifier(
     new Priority(4000), // X Low
-    playerHasWonder(SetiProgram, wonderRegistry, playerResearchRegistry),
+    playerHasWonder(
+      SetiProgram,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    ),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Research(

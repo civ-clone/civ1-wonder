@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   LandMassRegistry,
   instance as landMassRegistryInstance,
 } from '@civ-clone/core-world/LandMassRegistry';
@@ -20,11 +24,13 @@ import { onWonderLandMass } from '../lib/onWonderLandMass';
 export const getRules: (
   wonderRegistry?: WonderRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
-  landMassRegistry?: LandMassRegistry
+  landMassRegistry?: LandMassRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => PollutionDivisor[] = (
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  landMassRegistry: LandMassRegistry = landMassRegistryInstance
+  landMassRegistry: LandMassRegistry = landMassRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): PollutionDivisor[] => [
   new PollutionDivisor(
     'civ1-wonder:city/pollution-divisor/HooverDam',
@@ -32,7 +38,8 @@ export const getRules: (
       HooverDam,
       wonderRegistry,
       playerResearchRegistry,
-      landMassRegistry
+      landMassRegistry,
+      requirementRegistry
     ),
     new Effect((): number => 2)
   ),

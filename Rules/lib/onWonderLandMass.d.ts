@@ -1,3 +1,4 @@
+import { RequirementRegistry } from '@civ-clone/core-requirement/RequirementRegistry';
 import { LandMassRegistry } from '@civ-clone/core-world/LandMassRegistry';
 import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
 import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
@@ -12,6 +13,7 @@ export declare const onWonderLandMass: (
   WonderType: typeof Wonder,
   wonderRegistry?: WonderRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
-  landMassRegistry?: LandMassRegistry
+  landMassRegistry?: LandMassRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => Criterion<[city: City]>;
 export default onWonderLandMass;

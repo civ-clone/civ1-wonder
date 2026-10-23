@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onWonderLandMass = void 0;
+const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
 const LandMassRegistry_1 = require("@civ-clone/core-world/LandMassRegistry");
 const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
 const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
@@ -10,7 +11,7 @@ const obsolete_1 = require("./obsolete");
  * The city's player owns `WonderType`, and the city is on the same continent as
  * the city that holds it (v474.05 compares the two cities' map group ids).
  */
-const onWonderLandMass = (WonderType, wonderRegistry = WonderRegistry_1.instance, playerResearchRegistry = PlayerResearchRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance) => new Criterion_1.default((city) => !(0, obsolete_1.isObsolete)(WonderType, playerResearchRegistry) &&
+const onWonderLandMass = (WonderType, wonderRegistry = WonderRegistry_1.instance, playerResearchRegistry = PlayerResearchRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => new Criterion_1.default((city) => !(0, obsolete_1.isObsolete)(WonderType, playerResearchRegistry, requirementRegistry) &&
     wonderRegistry
         .getByPlayer(city.player())
         .some((wonder) => {

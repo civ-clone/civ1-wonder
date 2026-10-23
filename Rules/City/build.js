@@ -1,52 +1,62 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRules = void 0;
-const Wonders_1 = require("../../Wonders");
-const Advances_1 = require("@civ-clone/civ1-science/Advances");
+exports.getRules = exports.hooverDamPlantRules = exports.deriveBuildRules = exports.buildRulesFor = exports.builtOnceRule = void 0;
 const Build_1 = require("@civ-clone/core-city-build/Rules/Build");
-const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
-const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
+const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
+const Wonders_1 = require("../../Wonders");
 const CityImprovements_1 = require("@civ-clone/civ1-city-improvement/CityImprovements");
 const LandMassRegistry_1 = require("@civ-clone/core-world/LandMassRegistry");
-const onWonderLandMass_1 = require("../lib/onWonderLandMass");
+const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
+const Requirement_1 = require("@civ-clone/core-requirement/Requirement");
+const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Wonder_1 = require("@civ-clone/core-wonder/Wonder");
-const Units_1 = require("@civ-clone/civ1-unit/Units");
-const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance) => [
-    new Build_1.Build(Wonder_1.default, new Criterion_1.default((city, BuildItem) => Object.isPrototypeOf.call(Wonder_1.default, BuildItem)), new Effect_1.default((city, WonderType) => new Criterion_1.default(() => wonderRegistry.filter((wonder) => wonder instanceof WonderType).length === 0))),
-    ...[
-        [Wonders_1.Colossus, Advances_1.BronzeWorking],
-        [Wonders_1.CopernicusObservatory, Advances_1.Astronomy],
-        [Wonders_1.GreatLibrary, Advances_1.Literacy],
-        [Wonders_1.GreatWall, Advances_1.Masonry],
-        [Wonders_1.HangingGardens, Advances_1.Pottery],
-        [Wonders_1.Lighthouse, Advances_1.MapMaking],
-        [Wonders_1.MagellansExpedition, Advances_1.Navigation],
-        [Wonders_1.Oracle, Advances_1.Mysticism],
-        [Wonders_1.Pyramids, Advances_1.Masonry],
-        [Wonders_1.ApolloProgram, Advances_1.SpaceFlight],
-        [Wonders_1.CureForCancer, Advances_1.GeneticEngineering],
-        [Wonders_1.DarwinsVoyage, Advances_1.Railroad],
-        [Wonders_1.HooverDam, Advances_1.Electronics],
-        [Wonders_1.IsaacNewtonsCollege, Advances_1.TheoryOfGravity],
-        [Wonders_1.JsBachsCathedral, Advances_1.Religion],
-        [Wonders_1.ManhattanProject, Advances_1.NuclearFission],
-        [Wonders_1.MichelangelosChapel, Advances_1.Religion],
-        [Wonders_1.SetiProgram, Advances_1.Computers],
-        [Wonders_1.ShakespearesTheatre, Advances_1.Medicine],
-        [Wonders_1.UnitedNations, Advances_1.Communism],
-        [Wonders_1.WomensSuffrage, Advances_1.Industrialization],
-    ].map(([WonderType, RequiredAdvance]) => new Build_1.Build(WonderType, new Criterion_1.default((city, BuildItem) => BuildItem === WonderType), new Effect_1.default((city) => new Criterion_1.default(() => playerResearchRegistry
-        .getByPlayer(city.player())
-        .completed(RequiredAdvance))))),
-    ...[[Units_1.Nuclear, Wonders_1.ManhattanProject]].map(([UnitType, RequiredWonder]) => new Build_1.Build(UnitType, new Criterion_1.default((city, BuildItem) => BuildItem === UnitType), new Effect_1.default(() => new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof RequiredWonder))))),
-    // As v474.05's production menu, a city that Hoover Dam already acts as a plant for isn't offered one (OpenCivOne's
-    //  decompile, `Segment_1ade.cs` `F0_1ade_0421`).
-    ...[CityImprovements_1.PowerPlant, CityImprovements_1.HydroPlant, CityImprovements_1.NuclearPlant].map((Plant) => {
-        const hooverDam = (0, onWonderLandMass_1.onWonderLandMass)(Wonders_1.HooverDam, wonderRegistry, playerResearchRegistry, landMassRegistry);
-        return new Build_1.Build(Plant, new Criterion_1.default((city, BuildItem) => BuildItem === Plant), new Effect_1.default((city) => new Criterion_1.default(() => !hooverDam.validate(city))));
-    }),
+const Requirements_1 = require("../../Requirements");
+const onWonderLandMass_1 = require("../lib/onWonderLandMass");
+/** A Wonder is built once in the world: a state of the game, so a rule written by hand. */
+const builtOnceRule = (wonderRegistry = WonderRegistry_1.instance) => new Build_1.Build('civ1-wonder:city/build/once', Wonder_1.default, new Criterion_1.default((city, BuildItem) => Object.isPrototypeOf.call(Wonder_1.default, BuildItem)), new Effect_1.default((city, WonderType) => new Criterion_1.default(() => wonderRegistry.filter((wonder) => wonder instanceof WonderType).length === 0)));
+exports.builtOnceRule = builtOnceRule;
+/**
+ * The rule `entry` is played by: a city may build its subject only once its player has discovered each advance it
+ * `requires`, and once each Wonder it `requires` has been built by anyone (the Manhattan Project, for Nuclear units).
+ */
+const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => {
+    if (entry.relation !== 'requires') {
+        return [];
+    }
+    const has = (city, target) => Object.prototype.isPrototypeOf.call(Wonder_1.default, target)
+        ? wonderRegistry.some((wonder) => wonder instanceof target)
+        : playerResearchRegistry
+            .getByPlayer(city.player())
+            .completed(target);
+    return [
+        new Build_1.Build(entry.id, entry.subject, new Criterion_1.default((city, BuildItem) => BuildItem === entry.subject), new Effect_1.default((city) => new Criterion_1.default(() => (0, Requirement_1.met)(entry, (target) => has(city, target))))),
+    ];
+};
+exports.buildRulesFor = buildRulesFor;
+/** What `registerRules` gives the game's `requirements` to make each entry's rule with. */
+const deriveBuildRules = (playerResearchRegistry, wonderRegistry) => (entry) => (0, exports.buildRulesFor)(entry, playerResearchRegistry, wonderRegistry);
+exports.deriveBuildRules = deriveBuildRules;
+/**
+ * As v474.05's production menu, a city that Hoover Dam already acts as a plant for isn't offered one (OpenCivOne's
+ * decompile, `Segment_1ade.cs` `F0_1ade_0421`).
+ */
+const hooverDamPlantRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [CityImprovements_1.PowerPlant, CityImprovements_1.HydroPlant, CityImprovements_1.NuclearPlant].map((Plant) => {
+    const hooverDam = (0, onWonderLandMass_1.onWonderLandMass)(Wonders_1.HooverDam, wonderRegistry, playerResearchRegistry, landMassRegistry, requirementRegistry);
+    return new Build_1.Build(`civ1-wonder:city/build/hoover-dam-plant/${Plant.name}`, Plant, new Criterion_1.default((city, BuildItem) => BuildItem === Plant), new Effect_1.default((city) => new Criterion_1.default(() => !hooverDam.validate(city))));
+});
+exports.hooverDamPlantRules = hooverDamPlantRules;
+/**
+ * Every rule about building Wonders, and what they make buildable or not, as `registerRules` registers them: built
+ * once, one for each of `Requirements`' build entries, then Hoover Dam's plants. For a rule registry without a game's
+ * `requirements` (tests): a game's are registered through `game.requirements`, so a plugin can change an entry and its
+ * rule together.
+ */
+const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [
+    (0, exports.builtOnceRule)(wonderRegistry),
+    ...Requirements_1.default.flatMap((entry) => (0, exports.buildRulesFor)(entry, playerResearchRegistry, wonderRegistry)),
+    ...(0, exports.hooverDamPlantRules)(playerResearchRegistry, wonderRegistry, landMassRegistry, requirementRegistry),
 ];
 exports.getRules = getRules;
 exports.default = exports.getRules;

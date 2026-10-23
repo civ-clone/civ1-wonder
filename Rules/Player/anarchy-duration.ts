@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   PlayerResearchRegistry,
   instance as playerResearchRegistryInstance,
 } from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -12,16 +16,18 @@ import { pyramidsActive } from '../lib/pyramidsActive';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => AnarchyDuration[] = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): AnarchyDuration[] => [
   // The Pyramids' owner changes government without passing through Anarchy
   // (Rome on 640K a Day, p314-315).
   new AnarchyDuration(
     'civ1-wonder:player/anarchy-duration/pyramids',
-    pyramidsActive(playerResearchRegistry, wonderRegistry),
+    pyramidsActive(playerResearchRegistry, wonderRegistry, requirementRegistry),
     new Effect((): number => 0)
   ),
 ];

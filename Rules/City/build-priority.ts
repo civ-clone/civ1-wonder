@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   CityBuildRegistry,
   instance as cityBuildRegistryInstance,
 } from '@civ-clone/core-city-build/CityBuildRegistry';
@@ -52,12 +56,14 @@ export const getRules: (
   cityRegistry?: CityRegistry,
   cityBuildRegistry?: CityBuildRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
-  unitRegistry?: UnitRegistry
+  unitRegistry?: UnitRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => BuildPriority[] = (
   cityRegistry: CityRegistry = cityRegistryInstance,
   cityBuildRegistry: CityBuildRegistry = cityBuildRegistryInstance,
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  unitRegistry: UnitRegistry = unitRegistryInstance
+  unitRegistry: UnitRegistry = unitRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): BuildPriority[] => [
   new BuildPriority(
     'civ1-wonder:city/build-priority/wonder',
@@ -69,7 +75,8 @@ export const getRules: (
         !neverWanted.includes(BuildItem as unknown as typeof Wonder) &&
         !isObsolete(
           BuildItem as unknown as typeof Wonder,
-          playerResearchRegistry
+          playerResearchRegistry,
+          requirementRegistry
         )
     ),
     new Criterion(

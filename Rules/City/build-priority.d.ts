@@ -1,3 +1,4 @@
+import { RequirementRegistry } from '@civ-clone/core-requirement/RequirementRegistry';
 import { CityBuildRegistry } from '@civ-clone/core-city-build/CityBuildRegistry';
 import { CityRegistry } from '@civ-clone/core-city/CityRegistry';
 import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -9,6 +10,7 @@ export declare const getRules: (
   cityRegistry?: CityRegistry,
   cityBuildRegistry?: CityBuildRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
-  unitRegistry?: UnitRegistry
+  unitRegistry?: UnitRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => BuildPriority[];
 export default getRules;

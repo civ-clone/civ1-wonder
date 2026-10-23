@@ -1,14 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRules = void 0;
+const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
 const Governments_1 = require("@civ-clone/civ1-government/Governments");
 const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
 const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const Availability_1 = require("@civ-clone/core-government/Rules/Availability");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const pyramidsActive_1 = require("../lib/pyramidsActive");
-const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => {
-    const hasPyramids = (0, pyramidsActive_1.pyramidsActive)(playerResearchRegistry, wonderRegistry);
+const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => {
+    const hasPyramids = (0, pyramidsActive_1.pyramidsActive)(playerResearchRegistry, wonderRegistry, requirementRegistry);
     return [
         // The Pyramids' owner can choose any of the five governments, whichever
         // advances they have (Rome on 640K a Day, p314-315).

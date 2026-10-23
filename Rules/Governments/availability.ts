@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   Communism,
   Democracy,
   Despotism,
@@ -21,12 +25,18 @@ import { pyramidsActive } from '../lib/pyramidsActive';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => Availability[] = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): Availability[] => {
-  const hasPyramids = pyramidsActive(playerResearchRegistry, wonderRegistry);
+  const hasPyramids = pyramidsActive(
+    playerResearchRegistry,
+    wonderRegistry,
+    requirementRegistry
+  );
 
   return [
     // The Pyramids' owner can choose any of the five governments, whichever

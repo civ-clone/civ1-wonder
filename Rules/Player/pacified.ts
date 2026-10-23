@@ -1,3 +1,7 @@
+import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
 import { GreatWall, UnitedNations } from '../../Wonders';
 import {
   PlayerResearchRegistry,
@@ -21,10 +25,12 @@ import { playerOwnsWonder } from '../lib/hasWonder';
 //  in every negotiation, since computer players meet through the same one (civ-clone/web-renderer#30).
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => Pacified[] = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): Pacified[] =>
   (
     [
@@ -42,7 +48,8 @@ export const getRules: (
               other,
               WonderType,
               wonderRegistry,
-              playerResearchRegistry
+              playerResearchRegistry,
+              requirementRegistry
             )
         ),
         new Effect((): boolean => true)

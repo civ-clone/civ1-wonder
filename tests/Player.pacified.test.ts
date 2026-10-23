@@ -1,3 +1,6 @@
+// Must come first: what makes a Wonder obsolete is read from the game's requirements.
+import './lib/requirements';
+
 import { GreatWall, Pyramids, UnitedNations } from '../Wonders';
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import { Gunpowder } from '@civ-clone/civ1-science/Advances';

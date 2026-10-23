@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   PlayerResearchRegistry,
   instance as playerResearchRegistryInstance,
 } from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -17,10 +21,17 @@ import { playerOwnsWonder } from './hasWonder';
  */
 export const pyramidsActive = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): Criterion =>
   new Criterion((player: Player): boolean =>
-    playerOwnsWonder(player, Pyramids, wonderRegistry, playerResearchRegistry)
+    playerOwnsWonder(
+      player,
+      Pyramids,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    )
   );
 
 export default pyramidsActive;
