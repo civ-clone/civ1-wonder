@@ -8,6 +8,8 @@ export declare const requiresWonder: Requirement[];
  * announces it the first time. `isObsolete` reads these.
  */
 export declare const obsoletedBy: Requirement[];
+/** The Oracle calms twice as many citizens once its owner has Mysticism. Only describes: `Rules/City/cost` plays it. */
+export declare const enhancedBy: Requirement[];
 /** The entries `Rules/City/build`'s deriver makes rules from, in the order the rules were always registered. */
 export declare const buildRequirements: Requirement[];
 export default buildRequirements;

@@ -3,7 +3,7 @@ import {
   deriveBuildRules,
   hooverDamPlantRules,
 } from './Rules/City/build';
-import { buildRequirements, obsoletedBy } from './Requirements';
+import { buildRequirements, enhancedBy, obsoletedBy } from './Requirements';
 import cityBuildCost from './Rules/City/build-cost';
 import cityBuildPriority from './Rules/City/build-priority';
 import cityBuildingComplete from './Rules/City/building-complete';
@@ -107,6 +107,8 @@ export const register = (game: Game): void => {
     deriveObsoleteRules(game.playerResearch, game.rules, game.wonders),
     ...obsoletedBy
   );
+  // What makes a Wonder work better, for the civilopedia: it only describes, so no rule is made from it.
+  game.requirements.add(null, ...enhancedBy);
 
   game.rules.register(
     ...playerResearchStarted(game.pendingEffects),

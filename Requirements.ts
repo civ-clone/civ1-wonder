@@ -115,6 +115,13 @@ export const obsoletedBy: Requirement[] = table(
   { range: 'world' }
 );
 
+/** The Oracle calms twice as many citizens once its owner has Mysticism. Only describes: `Rules/City/cost` plays it. */
+export const enhancedBy: Requirement[] = table(
+  'civ1-wonder:wonder/enhanced-by',
+  'enhancedBy',
+  [[Oracle, Mysticism]]
+);
+
 /** The entries `Rules/City/build`'s deriver makes rules from, in the order the rules were always registered. */
 export const buildRequirements: Requirement[] = [
   ...requiresAdvance,
