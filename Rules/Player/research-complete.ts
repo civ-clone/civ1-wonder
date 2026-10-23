@@ -31,7 +31,8 @@ import { notDiscoveredByAnyOtherPlayer } from '../lib/hasDiscovered';
 
 /**
  * The rule `entry` is played by: the first time anyone discovers the advance that makes its Wonder obsolete, the Wonder
- * is announced `Obsolete`. A Wonder is obsoleted by one advance, so an entry naming more is refused.
+ * is announced `Obsolete`. A Wonder is obsoleted by one advance, for the world, so an entry naming more, or another
+ * range, is refused.
  */
 export const obsoleteRulesFor = (
   entry: Requirement,
@@ -41,6 +42,14 @@ export const obsoleteRulesFor = (
 ): Complete[] => {
   if (entry.relation !== 'obsoletedBy') {
     return [];
+  }
+
+  // Obsolescence here is the world's: a Wonder stops working for everyone once anyone has the advance, which is what
+  //  `isObsolete` reads. An entry saying otherwise would read one way and play another, so it is refused.
+  if (entry.range !== 'world') {
+    throw new TypeError(
+      `'${entry.id}': a Wonder goes obsolete for the world, so its range must be 'world', not '${entry.range}'.`
+    );
   }
 
   if (entry.targets.length !== 1) {

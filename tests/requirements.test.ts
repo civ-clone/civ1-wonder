@@ -145,6 +145,26 @@ describe('civ1-wonder requirements', (): void => {
     expect(isObsolete(GreatWall, game.playerResearch, game.requirements)).false;
   });
 
+  it("should refuse an obsolete entry that is not the world's, as obsolescence here is", (): void => {
+    const { game } = setUp();
+
+    expect(() =>
+      game.requirements.replace(
+        'civ1-wonder:wonder/obsolete/GreatWall',
+        new Requirement({
+          id: 'civ1-wonder:wonder/obsolete/GreatWall',
+          subject: GreatWall,
+          relation: 'obsoletedBy',
+          targets: [Gunpowder],
+          range: 'player',
+        })
+      )
+    ).to.throw(TypeError, /range must be 'world'/);
+    expect(
+      game.requirements.getById('civ1-wonder:wonder/obsolete/GreatWall')?.range
+    ).equal('world');
+  });
+
   it('should read the graph both ways', (): void => {
     const { game } = setUp();
 

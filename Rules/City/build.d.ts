@@ -10,8 +10,8 @@ import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
 /** A Wonder is built once in the world: a state of the game, so a rule written by hand. */
 export declare const builtOnceRule: (wonderRegistry?: WonderRegistry) => Build;
 /**
- * The rule `entry` is played by: a city may build its subject only once its player has discovered each advance it
- * `requires`, and once each Wonder it `requires` has been built by anyone (the Manhattan Project, for Nuclear units).
+ * The rule `entry` is played by: a city may build its subject only once each advance and Wonder it `requires` is held,
+ * by the city's player or, for a `world` entry, by anyone (the Manhattan Project, for Nuclear units).
  */
 export declare const buildRulesFor: (
   entry: Requirement,

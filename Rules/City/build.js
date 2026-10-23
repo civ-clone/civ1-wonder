@@ -18,18 +18,30 @@ const onWonderLandMass_1 = require("../lib/onWonderLandMass");
 const builtOnceRule = (wonderRegistry = WonderRegistry_1.instance) => new Build_1.Build('civ1-wonder:city/build/once', Wonder_1.default, new Criterion_1.default((city, BuildItem) => Object.isPrototypeOf.call(Wonder_1.default, BuildItem)), new Effect_1.default((city, WonderType) => new Criterion_1.default(() => wonderRegistry.filter((wonder) => wonder instanceof WonderType).length === 0)));
 exports.builtOnceRule = builtOnceRule;
 /**
- * The rule `entry` is played by: a city may build its subject only once its player has discovered each advance it
- * `requires`, and once each Wonder it `requires` has been built by anyone (the Manhattan Project, for Nuclear units).
+ * The rule `entry` is played by: a city may build its subject only once each advance and Wonder it `requires` is held,
+ * by the city's player or, for a `world` entry, by anyone (the Manhattan Project, for Nuclear units).
  */
 const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => {
     if (entry.relation !== 'requires') {
         return [];
     }
-    const has = (city, target) => Object.prototype.isPrototypeOf.call(Wonder_1.default, target)
-        ? wonderRegistry.some((wonder) => wonder instanceof target)
-        : playerResearchRegistry
-            .getByPlayer(city.player())
-            .completed(target);
+    // Whose Wonder or advance counts is the entry's `range`: Civ1's Manhattan Project is anyone's (`world`), an
+    //  advance the city's player's (`player`).
+    const has = (city, target) => {
+        if (Object.prototype.isPrototypeOf.call(Wonder_1.default, target)) {
+            const isTarget = (wonder) => wonder instanceof target;
+            return entry.range === 'world'
+                ? wonderRegistry.some(isTarget)
+                : entry.range === 'city'
+                    ? wonderRegistry.getByCity(city).some(isTarget)
+                    : wonderRegistry.getByPlayer(city.player()).some(isTarget);
+        }
+        return entry.range === 'world'
+            ? playerResearchRegistry.some((playerResearch) => playerResearch.completed(target))
+            : playerResearchRegistry
+                .getByPlayer(city.player())
+                .completed(target);
+    };
     return [
         new Build_1.Build(entry.id, entry.subject, new Criterion_1.default((city, BuildItem) => BuildItem === entry.subject), new Effect_1.default((city) => new Criterion_1.default(() => (0, Requirement_1.met)(entry, (target) => has(city, target))))),
     ];

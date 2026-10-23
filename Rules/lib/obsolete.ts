@@ -30,6 +30,9 @@ export const obsoletedBy: [typeof Wonder, typeof Advance][] =
  * just its owner, as the game's requirements say (civ-clone/web-renderer#37), so
  * a plugin that changes them changes this too. Worked out from research rather
  * than recorded, so there's nothing extra to save.
+ *
+ * `requirementRegistry` is `defaultGame`'s unless given, which holds these entries once this package is registered
+ * there (loading it as a plugin does). Another game's are only read if passed: every rule factory here takes them.
  */
 export const isObsolete = (
   WonderType: typeof Wonder,
@@ -38,6 +41,8 @@ export const isObsolete = (
 ): boolean =>
   requirementRegistry
     .for(WonderType, 'obsoletedBy')
+    // Only the world's: `Rules/Player/research-complete` refuses an obsolete entry of any other range.
+    .filter((entry: Requirement): boolean => entry.range === 'world')
     .some((entry: Requirement): boolean =>
       met(entry, (target: Target): boolean =>
         playerResearchRegistry.some((playerResearch: PlayerResearch): boolean =>

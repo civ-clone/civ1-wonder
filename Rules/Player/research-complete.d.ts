@@ -9,7 +9,8 @@ import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
 import Complete from '@civ-clone/core-science/Rules/Complete';
 /**
  * The rule `entry` is played by: the first time anyone discovers the advance that makes its Wonder obsolete, the Wonder
- * is announced `Obsolete`. A Wonder is obsoleted by one advance, so an entry naming more is refused.
+ * is announced `Obsolete`. A Wonder is obsoleted by one advance, for the world, so an entry naming more, or another
+ * range, is refused.
  */
 export declare const obsoleteRulesFor: (
   entry: Requirement,
