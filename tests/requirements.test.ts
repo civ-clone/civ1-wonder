@@ -1,5 +1,9 @@
-import { GreatWall, ManhattanProject, Pyramids } from '../Wonders';
-import { Gunpowder, NuclearFission } from '@civ-clone/civ1-science/Advances';
+import { GreatWall, ManhattanProject, Oracle, Pyramids } from '../Wonders';
+import {
+  Gunpowder,
+  Mysticism,
+  NuclearFission,
+} from '@civ-clone/civ1-science/Advances';
 import {
   buildRequirements,
   obsoletedBy,
@@ -163,6 +167,19 @@ describe('civ1-wonder requirements', (): void => {
     expect(
       game.requirements.getById('civ1-wonder:wonder/obsolete/GreatWall')?.range
     ).equal('world');
+  });
+
+  it('should say the Oracle is enhanced by Mysticism, and make no rule of it', (): void => {
+    const { game } = setUp();
+
+    expect(
+      game.requirements
+        .for(Oracle, 'enhancedBy')
+        .map((entry: Requirement) => [entry.id, entry.targets])
+    ).eql([['civ1-wonder:wonder/enhanced-by/Oracle', [Mysticism]]]);
+    expect(
+      game.requirements.rulesFor('civ1-wonder:wonder/enhanced-by/Oracle')
+    ).eql([]);
   });
 
   it('should read the graph both ways', (): void => {

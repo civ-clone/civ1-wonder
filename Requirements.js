@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildRequirements = exports.obsoletedBy = exports.requiresWonder = exports.requiresAdvance = void 0;
+exports.buildRequirements = exports.enhancedBy = exports.obsoletedBy = exports.requiresWonder = exports.requiresAdvance = void 0;
 const Wonders_1 = require("./Wonders");
 const Advances_1 = require("@civ-clone/civ1-science/Advances");
 const Requirement_1 = require("@civ-clone/core-requirement/Requirement");
@@ -51,6 +51,8 @@ exports.obsoletedBy = (0, Requirement_1.table)('civ1-wonder:wonder/obsolete', 'o
     [Wonders_1.Pyramids, Advances_1.Communism],
     [Wonders_1.ShakespearesTheatre, Advances_1.Electronics],
 ], { range: 'world' });
+/** The Oracle calms twice as many citizens once its owner has Mysticism. Only describes: `Rules/City/cost` plays it. */
+exports.enhancedBy = (0, Requirement_1.table)('civ1-wonder:wonder/enhanced-by', 'enhancedBy', [[Wonders_1.Oracle, Advances_1.Mysticism]]);
 /** The entries `Rules/City/build`'s deriver makes rules from, in the order the rules were always registered. */
 exports.buildRequirements = [
     ...exports.requiresAdvance,
