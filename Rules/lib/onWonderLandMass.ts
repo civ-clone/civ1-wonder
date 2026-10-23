@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   LandMassRegistry,
   instance as landMassRegistryInstance,
 } from '@civ-clone/core-world/LandMassRegistry';
@@ -23,11 +27,12 @@ export const onWonderLandMass = (
   WonderType: typeof Wonder,
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  landMassRegistry: LandMassRegistry = landMassRegistryInstance
+  landMassRegistry: LandMassRegistry = landMassRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ) =>
   new Criterion(
     (city: City): boolean =>
-      !isObsolete(WonderType, playerResearchRegistry) &&
+      !isObsolete(WonderType, playerResearchRegistry, requirementRegistry) &&
       wonderRegistry
         .getByPlayer(city.player())
         .some(

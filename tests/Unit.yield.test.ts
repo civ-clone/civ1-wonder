@@ -1,3 +1,6 @@
+// Must come first: what makes a Wonder obsolete is read from the game's requirements.
+import './lib/requirements';
+
 import { Lighthouse, MagellansExpedition } from '../Wonders';
 import Advance from '@civ-clone/core-science/Advance';
 import { Magnetism } from '@civ-clone/civ1-science/Advances';

@@ -1,3 +1,7 @@
+import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
 import { Colossus, CureForCancer, HangingGardens } from '../../Wonders';
 import { Happiness, Trade } from '@civ-clone/civ1-city/Yields';
 import {
@@ -18,14 +22,21 @@ import Yield from '@civ-clone/core-yield/Yield';
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => CityYield[] = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  wonderRegistry: WonderRegistry = wonderRegistryInstance
+  wonderRegistry: WonderRegistry = wonderRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): CityYield[] => [
   new CityYield(
     new Priority(500),
-    cityHasWonder(Colossus, wonderRegistry, playerResearchRegistry),
+    cityHasWonder(
+      Colossus,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    ),
     new Effect((city: City): Yield => {
       return new Trade(
         city
@@ -46,7 +57,12 @@ export const getRules: (
   ).map(
     ([WonderType, happiness]) =>
       new CityYield(
-        playerHasWonder(WonderType, wonderRegistry, playerResearchRegistry),
+        playerHasWonder(
+          WonderType,
+          wonderRegistry,
+          playerResearchRegistry,
+          requirementRegistry
+        ),
         new Effect((): Yield => new Happiness(happiness, WonderType.name))
       )
   ),

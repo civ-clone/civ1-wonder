@@ -1,3 +1,4 @@
+import { RequirementRegistry } from '@civ-clone/core-requirement/RequirementRegistry';
 import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
 import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
 import Criterion from '@civ-clone/core-rule/Criterion';
@@ -7,6 +8,7 @@ import Criterion from '@civ-clone/core-rule/Criterion';
  */
 export declare const pyramidsActive: (
   playerResearchRegistry?: PlayerResearchRegistry,
-  wonderRegistry?: WonderRegistry
+  wonderRegistry?: WonderRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => Criterion;
 export default pyramidsActive;

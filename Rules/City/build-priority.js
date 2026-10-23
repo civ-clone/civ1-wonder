@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRules = exports.wonderShields = exports.wonderPriority = void 0;
+const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
 const CityBuildRegistry_1 = require("@civ-clone/core-city-build/CityBuildRegistry");
 const CityRegistry_1 = require("@civ-clone/core-city/CityRegistry");
 const Wonders_1 = require("../../Wonders");
@@ -23,9 +24,9 @@ const forShips = [Wonders_1.Lighthouse, Wonders_1.MagellansExpedition];
 // Wonders that do a player more harm than good: the Manhattan Project lets every player build nuclear weapons.
 const neverWanted = [Wonders_1.ManhattanProject];
 const isWonder = (BuildItem) => Object.prototype.isPrototypeOf.call(Wonder_1.default, BuildItem);
-const getRules = (cityRegistry = CityRegistry_1.instance, cityBuildRegistry = CityBuildRegistry_1.instance, playerResearchRegistry = PlayerResearchRegistry_1.instance, unitRegistry = UnitRegistry_1.instance) => [
+const getRules = (cityRegistry = CityRegistry_1.instance, cityBuildRegistry = CityBuildRegistry_1.instance, playerResearchRegistry = PlayerResearchRegistry_1.instance, unitRegistry = UnitRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [
     new BuildPriority_1.default('civ1-wonder:city/build-priority/wonder', new Criterion_1.default((cityBuild, BuildItem) => isWonder(BuildItem)), new Criterion_1.default((cityBuild, BuildItem) => !neverWanted.includes(BuildItem) &&
-        !(0, obsolete_1.isObsolete)(BuildItem, playerResearchRegistry)), new Criterion_1.default((cityBuild, BuildItem) => !forShips.includes(BuildItem) ||
+        !(0, obsolete_1.isObsolete)(BuildItem, playerResearchRegistry, requirementRegistry)), new Criterion_1.default((cityBuild, BuildItem) => !forShips.includes(BuildItem) ||
         unitRegistry
             .getByPlayer(cityBuild.city().player())
             .some((unit) => unit instanceof Types_1.Naval)), new Criterion_1.default((cityBuild, BuildItem) => !cityRegistry

@@ -1,3 +1,7 @@
+import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
 import { Lighthouse, MagellansExpedition } from '../../Wonders';
 import {
   PlayerResearchRegistry,
@@ -19,10 +23,12 @@ import { playerHasWonder } from '../lib/hasWonder';
 
 export const getRules: (
   wonderRegistry?: WonderRegistry,
-  playerResearchRegistry?: PlayerResearchRegistry
+  playerResearchRegistry?: PlayerResearchRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => UnitYield[] = (
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
-  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance
+  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): UnitYield[] => [
   new UnitYield(
     new Low(),
@@ -30,7 +36,12 @@ export const getRules: (
       (unit: Unit, unitYield: Yield): boolean => unitYield instanceof Movement
     ),
     new Criterion((unit: Unit): boolean => unit instanceof Naval),
-    playerHasWonder(Lighthouse, wonderRegistry, playerResearchRegistry),
+    playerHasWonder(
+      Lighthouse,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    ),
     new Effect((unit: Unit, unitYield: Yield): void => unitYield.add(1))
   ),
   new UnitYield(
@@ -42,7 +53,8 @@ export const getRules: (
     playerHasWonder(
       MagellansExpedition,
       wonderRegistry,
-      playerResearchRegistry
+      playerResearchRegistry,
+      requirementRegistry
     ),
     new Effect((unit: Unit, unitYield: Yield): void => unitYield.add(1))
   ),

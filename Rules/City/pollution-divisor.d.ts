@@ -1,3 +1,4 @@
+import { RequirementRegistry } from '@civ-clone/core-requirement/RequirementRegistry';
 import { LandMassRegistry } from '@civ-clone/core-world/LandMassRegistry';
 import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRegistry';
 import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
@@ -5,6 +6,7 @@ import PollutionDivisor from '@civ-clone/civ1-city-improvement/Rules/PollutionDi
 export declare const getRules: (
   wonderRegistry?: WonderRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,
-  landMassRegistry?: LandMassRegistry
+  landMassRegistry?: LandMassRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => PollutionDivisor[];
 export default getRules;

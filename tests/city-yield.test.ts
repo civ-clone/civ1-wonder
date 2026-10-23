@@ -1,3 +1,6 @@
+// Must come first: what makes a Wonder obsolete is read from the game's requirements.
+import './lib/requirements';
+
 import { Colossus, CureForCancer, HangingGardens } from '../Wonders';
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import { Happiness, Trade, Unhappiness } from '@civ-clone/civ1-city/Yields';

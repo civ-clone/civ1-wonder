@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   Cathedral,
   Temple,
 } from '@civ-clone/civ1-city-improvement/CityImprovements';
@@ -58,18 +62,25 @@ export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
   unitRegistry?: UnitRegistry,
   wonderRegistry?: WonderRegistry,
-  landMassRegistry?: LandMassRegistry
+  landMassRegistry?: LandMassRegistry,
+  requirementRegistry?: RequirementRegistry
 ) => Cost[] = (
   cityImprovementRegistry: CityImprovementRegistry = cityImprovementRegistryInstance,
   playerGovernmentRegistry: PlayerGovernmentRegistry = playerGovernmentRegistryInstance,
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
   unitRegistry: UnitRegistry = unitRegistryInstance,
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
-  landMassRegistry: LandMassRegistry = landMassRegistryInstance
+  landMassRegistry: LandMassRegistry = landMassRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): Cost[] => [
   new Cost(
     new Low(),
-    playerHasWonder(Oracle, wonderRegistry, playerResearchRegistry),
+    playerHasWonder(
+      Oracle,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    ),
     hasCityImprovement(Temple, cityImprovementRegistry),
     notDiscoveredByPlayer(Mysticism, playerResearchRegistry),
     new Effect(
@@ -83,7 +94,12 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    playerHasWonder(Oracle, wonderRegistry, playerResearchRegistry),
+    playerHasWonder(
+      Oracle,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    ),
     hasCityImprovement(Temple, cityImprovementRegistry),
     discoveredByPlayer(Mysticism, playerResearchRegistry),
     new Effect(
@@ -97,7 +113,12 @@ export const getRules: (
 
   new Cost(
     new Priority(4000), // X Low
-    cityHasWonder(ShakespearesTheatre, wonderRegistry, playerResearchRegistry),
+    cityHasWonder(
+      ShakespearesTheatre,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    ),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
@@ -113,7 +134,8 @@ export const getRules: (
       JsBachsCathedral,
       wonderRegistry,
       playerResearchRegistry,
-      landMassRegistry
+      landMassRegistry,
+      requirementRegistry
     ),
     new Effect(
       (city: City, yields: Yield[]): Yield =>
@@ -129,7 +151,8 @@ export const getRules: (
     playerHasWonder(
       MichelangelosChapel,
       wonderRegistry,
-      playerResearchRegistry
+      playerResearchRegistry,
+      requirementRegistry
     ),
     hasCityImprovement(Cathedral, cityImprovementRegistry),
     // A Cathedral makes 6 content instead of 4: civ1-city-happiness gives the 4.
@@ -144,7 +167,12 @@ export const getRules: (
 
   new Cost(
     new Low(),
-    playerHasWonder(WomensSuffrage, wonderRegistry, playerResearchRegistry),
+    playerHasWonder(
+      WomensSuffrage,
+      wonderRegistry,
+      playerResearchRegistry,
+      requirementRegistry
+    ),
     new Criterion((city: City, cityYields: Yield[]): boolean =>
       cityYields.some((cityYield) => cityYield instanceof MilitaryUnhappiness)
     ),

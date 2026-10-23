@@ -1,4 +1,8 @@
 import {
+  RequirementRegistry,
+  instance as requirementRegistryInstance,
+} from '@civ-clone/core-requirement/RequirementRegistry';
+import {
   PlayerResearchRegistry,
   instance as playerResearchRegistryInstance,
 } from '@civ-clone/core-science/PlayerResearchRegistry';
@@ -18,37 +22,41 @@ import { isObsolete } from './obsolete';
 export const cityHasWonder = (
   WonderType: typeof Wonder,
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
-  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance
+  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ) =>
   new Criterion(
     (city: City): boolean =>
       wonderRegistry
         .getByCity(city)
         .some((wonder: Wonder): boolean => wonder instanceof WonderType) &&
-      !isObsolete(WonderType, playerResearchRegistry)
+      !isObsolete(WonderType, playerResearchRegistry, requirementRegistry)
   );
 
 export const playerOwnsWonder = (
   player: Player,
   WonderType: typeof Wonder,
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
-  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance
+  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ): boolean =>
   wonderRegistry
     .getByPlayer(player)
     .some((wonder: Wonder): boolean => wonder instanceof WonderType) &&
-  !isObsolete(WonderType, playerResearchRegistry);
+  !isObsolete(WonderType, playerResearchRegistry, requirementRegistry);
 
 export const playerHasWonder = (
   WonderType: typeof Wonder,
   wonderRegistry: WonderRegistry = wonderRegistryInstance,
-  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance
+  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
+  requirementRegistry: RequirementRegistry = requirementRegistryInstance
 ) =>
   new Criterion((item: City | Unit): boolean =>
     playerOwnsWonder(
       item.player(),
       WonderType,
       wonderRegistry,
-      playerResearchRegistry
+      playerResearchRegistry,
+      requirementRegistry
     )
   );
