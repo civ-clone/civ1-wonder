@@ -5,6 +5,7 @@ const Wonders_1 = require("./Wonders");
 const Advances_1 = require("@civ-clone/civ1-science/Advances");
 const CityImprovements_1 = require("@civ-clone/civ1-city-improvement/CityImprovements");
 const Requirement_1 = require("@civ-clone/core-requirement/Requirement");
+const RuleIds_1 = require("./RuleIds");
 const Units_1 = require("@civ-clone/civ1-unit/Units");
 // What Civilization's Wonders need, what makes them obsolete, and the units they make buildable, as the entries
 //  `Rules/City/build` and `Rules/Player/research-complete` make their rules from (civ-clone/web-renderer#37).
@@ -60,7 +61,7 @@ exports.enhancedBy = (0, Requirement_1.table)('civ1-wonder:wonder/enhanced-by', 
  * their ids, so the civilopedia, and whatever asks what a Wonder excludes, can find them (civ-clone/web-renderer#965).
  * They only describe: no rule is made from them.
  */
-exports.hooverDamPlants = (0, Requirement_1.table)('civ1-wonder:city/build/hoover-dam-plant', 'excludedBy', [
+exports.hooverDamPlants = (0, Requirement_1.table)(RuleIds_1.HOOVER_DAM_PLANT_RULE_PREFIX, 'excludedBy', [
     [CityImprovements_1.PowerPlant, Wonders_1.HooverDam],
     [CityImprovements_1.HydroPlant, Wonders_1.HooverDam],
     [CityImprovements_1.NuclearPlant, Wonders_1.HooverDam],

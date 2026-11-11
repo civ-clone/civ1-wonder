@@ -54,6 +54,7 @@ import {
   PowerPlant,
 } from '@civ-clone/civ1-city-improvement/CityImprovements';
 import { Requirement, table } from '@civ-clone/core-requirement/Requirement';
+import { HOOVER_DAM_PLANT_RULE_PREFIX } from './RuleIds';
 import { Nuclear } from '@civ-clone/civ1-unit/Units';
 
 // What Civilization's Wonders need, what makes them obsolete, and the units they make buildable, as the entries
@@ -134,7 +135,7 @@ export const enhancedBy: Requirement[] = table(
  * They only describe: no rule is made from them.
  */
 export const hooverDamPlants: Requirement[] = table(
-  'civ1-wonder:city/build/hoover-dam-plant',
+  HOOVER_DAM_PLANT_RULE_PREFIX,
   'excludedBy',
   [
     [PowerPlant, HooverDam],

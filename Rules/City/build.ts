@@ -4,6 +4,7 @@ import {
   RequirementRegistry,
   instance as requirementRegistryInstance,
 } from '@civ-clone/core-requirement/RequirementRegistry';
+import { HOOVER_DAM_PLANT_RULE_PREFIX } from '../../RuleIds';
 import { HooverDam } from '../../Wonders';
 import {
   HydroPlant,
@@ -143,7 +144,7 @@ export const hooverDamPlantRules = (
       );
 
       return new Build(
-        `civ1-wonder:city/build/hoover-dam-plant/${Plant.name}`,
+        `${HOOVER_DAM_PLANT_RULE_PREFIX}/${Plant.name}`,
         Plant,
         new Criterion(
           (city: City, BuildItem: IConstructor): boolean => BuildItem === Plant
