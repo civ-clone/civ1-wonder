@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRules = exports.hooverDamPlantRules = exports.deriveBuildRules = exports.buildRulesFor = exports.builtOnceRule = void 0;
 const Build_1 = require("@civ-clone/core-city-build/Rules/Build");
 const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
+const RuleIds_1 = require("../../RuleIds");
 const Wonders_1 = require("../../Wonders");
 const CityImprovements_1 = require("@civ-clone/civ1-city-improvement/CityImprovements");
 const LandMassRegistry_1 = require("@civ-clone/core-world/LandMassRegistry");
@@ -56,7 +57,7 @@ exports.deriveBuildRules = deriveBuildRules;
  */
 const hooverDamPlantRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [CityImprovements_1.PowerPlant, CityImprovements_1.HydroPlant, CityImprovements_1.NuclearPlant].map((Plant) => {
     const hooverDam = (0, onWonderLandMass_1.onWonderLandMass)(Wonders_1.HooverDam, wonderRegistry, playerResearchRegistry, landMassRegistry, requirementRegistry);
-    return new Build_1.Build(`civ1-wonder:city/build/hoover-dam-plant/${Plant.name}`, Plant, new Criterion_1.default((city, BuildItem) => BuildItem === Plant), new Effect_1.default((city) => new Criterion_1.default(() => !hooverDam.validate(city))));
+    return new Build_1.Build(`${RuleIds_1.HOOVER_DAM_PLANT_RULE_PREFIX}/${Plant.name}`, Plant, new Criterion_1.default((city, BuildItem) => BuildItem === Plant), new Effect_1.default((city) => new Criterion_1.default(() => !hooverDam.validate(city))));
 });
 exports.hooverDamPlantRules = hooverDamPlantRules;
 /**

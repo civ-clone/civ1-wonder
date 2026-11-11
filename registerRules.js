@@ -31,6 +31,8 @@ const register = (game) => {
     game.requirements.add((0, research_complete_1.deriveObsoleteRules)(game.playerResearch, game.rules, game.wonders), ...Requirements_1.obsoletedBy);
     // What makes a Wonder work better, for the civilopedia: it only describes, so no rule is made from it.
     game.requirements.add(null, ...Requirements_1.enhancedBy);
+    // The plants the Hoover Dam stops a city building, whose rules (`hooverDamPlantRules`, above) are written by hand.
+    game.requirements.add(null, ...Requirements_1.describedRequirements);
     game.rules.register(...(0, started_1.default)(game.pendingEffects), ...(0, action_1.default)(game.cities, game.cityBuilds, game.rules), ...(0, wonder_helped_1.default)(game.cityBuilds, game.rules), ...(0, yield_2.default)(game.wonders, game.playerResearch, game.requirements), ...(0, obsolete_1.default)(game.engine));
 };
 exports.register = register;

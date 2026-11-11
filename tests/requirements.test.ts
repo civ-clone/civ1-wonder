@@ -1,4 +1,15 @@
-import { GreatWall, ManhattanProject, Oracle, Pyramids } from '../Wonders';
+import {
+  GreatWall,
+  HooverDam,
+  ManhattanProject,
+  Oracle,
+  Pyramids,
+} from '../Wonders';
+import {
+  HydroPlant,
+  NuclearPlant,
+  PowerPlant,
+} from '@civ-clone/civ1-city-improvement/CityImprovements';
 import {
   Gunpowder,
   Mysticism,
@@ -6,6 +17,7 @@ import {
 } from '@civ-clone/civ1-science/Advances';
 import {
   buildRequirements,
+  hooverDamPlants,
   obsoletedBy,
   requiresAdvance,
   requiresWonder,
@@ -180,6 +192,46 @@ describe('civ1-wonder requirements', (): void => {
     expect(
       game.requirements.rulesFor('civ1-wonder:wonder/enhanced-by/Oracle')
     ).eql([]);
+  });
+
+  it("should name the Hoover Dam's plant rules, which are written by hand, and make no rule of them (civ-clone/web-renderer#965)", (): void => {
+    const { game } = setUp();
+
+    expect(
+      game.requirements
+        .leadsTo(HooverDam, 'excludedBy')
+        .map((entry: Requirement) => [
+          entry.id,
+          entry.subject,
+          entry.targets,
+          entry.range,
+        ])
+    ).eql([
+      [
+        'civ1-wonder:city/build/hoover-dam-plant/PowerPlant',
+        PowerPlant,
+        [HooverDam],
+        'player',
+      ],
+      [
+        'civ1-wonder:city/build/hoover-dam-plant/HydroPlant',
+        HydroPlant,
+        [HooverDam],
+        'player',
+      ],
+      [
+        'civ1-wonder:city/build/hoover-dam-plant/NuclearPlant',
+        NuclearPlant,
+        [HooverDam],
+        'player',
+      ],
+    ]);
+
+    hooverDamPlants.forEach((entry: Requirement): void => {
+      expect(game.requirements.rulesFor(entry.id), entry.id).eql([]);
+      // The rule it names, under the same id, is the hand-written one.
+      expect(game.rules.getById(entry.id), entry.id).instanceOf(Build);
+    });
   });
 
   it('should read the graph both ways', (): void => {
