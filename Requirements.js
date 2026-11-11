@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildRequirements = exports.enhancedBy = exports.obsoletedBy = exports.requiresWonder = exports.requiresAdvance = void 0;
+exports.buildRequirements = exports.describedRequirements = exports.hooverDamPlants = exports.enhancedBy = exports.obsoletedBy = exports.requiresWonder = exports.requiresAdvance = void 0;
 const Wonders_1 = require("./Wonders");
 const Advances_1 = require("@civ-clone/civ1-science/Advances");
+const CityImprovements_1 = require("@civ-clone/civ1-city-improvement/CityImprovements");
 const Requirement_1 = require("@civ-clone/core-requirement/Requirement");
 const Units_1 = require("@civ-clone/civ1-unit/Units");
 // What Civilization's Wonders need, what makes them obsolete, and the units they make buildable, as the entries
@@ -53,6 +54,19 @@ exports.obsoletedBy = (0, Requirement_1.table)('civ1-wonder:wonder/obsolete', 'o
 ], { range: 'world' });
 /** The Oracle calms twice as many citizens once its owner has Mysticism. Only describes: `Rules/City/cost` plays it. */
 exports.enhancedBy = (0, Requirement_1.table)('civ1-wonder:wonder/enhanced-by', 'enhancedBy', [[Wonders_1.Oracle, Advances_1.Mysticism]]);
+/**
+ * A city the Hoover Dam powers isn't offered a plant (`Rules/City/build`'s `hooverDamPlantRules`). Those rules are
+ * written by hand, as whether the dam powers a city depends on its owner and continent; these entries name them, under
+ * their ids, so the civilopedia, and whatever asks what a Wonder excludes, can find them (civ-clone/web-renderer#965).
+ * They only describe: no rule is made from them.
+ */
+exports.hooverDamPlants = (0, Requirement_1.table)('civ1-wonder:city/build/hoover-dam-plant', 'excludedBy', [
+    [CityImprovements_1.PowerPlant, Wonders_1.HooverDam],
+    [CityImprovements_1.HydroPlant, Wonders_1.HooverDam],
+    [CityImprovements_1.NuclearPlant, Wonders_1.HooverDam],
+]);
+/** The entries that only describe: no rule is made from them. */
+exports.describedRequirements = [...exports.hooverDamPlants];
 /** The entries `Rules/City/build`'s deriver makes rules from, in the order the rules were always registered. */
 exports.buildRequirements = [
     ...exports.requiresAdvance,

@@ -3,7 +3,12 @@ import {
   deriveBuildRules,
   hooverDamPlantRules,
 } from './Rules/City/build';
-import { buildRequirements, enhancedBy, obsoletedBy } from './Requirements';
+import {
+  buildRequirements,
+  describedRequirements,
+  enhancedBy,
+  obsoletedBy,
+} from './Requirements';
 import cityBuildCost from './Rules/City/build-cost';
 import cityBuildPriority from './Rules/City/build-priority';
 import cityBuildingComplete from './Rules/City/building-complete';
@@ -114,6 +119,8 @@ export const register = (game: Game): void => {
   );
   // What makes a Wonder work better, for the civilopedia: it only describes, so no rule is made from it.
   game.requirements.add(null, ...enhancedBy);
+  // The plants the Hoover Dam stops a city building, whose rules (`hooverDamPlantRules`, above) are written by hand.
+  game.requirements.add(null, ...describedRequirements);
 
   game.rules.register(
     ...playerResearchStarted(game.pendingEffects),

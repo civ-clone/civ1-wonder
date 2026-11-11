@@ -48,6 +48,11 @@ import {
   TheoryOfGravity,
   University,
 } from '@civ-clone/civ1-science/Advances';
+import {
+  HydroPlant,
+  NuclearPlant,
+  PowerPlant,
+} from '@civ-clone/civ1-city-improvement/CityImprovements';
 import { Requirement, table } from '@civ-clone/core-requirement/Requirement';
 import { Nuclear } from '@civ-clone/civ1-unit/Units';
 
@@ -121,6 +126,25 @@ export const enhancedBy: Requirement[] = table(
   'enhancedBy',
   [[Oracle, Mysticism]]
 );
+
+/**
+ * A city the Hoover Dam powers isn't offered a plant (`Rules/City/build`'s `hooverDamPlantRules`). Those rules are
+ * written by hand, as whether the dam powers a city depends on its owner and continent; these entries name them, under
+ * their ids, so the civilopedia, and whatever asks what a Wonder excludes, can find them (civ-clone/web-renderer#965).
+ * They only describe: no rule is made from them.
+ */
+export const hooverDamPlants: Requirement[] = table(
+  'civ1-wonder:city/build/hoover-dam-plant',
+  'excludedBy',
+  [
+    [PowerPlant, HooverDam],
+    [HydroPlant, HooverDam],
+    [NuclearPlant, HooverDam],
+  ]
+);
+
+/** The entries that only describe: no rule is made from them. */
+export const describedRequirements: Requirement[] = [...hooverDamPlants];
 
 /** The entries `Rules/City/build`'s deriver makes rules from, in the order the rules were always registered. */
 export const buildRequirements: Requirement[] = [

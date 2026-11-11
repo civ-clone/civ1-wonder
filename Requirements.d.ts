@@ -10,6 +10,15 @@ export declare const requiresWonder: Requirement[];
 export declare const obsoletedBy: Requirement[];
 /** The Oracle calms twice as many citizens once its owner has Mysticism. Only describes: `Rules/City/cost` plays it. */
 export declare const enhancedBy: Requirement[];
+/**
+ * A city the Hoover Dam powers isn't offered a plant (`Rules/City/build`'s `hooverDamPlantRules`). Those rules are
+ * written by hand, as whether the dam powers a city depends on its owner and continent; these entries name them, under
+ * their ids, so the civilopedia, and whatever asks what a Wonder excludes, can find them (civ-clone/web-renderer#965).
+ * They only describe: no rule is made from them.
+ */
+export declare const hooverDamPlants: Requirement[];
+/** The entries that only describe: no rule is made from them. */
+export declare const describedRequirements: Requirement[];
 /** The entries `Rules/City/build`'s deriver makes rules from, in the order the rules were always registered. */
 export declare const buildRequirements: Requirement[];
 export default buildRequirements;
