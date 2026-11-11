@@ -38,7 +38,6 @@
     "typescript": "^4.0.0"
   },
   "dependencies": {
-    "@civ-clone/base-city-yield-research": "^0.1.0",
     "@civ-clone/base-unit-action-help-build-wonder": "^0.1.0",
     "@civ-clone/base-wonder-apolloprogram": "^0.1.0",
     "@civ-clone/base-wonder-colossus": "^0.1.0",
