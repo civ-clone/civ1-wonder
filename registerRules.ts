@@ -94,7 +94,12 @@ export const register = (game: Game): void => {
       game.wonders,
       game.requirements
     ),
-    ...playerPacified(game.playerResearch, game.wonders, game.requirements),
+    ...playerPacified(
+      game.playerResearch,
+      game.wonders,
+      game.requirements,
+      game.clients
+    ),
     ...greatLibraryRules(
       game.playerResearch,
       game.rules,

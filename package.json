@@ -18,6 +18,7 @@
     "ts:compile": "tsc --build tsconfig.json"
   },
   "devDependencies": {
+    "@civ-clone/core-ai-client": "^0.1.0",
     "@civ-clone/civ1-trade-rate": "github:civ-clone/civ1-trade-rate",
     "@civ-clone/core-city-growth": "^0.1.4",
     "@civ-clone/core-player-world": "^0.1.0",
@@ -63,12 +64,14 @@
     "@civ-clone/civ1-city": "github:civ-clone/civ1-city",
     "@civ-clone/civ1-city-happiness": "github:civ-clone/civ1-city-happiness",
     "@civ-clone/civ1-city-improvement": "github:civ-clone/civ1-city-improvement",
+    "@civ-clone/civ1-difficulty": "github:civ-clone/civ1-difficulty",
     "@civ-clone/civ1-government": "github:civ-clone/civ1-government",
     "@civ-clone/civ1-science": "github:civ-clone/civ1-science",
     "@civ-clone/civ1-unit": "github:civ-clone/civ1-unit",
     "@civ-clone/core-city": "^0.1.23",
     "@civ-clone/core-city-build": "^0.1.14",
     "@civ-clone/core-city-improvement": "^0.1.0",
+    "@civ-clone/core-client": "^0.1.0",
     "@civ-clone/core-engine": "^0.1.5",
     "@civ-clone/core-game": "^0.1.14",
     "@civ-clone/core-government": "^0.1.6",
