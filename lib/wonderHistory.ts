@@ -45,7 +45,7 @@ import Wonder from '@civ-clone/core-wonder/Wonder';
 //
 // v474.05 keeps one entry for each Wonder, `marvel_site` (`GLOBALS.C` 40: `int marvel_site[22]; /* city holding each
 //  wonder (-1 none) */`): the city holding it, -1 for never built, and 0x80 once its city is destroyed
-//  (`ECONOMY.C` `vanish` 113-114: `for (j = 1; j <= 21; j++) if (marvel_site[j] == idx) marvel_site[j] = 0x80;`).
+//  (`ECONOMY.C` `vanish` 94-96: `for (j = 1; j <= 21; j++) if (marvel_site[j] == idx) marvel_site[j] = 0x80;`).
 //  What reads `!= -1` reads "ever built" (`everBuilt`); what reads the city's owner reads "standing, and whose"
 //  (`wonderStatus`), for which a lost Wonder is nobody's (`REPORTS.C` `wonders` 284-285:
 //  `strcat(msgtext, " (Destroyed)"); owner = 0;`).
