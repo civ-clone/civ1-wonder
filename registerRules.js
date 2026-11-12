@@ -10,6 +10,7 @@ const cost_1 = require("./Rules/City/cost");
 const destroyed_1 = require("./Rules/City/destroyed");
 const yield_1 = require("./Rules/City/yield");
 const pollution_divisor_1 = require("./Rules/City/pollution-divisor");
+const process_yield_1 = require("./Rules/City/process-yield");
 const yield_modifier_1 = require("./Rules/City/yield-modifier");
 const availability_1 = require("./Rules/Governments/availability");
 const anarchy_duration_1 = require("./Rules/Player/anarchy-duration");
@@ -22,12 +23,12 @@ const yield_2 = require("./Rules/Unit/yield");
 const obsolete_1 = require("./Rules/Wonder/obsolete");
 const core_game_1 = require("@civ-clone/core-game");
 const register = (game) => {
-    game.rules.register((0, build_1.builtOnceRule)(game.wonders));
+    game.rules.register((0, build_1.builtOnceRule)(game.wonders, game.cityImprovements));
     // Which Wonders a city may build, and what they make buildable, from the entries in `Requirements`; then, below,
     //  their obsolescence. Each lands where those rules always were, so nothing else moves in the order rules run
     //  (civ-clone/web-renderer#37).
-    game.requirements.add((0, build_1.deriveBuildRules)(game.playerResearch, game.wonders), ...Requirements_1.buildRequirements);
-    game.rules.register(...(0, build_1.hooverDamPlantRules)(game.playerResearch, game.wonders, game.landMasses, game.requirements), ...(0, build_priority_1.default)(game.cities, game.cityBuilds, game.playerResearch, game.units, game.requirements), ...(0, build_cost_1.default)(), ...(0, building_complete_1.default)(game.cityBuilds, game.playerResearch, game.rules, game.wonders, game.engine, game.pendingEffects), ...(0, cost_1.default)(game.cityImprovements, game.playerGovernments, game.playerResearch, game.units, game.wonders, game.landMasses, game.requirements), ...(0, destroyed_1.default)(game.wonders), ...(0, pollution_divisor_1.default)(game.wonders, game.playerResearch, game.landMasses, game.requirements), ...(0, yield_1.default)(game.playerResearch, game.wonders, game.requirements), ...(0, yield_modifier_1.default)(game.playerResearch, game.wonders, game.cityImprovements, game.landMasses, game.requirements), ...(0, availability_1.default)(game.playerResearch, game.wonders, game.requirements), ...(0, anarchy_duration_1.default)(game.playerResearch, game.wonders, game.requirements), ...(0, pacified_1.default)(game.playerResearch, game.wonders, game.requirements, game.clients), ...(0, research_complete_1.greatLibraryRules)(game.playerResearch, game.rules, game.wonders, game.requirements));
+    game.requirements.add((0, build_1.deriveBuildRules)(game.playerResearch, game.wonders, game.cityImprovements), ...Requirements_1.buildRequirements);
+    game.rules.register(...(0, build_1.hooverDamPlantRules)(game.playerResearch, game.wonders, game.landMasses, game.requirements), ...(0, build_priority_1.default)(game.cities, game.cityBuilds, game.playerResearch, game.units, game.requirements), ...(0, build_cost_1.default)(), ...(0, building_complete_1.default)(game.cityBuilds, game.playerResearch, game.rules, game.wonders, game.engine, game.pendingEffects), ...(0, cost_1.default)(game.cityImprovements, game.playerGovernments, game.playerResearch, game.units, game.wonders, game.landMasses, game.requirements), ...(0, destroyed_1.default)(game.wonders), ...(0, pollution_divisor_1.default)(game.wonders, game.playerResearch, game.landMasses, game.requirements), ...(0, process_yield_1.default)(game.cityBuilds, game.wonders, game.cityImprovements), ...(0, yield_1.default)(game.playerResearch, game.wonders, game.requirements), ...(0, yield_modifier_1.default)(game.playerResearch, game.wonders, game.cityImprovements, game.landMasses, game.requirements), ...(0, availability_1.default)(game.playerResearch, game.wonders, game.requirements), ...(0, anarchy_duration_1.default)(game.playerResearch, game.wonders, game.requirements), ...(0, pacified_1.default)(game.playerResearch, game.wonders, game.requirements, game.clients), ...(0, research_complete_1.greatLibraryRules)(game.playerResearch, game.rules, game.wonders, game.requirements));
     game.requirements.add((0, research_complete_1.deriveObsoleteRules)(game.playerResearch, game.rules, game.wonders), ...Requirements_1.obsoletedBy);
     // What makes a Wonder work better, for the civilopedia: it only describes, so no rule is made from it.
     game.requirements.add(null, ...Requirements_1.enhancedBy);

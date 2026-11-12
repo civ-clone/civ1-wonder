@@ -90,7 +90,10 @@ export const requiresAdvance: Requirement[] = table(
   ]
 );
 
-/** Nuclear units need the Manhattan Project, built by anyone in the world (civ-clone/web-renderer#129): one rule. */
+/**
+ * Nuclear units need the Manhattan Project, built by anyone in the world (civ-clone/web-renderer#129): one rule. Having
+ * built it is enough: it counts even once lost with its city (civ-clone/web-renderer#971).
+ */
 export const requiresWonder: Requirement[] = table(
   'civ1-wonder:city/build/requires-wonder',
   'requires',
