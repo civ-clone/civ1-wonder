@@ -34,7 +34,10 @@ exports.requiresAdvance = (0, Requirement_1.table)('civ1-wonder:city/build/requi
     [Wonders_1.UnitedNations, Advances_1.Communism],
     [Wonders_1.WomensSuffrage, Advances_1.Industrialization],
 ]);
-/** Nuclear units need the Manhattan Project, built by anyone in the world (civ-clone/web-renderer#129): one rule. */
+/**
+ * Nuclear units need the Manhattan Project, built by anyone in the world (civ-clone/web-renderer#129): one rule. Having
+ * built it is enough: it counts even once lost with its city (civ-clone/web-renderer#971).
+ */
 exports.requiresWonder = (0, Requirement_1.table)('civ1-wonder:city/build/requires-wonder', 'requires', [[Units_1.Nuclear, Wonders_1.ManhattanProject]], { range: 'world' });
 /**
  * The advance that makes each Wonder obsolete, once *anyone* has discovered it, not just its owner: one rule each, which

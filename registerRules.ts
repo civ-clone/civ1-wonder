@@ -16,6 +16,7 @@ import cityCost from './Rules/City/cost';
 import cityDestroyed from './Rules/City/destroyed';
 import cityYield from './Rules/City/yield';
 import cityPollutionDivisor from './Rules/City/pollution-divisor';
+import cityProcessYield from './Rules/City/process-yield';
 import cityYieldModifier from './Rules/City/yield-modifier';
 import governmentsAvailability from './Rules/Governments/availability';
 import playerAnarchyDuration from './Rules/Player/anarchy-duration';
@@ -32,13 +33,13 @@ import wonderObsolete from './Rules/Wonder/obsolete';
 import { Game, defaultGame } from '@civ-clone/core-game';
 
 export const register = (game: Game): void => {
-  game.rules.register(builtOnceRule(game.wonders));
+  game.rules.register(builtOnceRule(game.wonders, game.cityImprovements));
 
   // Which Wonders a city may build, and what they make buildable, from the entries in `Requirements`; then, below,
   //  their obsolescence. Each lands where those rules always were, so nothing else moves in the order rules run
   //  (civ-clone/web-renderer#37).
   game.requirements.add(
-    deriveBuildRules(game.playerResearch, game.wonders),
+    deriveBuildRules(game.playerResearch, game.wonders, game.cityImprovements),
     ...buildRequirements
   );
 
@@ -81,6 +82,7 @@ export const register = (game: Game): void => {
       game.landMasses,
       game.requirements
     ),
+    ...cityProcessYield(game.cityBuilds, game.wonders, game.cityImprovements),
     ...cityYield(game.playerResearch, game.wonders, game.requirements),
     ...cityYieldModifier(
       game.playerResearch,

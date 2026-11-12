@@ -5,6 +5,7 @@ const Build_1 = require("@civ-clone/core-city-build/Rules/Build");
 const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
 const RuleIds_1 = require("../../RuleIds");
 const Wonders_1 = require("../../Wonders");
+const CityImprovementRegistry_1 = require("@civ-clone/core-city-improvement/CityImprovementRegistry");
 const CityImprovements_1 = require("@civ-clone/civ1-city-improvement/CityImprovements");
 const LandMassRegistry_1 = require("@civ-clone/core-world/LandMassRegistry");
 const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearchRegistry");
@@ -14,15 +15,26 @@ const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Wonder_1 = require("@civ-clone/core-wonder/Wonder");
 const Requirements_1 = require("../../Requirements");
+const wonderHistory_1 = require("../../lib/wonderHistory");
 const onWonderLandMass_1 = require("../lib/onWonderLandMass");
-/** A Wonder is built once in the world: a state of the game, so a rule written by hand. */
-const builtOnceRule = (wonderRegistry = WonderRegistry_1.instance) => new Build_1.Build('civ1-wonder:city/build/once', Wonder_1.default, new Criterion_1.default((city, BuildItem) => Object.isPrototypeOf.call(Wonder_1.default, BuildItem)), new Effect_1.default((city, WonderType) => new Criterion_1.default(() => wonderRegistry.filter((wonder) => wonder instanceof WonderType).length === 0)));
+/**
+ * A Wonder is built once in the world, and never again, even once it is lost with its city: a state of the game, so a
+ * rule written by hand. v474.05 offers a Wonder only while it has never been built (`ECONOMY.C` `find_slot` 231:
+ * `if (has_tech(civ, improvements[i].prereq) && (marvel_site - 24)[i] == -1)`), and a lost one is `0x80`, not `-1`
+ * (`ECONOMY.C` `vanish` 113-114). Before civ-clone/web-renderer#971 a lost Wonder could be built again.
+ */
+const builtOnceRule = (wonderRegistry = WonderRegistry_1.instance, cityImprovementRegistry = CityImprovementRegistry_1.instance) => new Build_1.Build('civ1-wonder:city/build/once', Wonder_1.default, new Criterion_1.default((city, BuildItem) => Object.isPrototypeOf.call(Wonder_1.default, BuildItem)), new Effect_1.default((city, WonderType) => new Criterion_1.default(() => !(0, wonderHistory_1.everBuilt)(WonderType, wonderRegistry, cityImprovementRegistry))));
 exports.builtOnceRule = builtOnceRule;
 /**
  * The rule `entry` is played by: a city may build its subject only once each advance and Wonder it `requires` is held,
- * by the city's player or, for a `world` entry, by anyone (the Manhattan Project, for Nuclear units).
+ * by the city's player or, for a `world` entry, by anyone (the Manhattan Project, for Nuclear units). A Wonder in a
+ * `world` entry counts once it has ever been built, even if it has been lost with its city since: v474.05 offers
+ * Nuclear units once the Manhattan Project has ever been built (`ECONOMY.C` `find_slot` 190:
+ * `if (i == 25 && (marvel_site[17] == -1 || !has_tech(civ, 27))) continue;`), and a lost Wonder is `0x80`, not `-1`
+ * (civ-clone/web-renderer#971). In a `city` or `player` entry it counts only while it stands in that city or the
+ * player's.
  */
-const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance) => {
+const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, cityImprovementRegistry = CityImprovementRegistry_1.instance) => {
     if (entry.relation !== 'requires') {
         return [];
     }
@@ -32,7 +44,7 @@ const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.
         if (Object.prototype.isPrototypeOf.call(Wonder_1.default, target)) {
             const isTarget = (wonder) => wonder instanceof target;
             return entry.range === 'world'
-                ? wonderRegistry.some(isTarget)
+                ? (0, wonderHistory_1.everBuilt)(target, wonderRegistry, cityImprovementRegistry)
                 : entry.range === 'city'
                     ? wonderRegistry.getByCity(city).some(isTarget)
                     : wonderRegistry.getByPlayer(city.player()).some(isTarget);
@@ -49,7 +61,7 @@ const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.
 };
 exports.buildRulesFor = buildRulesFor;
 /** What `registerRules` gives the game's `requirements` to make each entry's rule with. */
-const deriveBuildRules = (playerResearchRegistry, wonderRegistry) => (entry) => (0, exports.buildRulesFor)(entry, playerResearchRegistry, wonderRegistry);
+const deriveBuildRules = (playerResearchRegistry, wonderRegistry, cityImprovementRegistry = CityImprovementRegistry_1.instance) => (entry) => (0, exports.buildRulesFor)(entry, playerResearchRegistry, wonderRegistry, cityImprovementRegistry);
 exports.deriveBuildRules = deriveBuildRules;
 /**
  * As v474.05's production menu, a city that Hoover Dam already acts as a plant for isn't offered one (OpenCivOne's
@@ -66,9 +78,9 @@ exports.hooverDamPlantRules = hooverDamPlantRules;
  * `requirements` (tests): a game's are registered through `game.requirements`, so a plugin can change an entry and its
  * rule together.
  */
-const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [
-    (0, exports.builtOnceRule)(wonderRegistry),
-    ...Requirements_1.default.flatMap((entry) => (0, exports.buildRulesFor)(entry, playerResearchRegistry, wonderRegistry)),
+const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, landMassRegistry = LandMassRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance, cityImprovementRegistry = CityImprovementRegistry_1.instance) => [
+    (0, exports.builtOnceRule)(wonderRegistry, cityImprovementRegistry),
+    ...Requirements_1.default.flatMap((entry) => (0, exports.buildRulesFor)(entry, playerResearchRegistry, wonderRegistry, cityImprovementRegistry)),
     ...(0, exports.hooverDamPlantRules)(playerResearchRegistry, wonderRegistry, landMassRegistry, requirementRegistry),
 ];
 exports.getRules = getRules;

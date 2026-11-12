@@ -1,7 +1,10 @@
 import { Requirement } from '@civ-clone/core-requirement/Requirement';
 /** The advance a city's player needs before it can build each Wonder: one rule each. */
 export declare const requiresAdvance: Requirement[];
-/** Nuclear units need the Manhattan Project, built by anyone in the world (civ-clone/web-renderer#129): one rule. */
+/**
+ * Nuclear units need the Manhattan Project, built by anyone in the world (civ-clone/web-renderer#129): one rule. Having
+ * built it is enough: it counts even once lost with its city (civ-clone/web-renderer#971).
+ */
 export declare const requiresWonder: Requirement[];
 /**
  * The advance that makes each Wonder obsolete, once *anyone* has discovered it, not just its owner: one rule each, which
