@@ -652,6 +652,25 @@ describe('A Wonder ever built', (): void => {
       expectDropped(set, 600);
     });
 
+    it('should, with only these rules, drop the same Wonder queued after itself as it is completed', async (): Promise<void> => {
+      // A Wonder is registered among the improvements as it is created, before `CityBuild#check` moves on to the next
+      //  queued item: `once` refuses it from then on. Without `civ1-city-improvement`'s `city/build/not-built` (which
+      //  already refused it there before #971), the old `once` only refused it once `building-complete` registered it
+      //  among the Wonders, so the city started it again and then had it cleared as unavailable.
+      const set = await setUp(),
+        cityBuild = set.cityBuildRegistry.getByCity(set.city);
+
+      cityBuild.build(Pyramids as unknown as typeof Buildable);
+      cityBuild.enqueue(Pyramids as unknown as typeof Buildable);
+      cityBuild.enqueue(Colossus as unknown as typeof Buildable);
+      set.processProduction(set.city, 300);
+
+      expect(cityBuild.building()?.item()).equal(Colossus);
+      expect(cityBuild.cleared()).null;
+      expect(cityBuild.queued()).eql([]);
+      expect(cityBuild.queueDropped()).eql([Pyramids]);
+    });
+
     it('should leave a build of another Wonder, and of a Wonder never built, to complete', async (): Promise<void> => {
       const set = await partRebuilt(),
         other = set.cityBuildRegistry.getByCity(set.enemyCity);

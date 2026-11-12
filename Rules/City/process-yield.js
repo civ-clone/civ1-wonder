@@ -13,7 +13,7 @@ const Wonder_1 = require("@civ-clone/core-wonder/Wonder");
 const wonderHistory_1 = require("../../lib/wonderHistory");
 const getRules = (cityBuildRegistry = CityBuildRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, cityImprovementRegistry = CityImprovementRegistry_1.instance) => [
     // A Wonder that has been built is never completed again (civ-clone/web-renderer#971). v474.05 checks it as the
-    //  shields would complete it, and keeps the shields (`CITYMGT.C` 672-677):
+    //  shields would complete it, and keeps the shields (`CITYMGT.C` `city_process` 730-736):
     //
     //  ```c
     //  if (scratch_i > 24) {
@@ -25,8 +25,8 @@ const getRules = (cityBuildRegistry = CityBuildRegistry_1.instance, wonderRegist
     //      }
     //  ```
     //
-    //  It leaves the Wonder chosen, flashing on the city screen (`CITYMGT.C` 1294) until the player changes it. Here
-    //  `once` stops it being chosen, and a rival's build is dropped when the Wonder is completed
+    //  It leaves the Wonder chosen, flashing on the city screen (`CITYMGT.C` `city_process` 1352) until the player
+    //  changes it. Here `once` stops it being chosen, and a rival's build is dropped when the Wonder is completed
     //  (`Rules/City/building-complete`), so only a game saved before #971, with a lost Wonder part way through being
     //  built again, reaches this: the build is dropped instead (`CityBuild#revalidate`, cleared as `unavailable`, its
     //  shields kept), so a computer player's city isn't left building it for ever.

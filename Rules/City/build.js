@@ -19,9 +19,9 @@ const wonderHistory_1 = require("../../lib/wonderHistory");
 const onWonderLandMass_1 = require("../lib/onWonderLandMass");
 /**
  * A Wonder is built once in the world, and never again, even once it is lost with its city: a state of the game, so a
- * rule written by hand. v474.05 offers a Wonder only while it has never been built (`ECONOMY.C` 213:
+ * rule written by hand. v474.05 offers a Wonder only while it has never been built (`ECONOMY.C` `find_slot` 231:
  * `if (has_tech(civ, improvements[i].prereq) && (marvel_site - 24)[i] == -1)`), and a lost one is `0x80`, not `-1`
- * (`ECONOMY.C` 94-96). Before civ-clone/web-renderer#971 a lost Wonder could be built again.
+ * (`ECONOMY.C` `vanish` 113-114). Before civ-clone/web-renderer#971 a lost Wonder could be built again.
  */
 const builtOnceRule = (wonderRegistry = WonderRegistry_1.instance, cityImprovementRegistry = CityImprovementRegistry_1.instance) => new Build_1.Build('civ1-wonder:city/build/once', Wonder_1.default, new Criterion_1.default((city, BuildItem) => Object.isPrototypeOf.call(Wonder_1.default, BuildItem)), new Effect_1.default((city, WonderType) => new Criterion_1.default(() => !(0, wonderHistory_1.everBuilt)(WonderType, wonderRegistry, cityImprovementRegistry))));
 exports.builtOnceRule = builtOnceRule;
@@ -29,7 +29,7 @@ exports.builtOnceRule = builtOnceRule;
  * The rule `entry` is played by: a city may build its subject only once each advance and Wonder it `requires` is held,
  * by the city's player or, for a `world` entry, by anyone (the Manhattan Project, for Nuclear units). A Wonder in a
  * `world` entry counts once it has ever been built, even if it has been lost with its city since: v474.05 offers
- * Nuclear units once the Manhattan Project has ever been built (`ECONOMY.C` 172:
+ * Nuclear units once the Manhattan Project has ever been built (`ECONOMY.C` `find_slot` 190:
  * `if (i == 25 && (marvel_site[17] == -1 || !has_tech(civ, 27))) continue;`), and a lost Wonder is `0x80`, not `-1`
  * (civ-clone/web-renderer#971). In a `city` or `player` entry it counts only while it stands in that city or the
  * player's.
