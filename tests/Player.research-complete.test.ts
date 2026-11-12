@@ -151,4 +151,111 @@ describe('Player.research-complete', (): void => {
 
     expect(obsoleted).to.equal(1);
   });
+
+  it('should grant nothing, nor announce it obsolete, for a Great Library completed in a city already destroyed (a game from before #975)', async (): Promise<void> => {
+    const ruleRegistry = new RuleRegistry(),
+      advanceRegistry = new AdvanceRegistry(),
+      wonderRegistry = new WonderRegistry(),
+      playerResearchRegistry = new PlayerResearchRegistry(),
+      [player1Research, player2Research, player3Research, player4Research] = [
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+      ].map(
+        (player: Player): PlayerResearch =>
+          new PlayerResearch(player, advanceRegistry, ruleRegistry)
+      ),
+      city = await setUpCity({
+        player: player1Research.player(),
+        ruleRegistry,
+      });
+
+    let obsoleted = 0;
+
+    ruleRegistry.register(
+      ...researchComplete(playerResearchRegistry, ruleRegistry, wonderRegistry),
+      new Obsolete(new Effect((): void => void obsoleted++))
+    );
+
+    playerResearchRegistry.register(
+      player1Research,
+      player2Research,
+      player3Research,
+      player4Research
+    );
+
+    // Registered after its city went, as one completed on the turn its city starved away was.
+    city.destroy();
+    wonderRegistry.register(new GreatLibrary(city, ruleRegistry));
+
+    [player2Research, player3Research, player4Research].forEach(
+      (playerResearch: PlayerResearch): void =>
+        playerResearch.addAdvance(Alphabet)
+    );
+
+    expect(player1Research.completed(Alphabet)).to.false;
+
+    player2Research.addAdvance(University);
+
+    expect(obsoleted).to.equal(0);
+  });
+
+  it('should grant to, and announce obsolete, the Great Library standing, not one completed in a city already destroyed', async (): Promise<void> => {
+    const ruleRegistry = new RuleRegistry(),
+      advanceRegistry = new AdvanceRegistry(),
+      wonderRegistry = new WonderRegistry(),
+      playerResearchRegistry = new PlayerResearchRegistry(),
+      [player1Research, player2Research, player3Research, player4Research] = [
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+        new Player(ruleRegistry),
+      ].map(
+        (player: Player): PlayerResearch =>
+          new PlayerResearch(player, advanceRegistry, ruleRegistry)
+      ),
+      lostCity = await setUpCity({
+        player: player1Research.player(),
+        ruleRegistry,
+      }),
+      city = await setUpCity({
+        player: player2Research.player(),
+        ruleRegistry,
+      }),
+      obsoleted: GreatLibrary[] = [];
+
+    ruleRegistry.register(
+      ...researchComplete(playerResearchRegistry, ruleRegistry, wonderRegistry),
+      new Obsolete(
+        new Effect((wonder: GreatLibrary): void => void obsoleted.push(wonder))
+      )
+    );
+
+    playerResearchRegistry.register(
+      player1Research,
+      player2Research,
+      player3Research,
+      player4Research
+    );
+
+    lostCity.destroy();
+
+    const lost = new GreatLibrary(lostCity, ruleRegistry),
+      standing = new GreatLibrary(city, ruleRegistry);
+
+    wonderRegistry.register(lost, standing);
+
+    [player1Research, player3Research, player4Research].forEach(
+      (playerResearch: PlayerResearch): void =>
+        playerResearch.addAdvance(Alphabet)
+    );
+
+    expect(player2Research.completed(Alphabet)).to.true;
+
+    player3Research.addAdvance(University);
+
+    expect(obsoleted.length).to.equal(1);
+    expect(obsoleted[0] === standing).to.true;
+  });
 });

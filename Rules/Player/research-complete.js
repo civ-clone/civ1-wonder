@@ -13,6 +13,10 @@ const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Obsolete_1 = require("@civ-clone/core-wonder/Rules/Obsolete");
 const hasDiscovered_1 = require("../lib/hasDiscovered");
+const wonderHistory_1 = require("../../lib/wonderHistory");
+// A Wonder of the type standing: not one still in `wonders` whose city is destroyed, which is lost
+//  (civ-clone/web-renderer#975). A lost Wonder goes obsolete unannounced, and a lost Great Library gives no one anything.
+const standingOfType = (WonderType) => (wonder) => wonder instanceof WonderType && (0, wonderHistory_1.isStanding)(wonder);
 /**
  * The rule `entry` is played by: the first time anyone discovers the advance that makes its Wonder obsolete, the Wonder
  * is announced `Obsolete`. A Wonder is obsoleted by one advance, for the world, so an entry naming more, or another
@@ -32,12 +36,10 @@ const obsoleteRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry
     }
     const WonderType = entry.subject, [ObsoletingAdvance] = entry.targets;
     return [
-        new Complete_1.default(entry.id, new Criterion_1.default(() => wonderRegistry
-            .entries()
-            .some((wonder) => wonder instanceof WonderType)), new Criterion_1.default((playerResearch, advance) => advance instanceof ObsoletingAdvance), 
+        new Complete_1.default(entry.id, new Criterion_1.default(() => wonderRegistry.some(standingOfType(WonderType))), new Criterion_1.default((playerResearch, advance) => advance instanceof ObsoletingAdvance), 
         // Only the first discovery makes a wonder obsolete; later ones would process `Obsolete` again.
         (0, hasDiscovered_1.notDiscoveredByAnyOtherPlayer)(ObsoletingAdvance, playerResearchRegistry), new Effect_1.default(() => {
-            const [wonder] = wonderRegistry.filter((wonder) => wonder instanceof WonderType);
+            const [wonder] = wonderRegistry.filter(standingOfType(WonderType));
             ruleRegistry.process(Obsolete_1.default, wonder, wonder.city());
         })),
     ];
@@ -48,15 +50,15 @@ const deriveObsoleteRules = (playerResearchRegistry, ruleRegistry, wonderRegistr
 exports.deriveObsoleteRules = deriveObsoleteRules;
 /** The Great Library's rule: the hand-written part of what happens when research completes. */
 const greatLibraryRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ruleRegistry = RuleRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [
-    new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some((wonder) => wonder instanceof Wonders_1.GreatLibrary) &&
+    new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some(standingOfType(Wonders_1.GreatLibrary)) &&
         !(0, obsolete_1.isObsolete)(Wonders_1.GreatLibrary, playerResearchRegistry, requirementRegistry)), new Criterion_1.default((playerResearch, completedResearch) => {
         const [owningPlayer] = wonderRegistry
-            .filter((wonder) => wonder instanceof Wonders_1.GreatLibrary)
+            .filter(standingOfType(Wonders_1.GreatLibrary))
             .map((greatLibrary) => greatLibrary.city().player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
         return !owningPlayerResearch.completed(completedResearch.sourceClass());
     }), new Criterion_1.default((playerResearch, completedResearch) => playerResearchRegistry.filter((playerResearch) => playerResearch.completed(completedResearch.sourceClass())).length >= 3), new Effect_1.default((playerResearch, completedResearch) => {
         const [owningPlayer] = wonderRegistry
-            .filter((wonder) => wonder instanceof Wonders_1.GreatLibrary)
+            .filter(standingOfType(Wonders_1.GreatLibrary))
             .map((greatLibrary) => greatLibrary.city().player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
         return owningPlayerResearch.addAdvance(completedResearch.sourceClass());
     })),

@@ -41,7 +41,7 @@ import Effect from '@civ-clone/core-rule/Effect';
 import { IConstructor } from '@civ-clone/core-registry/Registry';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import buildRequirements from '../../Requirements';
-import { everBuilt } from '../../lib/wonderHistory';
+import { everBuilt, isStanding } from '../../lib/wonderHistory';
 import { onWonderLandMass } from '../lib/onWonderLandMass';
 
 /**
@@ -80,7 +80,7 @@ export const builtOnceRule = (
  * Nuclear units once the Manhattan Project has ever been built (`ECONOMY.C` `find_slot` 190:
  * `if (i == 25 && (marvel_site[17] == -1 || !has_tech(civ, 27))) continue;`), and a lost Wonder is `0x80`, not `-1`
  * (civ-clone/web-renderer#971). In a `city` or `player` entry it counts only while it stands in that city or the
- * player's.
+ * player's, and not in a city destroyed (`isStanding`, civ-clone/web-renderer#975).
  */
 export const buildRulesFor = (
   entry: Requirement,
@@ -97,7 +97,7 @@ export const buildRulesFor = (
   const has = (city: City, target: Target): boolean => {
     if (Object.prototype.isPrototypeOf.call(Wonder, target)) {
       const isTarget = (wonder: Wonder): boolean =>
-        wonder instanceof (target as typeof Wonder);
+        wonder instanceof (target as typeof Wonder) && isStanding(wonder);
 
       return entry.range === 'world'
         ? everBuilt(

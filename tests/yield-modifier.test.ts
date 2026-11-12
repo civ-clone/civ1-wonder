@@ -462,5 +462,28 @@ describe('Wonder.yield-modifier', () => {
       expect(reduceYield(friendlyCity.yields(), Production)).equal(10);
       expect(reduceYield(thirdCity.yields(), Production)).equal(10);
     });
+
+    it('should give nothing when completed in a city already destroyed (a game from before #975)', async (): Promise<void> => {
+      const {
+        cityImprovementRegistry,
+        landMassRegistry,
+        ruleRegistry,
+        wonderRegistry,
+        city,
+        friendlyCity,
+      } = await setUp(Production, 10);
+
+      landMassRegistry.register(
+        new LandMass([city.tile(), friendlyCity.tile()])
+      );
+
+      build(cityImprovementRegistry, ruleRegistry, friendlyCity, Factory);
+
+      // Registered after its city went, as one completed on the turn its city starved away was.
+      city.destroy();
+      wonderRegistry.register(new HooverDam(city, ruleRegistry));
+
+      expect(reduceYield(friendlyCity.yields(), Production)).equal(10);
+    });
   });
 });

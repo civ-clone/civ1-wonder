@@ -7,7 +7,8 @@ import Criterion from '@civ-clone/core-rule/Criterion';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 /**
  * The city's player owns `WonderType`, and the city is on the same continent as
- * the city that holds it (v474.05 compares the two cities' map group ids).
+ * the city that holds it (v474.05 compares the two cities' map group ids). Not one
+ * whose city is destroyed (`isStanding`, civ-clone/web-renderer#975).
  */
 export declare const onWonderLandMass: (
   WonderType: typeof Wonder,
