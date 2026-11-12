@@ -28,6 +28,14 @@ import Player from '@civ-clone/core-player/Player';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import { notDiscoveredByAnyOtherPlayer } from '../lib/hasDiscovered';
+import { isStanding } from '../../lib/wonderHistory';
+
+// A Wonder of the type standing: not one still in `wonders` whose city is destroyed, which is lost
+//  (civ-clone/web-renderer#975). A lost Wonder goes obsolete unannounced, and a lost Great Library gives no one anything.
+const standingOfType =
+  (WonderType: typeof Wonder) =>
+  (wonder: Wonder): boolean =>
+    wonder instanceof WonderType && isStanding(wonder);
 
 /**
  * The rule `entry` is played by: the first time anyone discovers the advance that makes its Wonder obsolete, the Wonder
@@ -64,11 +72,7 @@ export const obsoleteRulesFor = (
   return [
     new Complete(
       entry.id,
-      new Criterion(() =>
-        wonderRegistry
-          .entries()
-          .some((wonder: Wonder) => wonder instanceof WonderType)
-      ),
+      new Criterion(() => wonderRegistry.some(standingOfType(WonderType))),
       new Criterion(
         (playerResearch: PlayerResearch, advance: Advance) =>
           advance instanceof ObsoletingAdvance
@@ -76,9 +80,7 @@ export const obsoleteRulesFor = (
       // Only the first discovery makes a wonder obsolete; later ones would process `Obsolete` again.
       notDiscoveredByAnyOtherPlayer(ObsoletingAdvance, playerResearchRegistry),
       new Effect(() => {
-        const [wonder] = wonderRegistry.filter(
-          (wonder: Wonder) => wonder instanceof WonderType
-        );
+        const [wonder] = wonderRegistry.filter(standingOfType(WonderType));
 
         ruleRegistry.process(Obsolete, wonder, wonder.city());
       })
@@ -111,15 +113,13 @@ export const greatLibraryRules = (
   new Complete(
     new Criterion(
       (): boolean =>
-        wonderRegistry.some(
-          (wonder: Wonder): boolean => wonder instanceof GreatLibrary
-        ) &&
+        wonderRegistry.some(standingOfType(GreatLibrary)) &&
         !isObsolete(GreatLibrary, playerResearchRegistry, requirementRegistry)
     ),
     new Criterion(
       (playerResearch: PlayerResearch, completedResearch: Advance): boolean => {
         const [owningPlayer] = wonderRegistry
-            .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
+            .filter(standingOfType(GreatLibrary))
             .map(
               (greatLibrary: GreatLibrary): Player =>
                 greatLibrary.city().player()
@@ -140,7 +140,7 @@ export const greatLibraryRules = (
     new Effect(
       (playerResearch: PlayerResearch, completedResearch: Advance): void => {
         const [owningPlayer] = wonderRegistry
-            .filter((wonder: Wonder): boolean => wonder instanceof GreatLibrary)
+            .filter(standingOfType(GreatLibrary))
             .map(
               (greatLibrary: GreatLibrary): Player =>
                 greatLibrary.city().player()

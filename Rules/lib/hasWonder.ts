@@ -16,8 +16,10 @@ import Player from '@civ-clone/core-player/Player';
 import Unit from '@civ-clone/core-unit/Unit';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import { isObsolete } from './obsolete';
+import { isStanding } from '../../lib/wonderHistory';
 
-// Obsolete wonders still exist, but no longer do anything.
+// Obsolete wonders still exist, but no longer do anything. Nor does one whose city is destroyed, should it still be in
+//  `wonders` (`isStanding`, civ-clone/web-renderer#975).
 
 export const cityHasWonder = (
   WonderType: typeof Wonder,
@@ -29,7 +31,10 @@ export const cityHasWonder = (
     (city: City): boolean =>
       wonderRegistry
         .getByCity(city)
-        .some((wonder: Wonder): boolean => wonder instanceof WonderType) &&
+        .some(
+          (wonder: Wonder): boolean =>
+            wonder instanceof WonderType && isStanding(wonder)
+        ) &&
       !isObsolete(WonderType, playerResearchRegistry, requirementRegistry)
   );
 
@@ -42,8 +47,10 @@ export const playerOwnsWonder = (
 ): boolean =>
   wonderRegistry
     .getByPlayer(player)
-    .some((wonder: Wonder): boolean => wonder instanceof WonderType) &&
-  !isObsolete(WonderType, playerResearchRegistry, requirementRegistry);
+    .some(
+      (wonder: Wonder): boolean =>
+        wonder instanceof WonderType && isStanding(wonder)
+    ) && !isObsolete(WonderType, playerResearchRegistry, requirementRegistry);
 
 export const playerHasWonder = (
   WonderType: typeof Wonder,

@@ -59,7 +59,7 @@ import civ1CityProcessYield from '@civ-clone/civ1-city/Rules/City/process-yield'
 import { expect } from 'chai';
 import improvementCreated from '@civ-clone/civ1-city-improvement/Rules/CityImprovement/created';
 import improvementDestroyed from '@civ-clone/civ1-city-improvement/Rules/City/destroyed';
-import { playerOwnsWonder } from '../Rules/lib/hasWonder';
+import { cityHasWonder, playerOwnsWonder } from '../Rules/lib/hasWonder';
 import setUpCities from './lib/setUpCities';
 import unitAction from '../Rules/Unit/action';
 import unitBuildCost from '@civ-clone/civ1-unit/Rules/City/buildCost';
@@ -681,6 +681,152 @@ describe('A Wonder ever built', (): void => {
       expect(other.building()).null;
       expect(other.cleared()).eql({ reason: 'completed', item: Pyramids });
       expect(status(set, Pyramids).state).equal('standing');
+    });
+  });
+
+  describe('completed in a city already destroyed, in a game saved before #975', (): void => {
+    // Before #975 `civ1-player` went on processing a city's shields once its food had destroyed it, so a Wonder could
+    //  be completed, and registered as standing, in a city that no longer existed.
+    const completedInDestroyed = async () => {
+      const set = await setUp(),
+        cityBuild = set.cityBuildRegistry.getByCity(set.friendlyCity);
+
+      cityBuild.build(Pyramids as unknown as typeof Buildable);
+      cityBuild.add(new Production(cityBuild.remaining()));
+      set.friendlyCity.destroy();
+
+      const pyramids = cityBuild.check() as Wonder;
+
+      expect(pyramids).instanceof(Pyramids);
+      expect(set.wonderRegistry.entries()).length(1);
+      expect(set.wonderRegistry.entries()[0] === pyramids).true;
+
+      return { ...set, pyramids };
+    };
+
+    it("should be given as lost, nobody's, and as ever built, so never built again", async (): Promise<void> => {
+      const set = await completedInDestroyed(),
+        {
+          available,
+          city,
+          cityImprovementRegistry,
+          enemyCity,
+          friendlyCity,
+          pyramids,
+          wonderRegistry,
+        } = set;
+
+      expect(plain(status(set, Pyramids))).eql(
+        plain({
+          type: Pyramids,
+          state: 'lost',
+          wonder: pyramids,
+          city: friendlyCity,
+          owner: null,
+        })
+      );
+      expect(
+        wonderHistory(wonderRegistry, cityImprovementRegistry).map(
+          ({ type, state }) => [type, state]
+        )
+      ).eql([[Pyramids, 'lost']]);
+      expect(everBuilt(Pyramids, wonderRegistry, cityImprovementRegistry)).true;
+      expect(available(city)).not.include(Pyramids);
+      expect(available(enemyCity)).not.include(Pyramids);
+    });
+
+    it('should be given as lost even when it was never registered among the improvements', async (): Promise<void> => {
+      const { cityImprovementRegistry, friendlyCity } = await setUp(),
+        wonderRegistry = new WonderRegistry();
+
+      friendlyCity.destroy();
+
+      const pyramids = new Pyramids(friendlyCity, new RuleRegistry());
+
+      wonderRegistry.register(pyramids);
+
+      expect(cityImprovementRegistry.getByType(Pyramids, true)).eql([]);
+      expect(
+        plain(wonderStatus(Pyramids, wonderRegistry, cityImprovementRegistry))
+      ).eql(
+        plain({
+          type: Pyramids,
+          state: 'lost',
+          wonder: pyramids,
+          city: friendlyCity,
+          owner: null,
+        })
+      );
+      expect(everBuilt(Pyramids, wonderRegistry, cityImprovementRegistry)).true;
+    });
+
+    it("should do nothing for its city's player, and count in no `city` or `player` entry", async (): Promise<void> => {
+      const {
+        available,
+        city,
+        cityImprovementRegistry,
+        friendlyCity,
+        playerResearchRegistry,
+        requirementRegistry,
+        ruleRegistry,
+        wonderRegistry,
+      } = await completedInDestroyed();
+
+      ruleRegistry.register(
+        ...[
+          ...table('test:player', 'requires', [[Warrior, Pyramids]], {
+            range: 'player',
+          }),
+          ...table('test:city', 'requires', [[Settlers, Pyramids]], {
+            range: 'city',
+          }),
+        ].flatMap((entry) =>
+          buildRulesFor(
+            entry,
+            playerResearchRegistry,
+            wonderRegistry,
+            cityImprovementRegistry
+          )
+        )
+      );
+
+      expect(friendlyCity.player()).equal(city.player());
+      expect(
+        playerOwnsWonder(
+          city.player(),
+          Pyramids,
+          wonderRegistry,
+          playerResearchRegistry,
+          requirementRegistry
+        )
+      ).false;
+      expect(
+        cityHasWonder(
+          Pyramids,
+          wonderRegistry,
+          playerResearchRegistry,
+          requirementRegistry
+        ).validate(friendlyCity)
+      ).false;
+      expect(available(city)).not.include.oneOf([Warrior, Settlers]);
+    });
+
+    it('should give way to one standing', async (): Promise<void> => {
+      const set = await completedInDestroyed(),
+        { enemyCity, ruleRegistry, wonderRegistry } = set,
+        rebuilt = new Pyramids(enemyCity, ruleRegistry);
+
+      wonderRegistry.register(rebuilt);
+
+      expect(plain(status(set, Pyramids))).eql(
+        plain({
+          type: Pyramids,
+          state: 'standing',
+          wonder: rebuilt,
+          city: enemyCity,
+          owner: enemyCity.player(),
+        })
+      );
     });
   });
 });

@@ -32,7 +32,7 @@ exports.builtOnceRule = builtOnceRule;
  * Nuclear units once the Manhattan Project has ever been built (`ECONOMY.C` `find_slot` 190:
  * `if (i == 25 && (marvel_site[17] == -1 || !has_tech(civ, 27))) continue;`), and a lost Wonder is `0x80`, not `-1`
  * (civ-clone/web-renderer#971). In a `city` or `player` entry it counts only while it stands in that city or the
- * player's.
+ * player's, and not in a city destroyed (`isStanding`, civ-clone/web-renderer#975).
  */
 const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, cityImprovementRegistry = CityImprovementRegistry_1.instance) => {
     if (entry.relation !== 'requires') {
@@ -42,7 +42,7 @@ const buildRulesFor = (entry, playerResearchRegistry = PlayerResearchRegistry_1.
     //  advance the city's player's (`player`).
     const has = (city, target) => {
         if (Object.prototype.isPrototypeOf.call(Wonder_1.default, target)) {
-            const isTarget = (wonder) => wonder instanceof target;
+            const isTarget = (wonder) => wonder instanceof target && (0, wonderHistory_1.isStanding)(wonder);
             return entry.range === 'world'
                 ? (0, wonderHistory_1.everBuilt)(target, wonderRegistry, cityImprovementRegistry)
                 : entry.range === 'city'
