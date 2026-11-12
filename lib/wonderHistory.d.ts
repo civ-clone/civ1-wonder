@@ -3,6 +3,7 @@ import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
 import City from '@civ-clone/core-city/City';
 import Player from '@civ-clone/core-player/Player';
 import Wonder from '@civ-clone/core-wonder/Wonder';
+import { isStanding } from '@civ-clone/base-wonder/lib/isStanding';
 /**
  * This package's Wonders in the original's order, its Wonders of the World report and `marvel_site` indexes 1 to 21:
  *  `achievement_names` (`GAME.H` 24: `#define achievement_names (improvements + 24)`), from Pyramids (`GAME.C`
@@ -26,15 +27,15 @@ export interface IWonderStatus {
   owner: Player | null;
 }
 /**
- * Whether a Wonder in `wonders` stands: its city is still there. One whose city is destroyed is lost, nobody's, and
- *  does nothing, as v474.05's `0x80` is (`civ_wonder`, `CITYMGT.C` 1999-2011, counts a Wonder for a player only through
- *  the owner of the city `marvel_site` holds, and `0x80` holds none). `Rules/City/destroyed` unregisters a Wonder with
- *  its city, but a Wonder completed in a city destroyed earlier that turn, as one starved away on its food
- *  (civ-clone/web-renderer#975), was registered after that and stays in `wonders`. `civ1-player` no longer processes
- *  a destroyed city's shields, so nothing completes in one, but a game saved before that may hold such a Wonder: what
- *  reads `wonders` for one standing asks this as well.
+ * Whether a Wonder in `wonders` stands: its city is still there (base-wonder's `isStanding`). One whose city is
+ *  destroyed is lost, nobody's, and does nothing, as v474.05's `0x80` is (`civ_wonder`, `CITYMGT.C` 1999-2011, counts
+ *  a Wonder for a player only through the owner of the city `marvel_site` holds, and `0x80` holds none).
+ *  `Rules/City/destroyed` unregisters a Wonder with its city, but a Wonder completed in a city destroyed earlier that
+ *  turn, as one starved away on its food (civ-clone/web-renderer#975), was registered after that and stays in
+ *  `wonders`. `civ1-player` no longer processes a destroyed city's shields, so nothing completes in one, but a game
+ *  saved before that may hold such a Wonder: what reads `wonders` for one standing asks this as well.
  */
-export declare const isStanding: (wonder: Wonder) => boolean;
+export { isStanding };
 /**
  * Whether `WonderType` has ever been built, by anyone: standing now, or lost with its city since. v474.05's `!= -1`
  *  readers: a Wonder is offered only while `(marvel_site - 24)[i] == -1` (`ECONOMY.C` `find_slot` 231) and

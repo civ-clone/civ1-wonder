@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@civ-clone/base-unit-action-help-build-wonder": "^0.1.0",
+    "@civ-clone/base-wonder": "^0.1.0",
     "@civ-clone/base-wonder-apolloprogram": "^0.1.0",
     "@civ-clone/base-wonder-colossus": "^0.1.0",
     "@civ-clone/base-wonder-copernicus-observatory": "^0.1.0",

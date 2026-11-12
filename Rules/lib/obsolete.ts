@@ -1,18 +1,5 @@
-import {
-  PlayerResearchRegistry,
-  instance as playerResearchRegistryInstance,
-} from '@civ-clone/core-science/PlayerResearchRegistry';
-import {
-  Requirement,
-  Target,
-  met,
-} from '@civ-clone/core-requirement/Requirement';
-import {
-  RequirementRegistry,
-  instance as requirementRegistryInstance,
-} from '@civ-clone/core-requirement/RequirementRegistry';
 import Advance from '@civ-clone/core-science/Advance';
-import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
+import { Requirement } from '@civ-clone/core-requirement/Requirement';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import { obsoletedBy as obsoletedByEntries } from '../../Requirements';
 
@@ -28,27 +15,11 @@ export const obsoletedBy: [typeof Wonder, typeof Advance][] =
 /**
  * A wonder is obsolete once *anyone* has discovered its obsoleting advance, not
  * just its owner, as the game's requirements say (civ-clone/web-renderer#37), so
- * a plugin that changes them changes this too. Worked out from research rather
- * than recorded, so there's nothing extra to save.
+ * a plugin that changes them changes this too: `isObsolete` is base-wonder's,
+ * which reads the `world` entries of `obsoletedBy` (`Rules/Player/research-complete`
+ * refuses an obsolete entry of any other range).
  *
  * `requirementRegistry` is `defaultGame`'s unless given, which holds these entries once this package is registered
  * there (loading it as a plugin does). Another game's are only read if passed: every rule factory here takes them.
  */
-export const isObsolete = (
-  WonderType: typeof Wonder,
-  playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
-  requirementRegistry: RequirementRegistry = requirementRegistryInstance
-): boolean =>
-  requirementRegistry
-    .for(WonderType, 'obsoletedBy')
-    // Only the world's: `Rules/Player/research-complete` refuses an obsolete entry of any other range.
-    .filter((entry: Requirement): boolean => entry.range === 'world')
-    .some((entry: Requirement): boolean =>
-      met(entry, (target: Target): boolean =>
-        playerResearchRegistry.some((playerResearch: PlayerResearch): boolean =>
-          playerResearch.completed(target as typeof Advance)
-        )
-      )
-    );
-
-export default isObsolete;
+export { isObsolete, default } from '@civ-clone/base-wonder/lib/obsolete';
