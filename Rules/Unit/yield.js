@@ -10,11 +10,12 @@ const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Priorities_1 = require("@civ-clone/core-rule/Priorities");
 const Yields_1 = require("@civ-clone/core-unit/Yields");
 const Types_1 = require("@civ-clone/civ1-unit/Types");
+const traits_1 = require("@civ-clone/core-unit/traits");
 const Yield_1 = require("@civ-clone/core-unit/Rules/Yield");
 const hasWonder_1 = require("../lib/hasWonder");
 const getRules = (wonderRegistry = WonderRegistry_1.instance, playerResearchRegistry = PlayerResearchRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [
-    new Yield_1.default(new Priorities_1.Low(), new Criterion_1.default((unit, unitYield) => unitYield instanceof Yields_1.Movement), new Criterion_1.default((unit) => unit instanceof Types_1.Naval), (0, hasWonder_1.playerHasWonder)(Wonders_1.Lighthouse, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((unit, unitYield) => unitYield.add(1))),
-    new Yield_1.default(new Priorities_1.Low(), new Criterion_1.default((unit, unitYield) => unitYield instanceof Yields_1.Movement), new Criterion_1.default((unit) => unit instanceof Types_1.Naval), (0, hasWonder_1.playerHasWonder)(Wonders_1.MagellansExpedition, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((unit, unitYield) => unitYield.add(1))),
+    new Yield_1.default(new Priorities_1.Low(), new Criterion_1.default((unit, unitYield) => unitYield instanceof Yields_1.Movement), new Criterion_1.default((unit) => (0, traits_1.isA)(unit, Types_1.Naval)), (0, hasWonder_1.playerHasWonder)(Wonders_1.Lighthouse, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((unit, unitYield) => unitYield.add(1))),
+    new Yield_1.default(new Priorities_1.Low(), new Criterion_1.default((unit, unitYield) => unitYield instanceof Yields_1.Movement), new Criterion_1.default((unit) => (0, traits_1.isA)(unit, Types_1.Naval)), (0, hasWonder_1.playerHasWonder)(Wonders_1.MagellansExpedition, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((unit, unitYield) => unitYield.add(1))),
 ];
 exports.getRules = getRules;
 exports.default = exports.getRules;

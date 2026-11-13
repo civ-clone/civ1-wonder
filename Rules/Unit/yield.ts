@@ -17,6 +17,7 @@ import { Low } from '@civ-clone/core-rule/Priorities';
 import { Movement } from '@civ-clone/core-unit/Yields';
 import { Naval } from '@civ-clone/civ1-unit/Types';
 import Unit from '@civ-clone/core-unit/Unit';
+import { isA } from '@civ-clone/core-unit/traits';
 import UnitYield from '@civ-clone/core-unit/Rules/Yield';
 import Yield from '@civ-clone/core-yield/Yield';
 import { playerHasWonder } from '../lib/hasWonder';
@@ -35,7 +36,7 @@ export const getRules: (
     new Criterion(
       (unit: Unit, unitYield: Yield): boolean => unitYield instanceof Movement
     ),
-    new Criterion((unit: Unit): boolean => unit instanceof Naval),
+    new Criterion((unit: Unit): boolean => isA(unit, Naval)),
     playerHasWonder(
       Lighthouse,
       wonderRegistry,
@@ -49,7 +50,7 @@ export const getRules: (
     new Criterion(
       (unit: Unit, unitYield: Yield): boolean => unitYield instanceof Movement
     ),
-    new Criterion((unit: Unit): boolean => unit instanceof Naval),
+    new Criterion((unit: Unit): boolean => isA(unit, Naval)),
     playerHasWonder(
       MagellansExpedition,
       wonderRegistry,

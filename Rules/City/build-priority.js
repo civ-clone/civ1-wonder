@@ -12,6 +12,7 @@ const Criterion_1 = require("@civ-clone/core-rule/Criterion");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Types_1 = require("@civ-clone/civ1-unit/Types");
 const Yields_1 = require("@civ-clone/civ1-city/Yields");
+const traits_1 = require("@civ-clone/core-unit/traits");
 const Wonder_1 = require("@civ-clone/core-wonder/Wonder");
 const obsolete_1 = require("../lib/obsolete");
 // How much a city on Auto, or a computer player, wants a Wonder (civ-clone/web-renderer#194): a little, next to what the
@@ -29,7 +30,7 @@ const getRules = (cityRegistry = CityRegistry_1.instance, cityBuildRegistry = Ci
         !(0, obsolete_1.isObsolete)(BuildItem, playerResearchRegistry, requirementRegistry)), new Criterion_1.default((cityBuild, BuildItem) => !forShips.includes(BuildItem) ||
         unitRegistry
             .getByPlayer(cityBuild.city().player())
-            .some((unit) => unit instanceof Types_1.Naval)), new Criterion_1.default((cityBuild, BuildItem) => !cityRegistry
+            .some((unit) => (0, traits_1.isA)(unit, Types_1.Naval))), new Criterion_1.default((cityBuild, BuildItem) => !cityRegistry
         .getByPlayer(cityBuild.city().player())
         .some((city) => {
         var _a;

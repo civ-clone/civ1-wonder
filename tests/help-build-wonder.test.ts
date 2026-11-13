@@ -1,3 +1,4 @@
+import * as Units from '@civ-clone/civ1-unit/Units';
 import { Caravan, Warrior } from '@civ-clone/civ1-unit/Units';
 import AdvanceRegistry from '@civ-clone/core-science/AdvanceRegistry';
 import AvailableCityBuildItemsRegistry from '@civ-clone/core-city-build/AvailableCityBuildItemsRegistry';
@@ -23,13 +24,15 @@ import buildCost from '../Rules/City/build-cost';
 import { expect } from 'chai';
 import { getRules as unitDestroyed } from '@civ-clone/civ1-unit/Rules/Unit/destroyed';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
+import traits from '@civ-clone/civ1-unit/Rules/Unit/traits';
 import unitAction from '../Rules/Unit/action';
 import unitBuildCost from '@civ-clone/civ1-unit/Rules/City/buildCost';
 import wonderHelped from '../Rules/Unit/wonder-helped';
 
 describe('Caravans helping to build a Wonder', (): void => {
   const setUp = async (
-    player?: Player
+    player?: Player,
+    UnitType: typeof Unit = Caravan
   ): Promise<{
     caravan: Unit;
     city: City;
@@ -57,7 +60,7 @@ describe('Caravans helping to build a Wonder', (): void => {
         ruleRegistry
       ),
       caravanPlayer = player ?? city.player(),
-      caravan = new Caravan(
+      caravan = new UnitType(
         null,
         caravanPlayer,
         city.tile().getNeighbour('e'),
@@ -71,6 +74,8 @@ describe('Caravans helping to build a Wonder', (): void => {
     cityBuildRegistry.register(cityBuild);
 
     ruleRegistry.register(
+      // civ1-unit's unit traits, registered first as in a game: only a unit with `TradeMissions` helps.
+      ...traits(),
       ...build(playerResearchRegistry, wonderRegistry),
       ...buildCost(),
       ...unitBuildCost(),
@@ -150,5 +155,26 @@ describe('Caravans helping to build a Wonder', (): void => {
 
     expect(cityBuild.building()).to.null;
     expect(cityBuild.progress().value()).to.equal(0);
+  });
+
+  // Who may help was `instanceof Caravan` before it was `TradeMissions`: the same answer for each of the 28 types.
+  it('should be offered to the same unit types as `instanceof Caravan` was', async (): Promise<void> => {
+    const UnitTypes = Object.values(Units) as unknown as (typeof Unit)[];
+
+    expect(UnitTypes).length(28);
+
+    for (const UnitType of UnitTypes) {
+      const {
+        caravan: unit,
+        city,
+        cityBuild,
+      } = await setUp(undefined, UnitType);
+
+      cityBuild.build(Colossus as unknown as typeof Buildable);
+
+      expect(helpAction(unit, city) !== null, UnitType.name).equal(
+        unit instanceof Caravan
+      );
+    }
   });
 });
