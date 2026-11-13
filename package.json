@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@civ-clone/base-unit-action-help-build-wonder": "^0.1.0",
+    "@civ-clone/base-unit-trait-trade-missions": "^0.1.0",
     "@civ-clone/base-wonder": "^0.1.0",
     "@civ-clone/base-wonder-apolloprogram": "^0.1.0",
     "@civ-clone/base-wonder-colossus": "^0.1.0",
@@ -81,7 +82,7 @@
     "@civ-clone/core-requirement": "^0.1.3",
     "@civ-clone/core-rule": "^0.1.0",
     "@civ-clone/core-science": "^0.1.0",
-    "@civ-clone/core-unit": "^0.1.0",
+    "@civ-clone/core-unit": "^0.1.31",
     "@civ-clone/core-wonder": "^0.1.0",
     "@civ-clone/core-world": "^0.1.0",
     "@civ-clone/core-yield": "^0.1.0",

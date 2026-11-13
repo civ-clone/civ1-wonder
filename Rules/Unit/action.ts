@@ -15,14 +15,15 @@ import {
   RuleRegistry,
   instance as ruleRegistryInstance,
 } from '@civ-clone/core-rule/RuleRegistry';
-import { Caravan } from '@civ-clone/civ1-unit/Units';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Effect from '@civ-clone/core-rule/Effect';
 import { HelpBuildWonder } from '@civ-clone/civ1-unit/Actions';
 import Tile from '@civ-clone/core-world/Tile';
+import TradeMissions from '@civ-clone/base-unit-trait-trade-missions/TradeMissions';
 import Unit from '@civ-clone/core-unit/Unit';
 import UnitAction from '@civ-clone/core-unit/Action';
 import Wonder from '@civ-clone/core-wonder/Wonder';
+import { traitCriterion } from '@civ-clone/core-unit/traits';
 
 export const getRules: (
   cityRegistry?: CityRegistry,
@@ -34,12 +35,12 @@ export const getRules: (
   ruleRegistry: RuleRegistry = ruleRegistryInstance
 ): Action[] => [
   // A Caravan can help build a Wonder in one of its owner's cities, whichever city it comes from (v474.05
-  //  `PlayerTurn.cs` L1802-L1890, civ-clone/web-renderer#57).
+  //  `PlayerTurn.cs` L1802-L1890, civ-clone/web-renderer#57): a unit that `TradeMissions`.
   new Action(
     'civ1-wonder:unit/action/help-build-wonder',
     isNeighbouringTile,
     hasMovesLeft,
-    new Criterion((unit: Unit): boolean => unit instanceof Caravan),
+    traitCriterion(TradeMissions),
     new Criterion(
       (unit: Unit, to: Tile): boolean =>
         cityRegistry.getByTile(to)?.player() === unit.player()

@@ -32,6 +32,7 @@ import Effect from '@civ-clone/core-rule/Effect';
 import { Naval } from '@civ-clone/civ1-unit/Types';
 import { Production } from '@civ-clone/civ1-city/Yields';
 import Unit from '@civ-clone/core-unit/Unit';
+import { isA } from '@civ-clone/core-unit/traits';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
 import { isObsolete } from '../lib/obsolete';
@@ -84,7 +85,7 @@ export const getRules: (
         !forShips.includes(BuildItem as unknown as typeof Wonder) ||
         unitRegistry
           .getByPlayer(cityBuild.city().player())
-          .some((unit: Unit): boolean => unit instanceof Naval)
+          .some((unit: Unit): boolean => isA(unit, Naval))
     ),
     new Criterion(
       (cityBuild: CityBuild, BuildItem: Buildable): boolean =>

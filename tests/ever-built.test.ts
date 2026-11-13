@@ -65,6 +65,7 @@ import unitAction from '../Rules/Unit/action';
 import unitBuildCost from '@civ-clone/civ1-unit/Rules/City/buildCost';
 import wonderDestroyed from '../Rules/City/destroyed';
 import wonderHelped from '../Rules/Unit/wonder-helped';
+import traits from '@civ-clone/civ1-unit/Rules/Unit/traits';
 
 // A Wonder lost with its city was built: it isn't built again, and Nuclear units stay buildable once the Manhattan
 //  Project has been built (civ-clone/web-renderer#971).
@@ -109,6 +110,8 @@ const setUp = async (guardOrder: GuardOrder = 'guard first') => {
     );
 
   ruleRegistry.register(
+    // civ1-unit's unit traits, registered first as in a game: only a unit with `TradeMissions` helps build a Wonder.
+    ...traits(),
     ...improvementCreated(cityImprovementRegistry, engine),
     ...improvementDestroyed(cityImprovementRegistry),
     ...wonderDestroyed(wonderRegistry),
