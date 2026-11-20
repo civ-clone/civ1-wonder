@@ -8,6 +8,7 @@ const PlayerResearchRegistry_1 = require("@civ-clone/core-science/PlayerResearch
 const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
 const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
+const Description_1 = require("@civ-clone/core-rule/Description");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Pacified_1 = require("@civ-clone/library-diplomacy/Rules/Player/Pacified");
 const isHuman_1 = require("@civ-clone/civ1-difficulty/isHuman");
@@ -32,11 +33,13 @@ const hasWonder_1 = require("../lib/hasWonder");
 //  package did (civ-clone/web-renderer#30, #960).
 const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance, clientRegistry = ClientRegistry_1.instance) => [
     new Pacified_1.default(RuleIds_1.GREAT_WALL_PACIFIED_RULE, new Criterion_1.default((player, other) => player !== other &&
-        (0, hasWonder_1.playerOwnsWonder)(other, Wonders_1.GreatWall, wonderRegistry, playerResearchRegistry, requirementRegistry)), new Effect_1.default(() => true)),
+        (0, hasWonder_1.playerOwnsWonder)(other, Wonders_1.GreatWall, wonderRegistry, playerResearchRegistry, requirementRegistry)), new Effect_1.default(() => true), 
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description_1.default({ type: 'pacifies', subject: Wonders_1.GreatWall })),
     new Pacified_1.default(RuleIds_1.UNITED_NATIONS_PACIFIED_RULE, new Criterion_1.default((player, other) => player !== other &&
         (0, hasWonder_1.playerOwnsWonder)(other, Wonders_1.UnitedNations, wonderRegistry, playerResearchRegistry, requirementRegistry)), 
     // `civnow`: every seat not played by the computer counts as v474.05's one human (`civ1-difficulty`'s `isHuman`).
-    new Criterion_1.default((player, other) => (0, isHuman_1.default)(other, clientRegistry)), new Effect_1.default(() => true)),
+    new Criterion_1.default((player, other) => (0, isHuman_1.default)(other, clientRegistry)), new Effect_1.default(() => true), new Description_1.default({ type: 'pacifies', subject: Wonders_1.UnitedNations })),
 ];
 exports.getRules = getRules;
 exports.default = exports.getRules;

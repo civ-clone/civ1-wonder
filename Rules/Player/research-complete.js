@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRules = exports.greatLibraryRules = exports.deriveObsoleteRules = exports.obsoleteRulesFor = void 0;
+exports.getRules = exports.greatLibraryRules = exports.greatLibraryKnownBy = exports.deriveObsoleteRules = exports.obsoleteRulesFor = void 0;
 const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
 const obsolete_1 = require("../lib/obsolete");
 const Requirements_1 = require("../../Requirements");
@@ -10,6 +10,7 @@ const RuleRegistry_1 = require("@civ-clone/core-rule/RuleRegistry");
 const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const Complete_1 = require("@civ-clone/core-science/Rules/Complete");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
+const Description_1 = require("@civ-clone/core-rule/Description");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Obsolete_1 = require("@civ-clone/core-wonder/Rules/Obsolete");
 const hasDiscovered_1 = require("../lib/hasDiscovered");
@@ -48,6 +49,8 @@ exports.obsoleteRulesFor = obsoleteRulesFor;
 /** What `registerRules` gives the game's `requirements` to make each obsolete entry's rule with. */
 const deriveObsoleteRules = (playerResearchRegistry, ruleRegistry, wonderRegistry) => (entry) => (0, exports.obsoleteRulesFor)(entry, playerResearchRegistry, ruleRegistry, wonderRegistry);
 exports.deriveObsoleteRules = deriveObsoleteRules;
+/** How many players must know an advance before the Great Library gives it to its owner. */
+exports.greatLibraryKnownBy = 3;
 /** The Great Library's rule: the hand-written part of what happens when research completes. */
 const greatLibraryRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ruleRegistry = RuleRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [
     new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some(standingOfType(Wonders_1.GreatLibrary)) &&
@@ -56,11 +59,17 @@ const greatLibraryRules = (playerResearchRegistry = PlayerResearchRegistry_1.ins
             .filter(standingOfType(Wonders_1.GreatLibrary))
             .map((greatLibrary) => greatLibrary.city().player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
         return !owningPlayerResearch.completed(completedResearch.sourceClass());
-    }), new Criterion_1.default((playerResearch, completedResearch) => playerResearchRegistry.filter((playerResearch) => playerResearch.completed(completedResearch.sourceClass())).length >= 3), new Effect_1.default((playerResearch, completedResearch) => {
+    }), new Criterion_1.default((playerResearch, completedResearch) => playerResearchRegistry.filter((playerResearch) => playerResearch.completed(completedResearch.sourceClass())).length >= exports.greatLibraryKnownBy), new Effect_1.default((playerResearch, completedResearch) => {
         const [owningPlayer] = wonderRegistry
             .filter(standingOfType(Wonders_1.GreatLibrary))
             .map((greatLibrary) => greatLibrary.city().player()), owningPlayerResearch = playerResearchRegistry.getByPlayer(owningPlayer);
         return owningPlayerResearch.addAdvance(completedResearch.sourceClass());
+    }), 
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description_1.default({
+        type: 'shared_advances',
+        subject: Wonders_1.GreatLibrary,
+        value: exports.greatLibraryKnownBy,
     })),
 ];
 exports.greatLibraryRules = greatLibraryRules;

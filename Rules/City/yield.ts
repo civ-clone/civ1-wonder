@@ -15,10 +15,20 @@ import {
 import { cityHasWonder, playerHasWonder } from '../lib/hasWonder';
 import City from '@civ-clone/core-city/City';
 import CityYield from '@civ-clone/core-city/Rules/Yield';
+import Description from '@civ-clone/core-rule/Description';
 import Effect from '@civ-clone/core-rule/Effect';
 import Priority from '@civ-clone/core-rule/Priority';
 import Wonder from '@civ-clone/core-wonder/Wonder';
 import Yield from '@civ-clone/core-yield/Yield';
+
+/** The trade the Colossus adds to each square its city works that already gives trade. */
+export const colossusTrade: number = 1;
+
+/** The happy citizen each of these adds to every city of its owner. */
+export const happinessWonders: [typeof Wonder, number][] = [
+  [HangingGardens, 1],
+  [CureForCancer, 1],
+];
 
 export const getRules: (
   playerResearchRegistry?: PlayerResearchRegistry,
@@ -43,18 +53,21 @@ export const getRules: (
           .tilesWorked()
           .filter((tile) =>
             tile.yields().some((tileYield: Yield) => tileYield instanceof Trade)
-          ).length,
+          ).length * colossusTrade,
         Colossus.name
       );
+    }),
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description({
+      type: 'tile_yield',
+      subject: Colossus,
+      yield: Trade,
+      value: colossusTrade,
+      on: 'producing',
     })
   ),
 
-  ...(
-    [
-      [HangingGardens, 1],
-      [CureForCancer, 1],
-    ] as [typeof Wonder, number][]
-  ).map(
+  ...happinessWonders.map(
     ([WonderType, happiness]) =>
       new CityYield(
         playerHasWonder(
@@ -63,7 +76,13 @@ export const getRules: (
           playerResearchRegistry,
           requirementRegistry
         ),
-        new Effect((): Yield => new Happiness(happiness, WonderType.name))
+        new Effect((): Yield => new Happiness(happiness, WonderType.name)),
+        new Description({
+          type: 'happy',
+          subject: WonderType,
+          value: happiness,
+          scope: 'player',
+        })
       )
   ),
 ];

@@ -6,6 +6,11 @@ import { PlayerResearchRegistry } from '@civ-clone/core-science/PlayerResearchRe
 import { UnitRegistry } from '@civ-clone/core-unit/UnitRegistry';
 import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
 import Cost from '@civ-clone/core-city/Rules/Cost';
+export declare const oracleContent: number,
+  oracleMysticismContent: number,
+  bachContent: number,
+  michelangeloContent: number,
+  suffrageContent: number;
 export declare const getRules: (
   cityImprovementRegistry?: CityImprovementRegistry,
   playerGovernmentRegistry?: PlayerGovernmentRegistry,

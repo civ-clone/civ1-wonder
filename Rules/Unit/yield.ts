@@ -12,6 +12,7 @@ import {
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
 import Criterion from '@civ-clone/core-rule/Criterion';
+import Description from '@civ-clone/core-rule/Description';
 import Effect from '@civ-clone/core-rule/Effect';
 import { Low } from '@civ-clone/core-rule/Priorities';
 import { Movement } from '@civ-clone/core-unit/Yields';
@@ -21,6 +22,10 @@ import { isA } from '@civ-clone/core-unit/traits';
 import UnitYield from '@civ-clone/core-unit/Rules/Yield';
 import Yield from '@civ-clone/core-yield/Yield';
 import { playerHasWonder } from '../lib/hasWonder';
+
+/** The moves each Wonder adds to its owner's ships. */
+export const lighthouseMoves: number = 1,
+  magellansMoves: number = 1;
 
 export const getRules: (
   wonderRegistry?: WonderRegistry,
@@ -43,7 +48,17 @@ export const getRules: (
       playerResearchRegistry,
       requirementRegistry
     ),
-    new Effect((unit: Unit, unitYield: Yield): void => unitYield.add(1))
+    new Effect((unit: Unit, unitYield: Yield): void =>
+      unitYield.add(lighthouseMoves)
+    ),
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description({
+      type: 'unit_movement',
+      subject: Lighthouse,
+      unit: Naval,
+      value: lighthouseMoves,
+      scope: 'player',
+    })
   ),
   new UnitYield(
     new Low(),
@@ -57,7 +72,16 @@ export const getRules: (
       playerResearchRegistry,
       requirementRegistry
     ),
-    new Effect((unit: Unit, unitYield: Yield): void => unitYield.add(1))
+    new Effect((unit: Unit, unitYield: Yield): void =>
+      unitYield.add(magellansMoves)
+    ),
+    new Description({
+      type: 'unit_movement',
+      subject: MagellansExpedition,
+      unit: Naval,
+      value: magellansMoves,
+      scope: 'player',
+    })
   ),
 ];
 

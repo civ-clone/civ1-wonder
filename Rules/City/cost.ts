@@ -46,6 +46,7 @@ import {
 import City from '@civ-clone/core-city/City';
 import Cost from '@civ-clone/core-city/Rules/Cost';
 import Criterion from '@civ-clone/core-rule/Criterion';
+import Description from '@civ-clone/core-rule/Description';
 import Effect from '@civ-clone/core-rule/Effect';
 import { Low } from '@civ-clone/core-rule/Priorities';
 import { MilitaryUnhappiness } from '@civ-clone/civ1-city-happiness/Yields';
@@ -55,6 +56,16 @@ import Yield from '@civ-clone/core-yield/Yield';
 import { hasCityImprovement } from '../lib/hasCityImprovement';
 import { onWonderLandMass } from '../lib/onWonderLandMass';
 import { reduceYield } from '@civ-clone/core-yield/lib/reduceYields';
+
+// The unhappy citizens each Wonder makes content, read by its rule and by what the rule says it does
+//  (civ-clone/web-renderer#1196): the Oracle's in a city with a Temple (more once its owner knows Mysticism), J.S.
+//  Bach's in every city of its owner on its continent, Michelangelo's in a city with a Cathedral, and Women's
+//  Suffrage's for each unit that makes a citizen unhappy.
+export const oracleContent: number = 1,
+  oracleMysticismContent: number = 2,
+  bachContent: number = 2,
+  michelangeloContent: number = 2,
+  suffrageContent: number = 1;
 
 export const getRules: (
   cityImprovementRegistry?: CityImprovementRegistry,
@@ -86,10 +97,19 @@ export const getRules: (
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
-          -Math.min(1, reduceYield(yields, Unhappiness)),
+          -Math.min(oracleContent, reduceYield(yields, Unhappiness)),
           Oracle.name
         )
-    )
+    ),
+    new Description({
+      type: 'content',
+      subject: Oracle,
+      value: oracleContent,
+      step: 'more',
+      inCitiesWith: [Temple],
+      until: Mysticism,
+      scope: 'player',
+    })
   ),
 
   new Cost(
@@ -105,10 +125,19 @@ export const getRules: (
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
-          -Math.min(2, reduceYield(yields, Unhappiness)),
+          -Math.min(oracleMysticismContent, reduceYield(yields, Unhappiness)),
           Oracle.name
         )
-    )
+    ),
+    new Description({
+      type: 'content',
+      subject: Oracle,
+      value: oracleMysticismContent,
+      step: 'more',
+      inCitiesWith: [Temple],
+      with: [Mysticism],
+      scope: 'player',
+    })
   ),
 
   new Cost(
@@ -125,7 +154,12 @@ export const getRules: (
           -reduceYield(yields, Unhappiness),
           ShakespearesTheatre.name
         )
-    )
+    ),
+    new Description({
+      type: 'content',
+      subject: ShakespearesTheatre,
+      amount: 'all',
+    })
   ),
 
   new Cost(
@@ -140,10 +174,16 @@ export const getRules: (
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
-          -Math.min(2, reduceYield(yields, Unhappiness)),
+          -Math.min(bachContent, reduceYield(yields, Unhappiness)),
           JsBachsCathedral.name
         )
-    )
+    ),
+    new Description({
+      type: 'content',
+      subject: JsBachsCathedral,
+      value: bachContent,
+      scope: 'continent',
+    })
   ),
 
   new Cost(
@@ -159,10 +199,18 @@ export const getRules: (
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Unhappiness(
-          -Math.min(2, reduceYield(yields, Unhappiness)),
+          -Math.min(michelangeloContent, reduceYield(yields, Unhappiness)),
           MichelangelosChapel.name
         )
-    )
+    ),
+    new Description({
+      type: 'content',
+      subject: MichelangelosChapel,
+      value: michelangeloContent,
+      step: 'more',
+      inCitiesWith: [Cathedral],
+      scope: 'player',
+    })
   ),
 
   new Cost(
@@ -183,9 +231,15 @@ export const getRules: (
         }
 
         // TODO: custom `Yield` for this?
-        return new Unhappiness(-1, WomensSuffrage.name);
+        return new Unhappiness(-suffrageContent, WomensSuffrage.name);
       })
-    )
+    ),
+    new Description({
+      type: 'military_unhappiness',
+      subject: WomensSuffrage,
+      value: suffrageContent,
+      scope: 'player',
+    })
   ),
 ];
 

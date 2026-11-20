@@ -20,6 +20,7 @@ import {
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
 import Criterion from '@civ-clone/core-rule/Criterion';
+import Description from '@civ-clone/core-rule/Description';
 import Effect from '@civ-clone/core-rule/Effect';
 import Pacified from '@civ-clone/library-diplomacy/Rules/Player/Pacified';
 import Player from '@civ-clone/core-player/Player';
@@ -68,7 +69,9 @@ export const getRules: (
           requirementRegistry
         )
     ),
-    new Effect((): boolean => true)
+    new Effect((): boolean => true),
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description({ type: 'pacifies', subject: GreatWall })
   ),
   new Pacified(
     UNITED_NATIONS_PACIFIED_RULE,
@@ -87,7 +90,8 @@ export const getRules: (
     new Criterion((player: Player, other: Player): boolean =>
       isHuman(other, clientRegistry)
     ),
-    new Effect((): boolean => true)
+    new Effect((): boolean => true),
+    new Description({ type: 'pacifies', subject: UnitedNations })
   ),
 ];
 

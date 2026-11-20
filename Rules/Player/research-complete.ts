@@ -22,6 +22,7 @@ import {
 import Advance from '@civ-clone/core-science/Advance';
 import Complete from '@civ-clone/core-science/Rules/Complete';
 import Criterion from '@civ-clone/core-rule/Criterion';
+import Description from '@civ-clone/core-rule/Description';
 import Effect from '@civ-clone/core-rule/Effect';
 import Obsolete from '@civ-clone/core-wonder/Rules/Obsolete';
 import Player from '@civ-clone/core-player/Player';
@@ -103,6 +104,9 @@ export const deriveObsoleteRules =
       wonderRegistry
     );
 
+/** How many players must know an advance before the Great Library gives it to its owner. */
+export const greatLibraryKnownBy: number = 3;
+
 /** The Great Library's rule: the hand-written part of what happens when research completes. */
 export const greatLibraryRules = (
   playerResearchRegistry: PlayerResearchRegistry = playerResearchRegistryInstance,
@@ -135,7 +139,7 @@ export const greatLibraryRules = (
         playerResearchRegistry.filter(
           (playerResearch: PlayerResearch): boolean =>
             playerResearch.completed(completedResearch.sourceClass())
-        ).length >= 3
+        ).length >= greatLibraryKnownBy
     ),
     new Effect(
       (playerResearch: PlayerResearch, completedResearch: Advance): void => {
@@ -150,7 +154,13 @@ export const greatLibraryRules = (
 
         return owningPlayerResearch.addAdvance(completedResearch.sourceClass());
       }
-    )
+    ),
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description({
+      type: 'shared_advances',
+      subject: GreatLibrary,
+      value: greatLibraryKnownBy,
+    })
   ),
 ];
 
