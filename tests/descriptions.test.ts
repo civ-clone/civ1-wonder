@@ -62,15 +62,14 @@ describe('descriptions', (): void => {
         SetiProgram,
       } = Wonders,
       {
-        Library,
-      } = require('@civ-clone/civ1-city-improvement/CityImprovements'),
-      {
         Factory,
+        Library,
+        University,
       } = require('@civ-clone/civ1-city-improvement/CityImprovements'),
       rules = yieldModifier(
         undefined,
         undefined,
-        improvements(Library, Factory)
+        improvements(Library, University, Factory)
       ),
       run = (subject: Function, total: Yield[], base: Yield[]) => {
         const [[rule, description]] = describedBy(rules).filter(
@@ -83,14 +82,14 @@ describe('descriptions', (): void => {
         ];
       };
 
-    // Newton's adds a third of the base for the one Library.
+    // Newton's adds a third of the base for each of the Library and the University it describes.
     const [newton, newtonShare] = run(
       IsaacNewtonsCollege,
       [new Research(60)],
       [new Research(30)]
     );
 
-    expect(newton).to.equal(Math.floor(30 * newtonShare));
+    expect(newton).to.equal(Math.floor(30 * newtonShare) * 2);
 
     const [hoover, hooverShare] = run(
       HooverDam,
