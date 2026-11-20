@@ -5,6 +5,8 @@ import { RuleRegistry } from '@civ-clone/core-rule/RuleRegistry';
 import { WonderRegistry } from '@civ-clone/core-wonder/WonderRegistry';
 import { PendingEffectRegistry } from '@civ-clone/core-pending-effect';
 import BuildingComplete from '@civ-clone/core-city-build/Rules/BulidingComplete';
+/** The research completions Darwin's Voyage gives its owner. */
+export declare const darwinsAdvances: number;
 export declare const getRules: (
   cityBuildRegistry?: CityBuildRegistry,
   playerResearchRegistry?: PlayerResearchRegistry,

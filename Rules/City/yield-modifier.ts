@@ -38,6 +38,7 @@ import { Production, Research } from '@civ-clone/civ1-city/Yields';
 import City from '@civ-clone/core-city/City';
 import CityImprovement from '@civ-clone/core-city-improvement/CityImprovement';
 import Criterion from '@civ-clone/core-rule/Criterion';
+import Description from '@civ-clone/core-rule/Description';
 import Effect from '@civ-clone/core-rule/Effect';
 import { Low } from '@civ-clone/core-rule/Priorities';
 import Priority from '@civ-clone/core-rule/Priority';
@@ -46,9 +47,22 @@ import YieldModifier from '@civ-clone/core-city/Rules/YieldModifier';
 import { onWonderLandMass } from '../lib/onWonderLandMass';
 import { reduceYield } from '@civ-clone/core-yield/lib/reduceYields';
 
-const newtonImprovements: (typeof CityImprovement)[] = [Library, University];
+// What each Wonder adds, read by its rule and by what the rule says it does (civ-clone/web-renderer#1196).
+export const newtonImprovements: (typeof CityImprovement)[] = [
+  Library,
+  University,
+];
 
-const plants: (typeof CityImprovement)[] = [
+/** Isaac Newton's College adds 1/`newtonDivisor` of the base science for each of `newtonImprovements`. */
+export const newtonDivisor: number = 3;
+
+/** Hoover Dam adds 1/`hooverDivisor` of the base shields, as a plant. */
+export const hooverDivisor: number = 2;
+
+/** SETI adds 1/`setiDivisor` of the science total. */
+export const setiDivisor: number = 2;
+
+export const plants: (typeof CityImprovement)[] = [
   PowerPlant,
   HydroPlant,
   NuclearPlant,
@@ -96,9 +110,18 @@ export const getRules: (
         ).length;
 
       return new Research(
-        Math.floor(reduceYield(base, Research) / 3) * count,
+        Math.floor(reduceYield(base, Research) / newtonDivisor) * count,
         IsaacNewtonsCollege.name
       );
+    }),
+    new Description({
+      type: 'yield_percent',
+      subject: IsaacNewtonsCollege,
+      yield: Research,
+      value: 1 / newtonDivisor,
+      of: 'base',
+      per: newtonImprovements,
+      scope: 'player',
     })
   ),
 
@@ -131,10 +154,20 @@ export const getRules: (
     new Effect(
       (city: City, yields: Yield[], base: Yield[]): Yield =>
         new Production(
-          Math.floor(reduceYield(base, Production) / 2),
+          Math.floor(reduceYield(base, Production) / hooverDivisor),
           HooverDam.name
         )
-    )
+    ),
+    new Description({
+      type: 'yield_percent',
+      subject: HooverDam,
+      yield: Production,
+      value: 1 / hooverDivisor,
+      of: 'base',
+      needs: [Factory, ManufacturingPlant],
+      notWith: plants,
+      scope: 'continent',
+    })
   ),
 
   // These act on the city's science total, so they come after every `Low` modifier whatever order the packages
@@ -151,7 +184,14 @@ export const getRules: (
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Research(reduceYield(yields, Research), CopernicusObservatory.name)
-    )
+    ),
+    new Description({
+      type: 'yield_percent',
+      subject: CopernicusObservatory,
+      yield: Research,
+      value: 1,
+      of: 'total',
+    })
   ),
 
   new YieldModifier(
@@ -165,10 +205,18 @@ export const getRules: (
     new Effect(
       (city: City, yields: Yield[]): Yield =>
         new Research(
-          Math.floor(reduceYield(yields, Research) / 2),
+          Math.floor(reduceYield(yields, Research) / setiDivisor),
           SetiProgram.name
         )
-    )
+    ),
+    new Description({
+      type: 'yield_percent',
+      subject: SetiProgram,
+      yield: Research,
+      value: 1 / setiDivisor,
+      of: 'total',
+      scope: 'player',
+    })
   ),
 ];
 

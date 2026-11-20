@@ -24,6 +24,8 @@ export declare const deriveObsoleteRules: (
   ruleRegistry: RuleRegistry,
   wonderRegistry: WonderRegistry
 ) => Deriver;
+/** How many players must know an advance before the Great Library gives it to its owner. */
+export declare const greatLibraryKnownBy: number;
 /** The Great Library's rule: the hand-written part of what happens when research completes. */
 export declare const greatLibraryRules: (
   playerResearchRegistry?: PlayerResearchRegistry,

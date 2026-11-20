@@ -18,6 +18,8 @@ import {
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
 import Availability from '@civ-clone/core-government/Rules/Availability';
+import Description from '@civ-clone/core-rule/Description';
+import { Pyramids } from '../../Wonders';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import Government from '@civ-clone/core-government/Government';
 import Player from '@civ-clone/core-player/Player';
@@ -51,7 +53,9 @@ export const getRules: (
       new Criterion(
         (GovernmentType: typeof Government, player: Player): boolean =>
           hasPyramids.validate(player)
-      )
+      ),
+      // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+      new Description({ type: 'any_government', subject: Pyramids })
     ),
   ];
 };

@@ -31,9 +31,13 @@ import BuildingComplete from '@civ-clone/core-city-build/Rules/BulidingComplete'
 import CityBuild from '@civ-clone/core-city-build/CityBuild';
 import Criterion from '@civ-clone/core-rule/Criterion';
 import { DarwinsVoyage } from '../../Wonders';
+import Description from '@civ-clone/core-rule/Description';
 import Effect from '@civ-clone/core-rule/Effect';
 import Started from '@civ-clone/core-science/Rules/Started';
 import Wonder from '@civ-clone/core-wonder/Wonder';
+
+/** The research completions Darwin's Voyage gives its owner. */
+export const darwinsAdvances: number = 2;
 
 export const getRules: (
   cityBuildRegistry?: CityBuildRegistry,
@@ -94,7 +98,7 @@ export const getRules: (
         // research lost them with no symptom — which is the bug
         // `01-constraints.md` §4 describes.
         pendingEffect = new PendingEffect(DARWINS_VOYAGE, playerResearch, {
-          remaining: '2',
+          remaining: String(darwinsAdvances),
         });
 
       pendingEffects.register(pendingEffect);
@@ -105,6 +109,12 @@ export const getRules: (
       if (playerResearch.researching() !== null) {
         spendFreeResearch(playerResearch, pendingEffect, pendingEffects);
       }
+    }),
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description({
+      type: 'free_advances',
+      subject: DarwinsVoyage,
+      value: darwinsAdvances,
     })
   ),
 ];

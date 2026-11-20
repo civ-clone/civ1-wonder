@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRules = void 0;
+exports.getRules = exports.plants = exports.setiDivisor = exports.hooverDivisor = exports.newtonDivisor = exports.newtonImprovements = void 0;
 const RequirementRegistry_1 = require("@civ-clone/core-requirement/RequirementRegistry");
 const CityImprovementRegistry_1 = require("@civ-clone/core-city-improvement/CityImprovementRegistry");
 const Wonders_1 = require("../../Wonders");
@@ -11,14 +11,25 @@ const WonderRegistry_1 = require("@civ-clone/core-wonder/WonderRegistry");
 const hasWonder_1 = require("../lib/hasWonder");
 const Yields_1 = require("@civ-clone/civ1-city/Yields");
 const Criterion_1 = require("@civ-clone/core-rule/Criterion");
+const Description_1 = require("@civ-clone/core-rule/Description");
 const Effect_1 = require("@civ-clone/core-rule/Effect");
 const Priorities_1 = require("@civ-clone/core-rule/Priorities");
 const Priority_1 = require("@civ-clone/core-rule/Priority");
 const YieldModifier_1 = require("@civ-clone/core-city/Rules/YieldModifier");
 const onWonderLandMass_1 = require("../lib/onWonderLandMass");
 const reduceYields_1 = require("@civ-clone/core-yield/lib/reduceYields");
-const newtonImprovements = [CityImprovements_1.Library, CityImprovements_1.University];
-const plants = [
+// What each Wonder adds, read by its rule and by what the rule says it does (civ-clone/web-renderer#1196).
+exports.newtonImprovements = [
+    CityImprovements_1.Library,
+    CityImprovements_1.University,
+];
+/** Isaac Newton's College adds 1/`newtonDivisor` of the base science for each of `newtonImprovements`. */
+exports.newtonDivisor = 3;
+/** Hoover Dam adds 1/`hooverDivisor` of the base shields, as a plant. */
+exports.hooverDivisor = 2;
+/** SETI adds 1/`setiDivisor` of the science total. */
+exports.setiDivisor = 2;
+exports.plants = [
     CityImprovements_1.PowerPlant,
     CityImprovements_1.HydroPlant,
     CityImprovements_1.NuclearPlant,
@@ -28,9 +39,17 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
     //  science for each Library and University, alongside their half each.
     new YieldModifier_1.default(new Priorities_1.Low(), (0, hasWonder_1.playerHasWonder)(Wonders_1.IsaacNewtonsCollege, wonderRegistry, playerResearchRegistry, requirementRegistry), new Criterion_1.default((city) => cityImprovementRegistry
         .getByCity(city)
-        .some((improvement) => newtonImprovements.some((Improvement) => improvement instanceof Improvement))), new Effect_1.default((city, yields, base) => {
-        const improvements = cityImprovementRegistry.getByCity(city), count = newtonImprovements.filter((Improvement) => improvements.some((improvement) => improvement instanceof Improvement)).length;
-        return new Yields_1.Research(Math.floor((0, reduceYields_1.reduceYield)(base, Yields_1.Research) / 3) * count, Wonders_1.IsaacNewtonsCollege.name);
+        .some((improvement) => exports.newtonImprovements.some((Improvement) => improvement instanceof Improvement))), new Effect_1.default((city, yields, base) => {
+        const improvements = cityImprovementRegistry.getByCity(city), count = exports.newtonImprovements.filter((Improvement) => improvements.some((improvement) => improvement instanceof Improvement)).length;
+        return new Yields_1.Research(Math.floor((0, reduceYields_1.reduceYield)(base, Yields_1.Research) / exports.newtonDivisor) * count, Wonders_1.IsaacNewtonsCollege.name);
+    }), new Description_1.default({
+        type: 'yield_percent',
+        subject: Wonders_1.IsaacNewtonsCollege,
+        yield: Yields_1.Research,
+        value: 1 / exports.newtonDivisor,
+        of: 'base',
+        per: exports.newtonImprovements,
+        scope: 'player',
     })),
     // Hoover Dam acts as a plant in every city on its continent. As in v474.05,
     // it needs a Factory (or Mfg. Plant) and doesn't add to a plant already
@@ -39,15 +58,37 @@ const getRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, wo
         const improvements = cityImprovementRegistry.getByCity(city);
         return (improvements.some((improvement) => improvement instanceof CityImprovements_1.Factory ||
             improvement instanceof CityImprovements_1.ManufacturingPlant) &&
-            !improvements.some((improvement) => plants.some((Plant) => improvement instanceof Plant)));
-    }), new Effect_1.default((city, yields, base) => new Yields_1.Production(Math.floor((0, reduceYields_1.reduceYield)(base, Yields_1.Production) / 2), Wonders_1.HooverDam.name))),
+            !improvements.some((improvement) => exports.plants.some((Plant) => improvement instanceof Plant)));
+    }), new Effect_1.default((city, yields, base) => new Yields_1.Production(Math.floor((0, reduceYields_1.reduceYield)(base, Yields_1.Production) / exports.hooverDivisor), Wonders_1.HooverDam.name)), new Description_1.default({
+        type: 'yield_percent',
+        subject: Wonders_1.HooverDam,
+        yield: Yields_1.Production,
+        value: 1 / exports.hooverDivisor,
+        of: 'base',
+        needs: [CityImprovements_1.Factory, CityImprovements_1.ManufacturingPlant],
+        notWith: exports.plants,
+        scope: 'continent',
+    })),
     // These act on the city's science total, so they come after every `Low` modifier whatever order the packages
     //  register in: Copernicus doubles it, and then SETI adds half of that (v474.05 adds SETI's share as the research is
     //  counted).
     new YieldModifier_1.default(new Priority_1.default(4000), // X Low
-    (0, hasWonder_1.cityHasWonder)(Wonders_1.CopernicusObservatory, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((city, yields) => new Yields_1.Research((0, reduceYields_1.reduceYield)(yields, Yields_1.Research), Wonders_1.CopernicusObservatory.name))),
+    (0, hasWonder_1.cityHasWonder)(Wonders_1.CopernicusObservatory, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((city, yields) => new Yields_1.Research((0, reduceYields_1.reduceYield)(yields, Yields_1.Research), Wonders_1.CopernicusObservatory.name)), new Description_1.default({
+        type: 'yield_percent',
+        subject: Wonders_1.CopernicusObservatory,
+        yield: Yields_1.Research,
+        value: 1,
+        of: 'total',
+    })),
     new YieldModifier_1.default(new Priority_1.default(4000), // X Low
-    (0, hasWonder_1.playerHasWonder)(Wonders_1.SetiProgram, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((city, yields) => new Yields_1.Research(Math.floor((0, reduceYields_1.reduceYield)(yields, Yields_1.Research) / 2), Wonders_1.SetiProgram.name))),
+    (0, hasWonder_1.playerHasWonder)(Wonders_1.SetiProgram, wonderRegistry, playerResearchRegistry, requirementRegistry), new Effect_1.default((city, yields) => new Yields_1.Research(Math.floor((0, reduceYields_1.reduceYield)(yields, Yields_1.Research) / exports.setiDivisor), Wonders_1.SetiProgram.name)), new Description_1.default({
+        type: 'yield_percent',
+        subject: Wonders_1.SetiProgram,
+        yield: Yields_1.Research,
+        value: 1 / exports.setiDivisor,
+        of: 'total',
+        scope: 'player',
+    })),
 ];
 exports.getRules = getRules;
 exports.default = exports.getRules;

@@ -11,6 +11,8 @@ import {
   instance as wonderRegistryInstance,
 } from '@civ-clone/core-wonder/WonderRegistry';
 import AnarchyDuration from '@civ-clone/civ1-government/Rules/AnarchyDuration';
+import Description from '@civ-clone/core-rule/Description';
+import { Pyramids } from '../../Wonders';
 import Effect from '@civ-clone/core-rule/Effect';
 import { pyramidsActive } from '../lib/pyramidsActive';
 
@@ -28,7 +30,9 @@ export const getRules: (
   new AnarchyDuration(
     'civ1-wonder:player/anarchy-duration/pyramids',
     pyramidsActive(playerResearchRegistry, wonderRegistry, requirementRegistry),
-    new Effect((): number => 0)
+    new Effect((): number => 0),
+    // What it does, for the Civilopedia (civ-clone/web-renderer#1196).
+    new Description({ type: 'no_anarchy', subject: Pyramids })
   ),
 ];
 
