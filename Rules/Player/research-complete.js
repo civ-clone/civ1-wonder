@@ -49,8 +49,11 @@ exports.obsoleteRulesFor = obsoleteRulesFor;
 /** What `registerRules` gives the game's `requirements` to make each obsolete entry's rule with. */
 const deriveObsoleteRules = (playerResearchRegistry, ruleRegistry, wonderRegistry) => (entry) => (0, exports.obsoleteRulesFor)(entry, playerResearchRegistry, ruleRegistry, wonderRegistry);
 exports.deriveObsoleteRules = deriveObsoleteRules;
-/** How many players must know an advance before the Great Library gives it to its owner. */
-exports.greatLibraryKnownBy = 3;
+/**
+ * How many other players must know an advance before the Great Library gives it to its owner: two, as in Civ1 v474.05,
+ *  which checks as anyone gains an advance (civ-clone/web-renderer#1286).
+ */
+exports.greatLibraryKnownBy = 2;
 /** The Great Library's rule: the hand-written part of what happens when research completes. */
 const greatLibraryRules = (playerResearchRegistry = PlayerResearchRegistry_1.instance, ruleRegistry = RuleRegistry_1.instance, wonderRegistry = WonderRegistry_1.instance, requirementRegistry = RequirementRegistry_1.instance) => [
     new Complete_1.default(new Criterion_1.default(() => wonderRegistry.some(standingOfType(Wonders_1.GreatLibrary)) &&

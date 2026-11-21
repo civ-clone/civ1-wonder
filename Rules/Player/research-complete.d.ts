@@ -24,7 +24,10 @@ export declare const deriveObsoleteRules: (
   ruleRegistry: RuleRegistry,
   wonderRegistry: WonderRegistry
 ) => Deriver;
-/** How many players must know an advance before the Great Library gives it to its owner. */
+/**
+ * How many other players must know an advance before the Great Library gives it to its owner: two, as in Civ1 v474.05,
+ *  which checks as anyone gains an advance (civ-clone/web-renderer#1286).
+ */
 export declare const greatLibraryKnownBy: number;
 /** The Great Library's rule: the hand-written part of what happens when research completes. */
 export declare const greatLibraryRules: (
