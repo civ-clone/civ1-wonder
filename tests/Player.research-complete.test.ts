@@ -20,7 +20,7 @@ import researchComplete from '../Rules/Player/research-complete';
 import setUpCity from '@civ-clone/civ1-city/tests/lib/setUpCity';
 
 describe('Player.research-complete', (): void => {
-  it('should grant a technology to the Player that owns the GreatLibrary when at least three other players have discovered it', async (): Promise<void> => {
+  it('should grant a technology to the Player that owns the GreatLibrary when at least two other players have discovered it', async (): Promise<void> => {
     const ruleRegistry = new RuleRegistry(),
       advanceRegistry = new AdvanceRegistry(),
       wonderRegistry = new WonderRegistry(),
@@ -57,8 +57,7 @@ describe('Player.research-complete', (): void => {
     (
       [
         [player2Research, false],
-        [player3Research, false],
-        [player4Research, true],
+        [player3Research, true],
       ] as [PlayerResearch, boolean][]
     ).forEach(
       ([playerResearch, expectedCompletion]: [

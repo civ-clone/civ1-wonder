@@ -104,8 +104,11 @@ export const deriveObsoleteRules =
       wonderRegistry
     );
 
-/** How many players must know an advance before the Great Library gives it to its owner. */
-export const greatLibraryKnownBy: number = 3;
+/**
+ * How many other players must know an advance before the Great Library gives it to its owner: two, as in Civ1 v474.05,
+ *  which checks as anyone gains an advance (civ-clone/web-renderer#1286).
+ */
+export const greatLibraryKnownBy: number = 2;
 
 /** The Great Library's rule: the hand-written part of what happens when research completes. */
 export const greatLibraryRules = (
